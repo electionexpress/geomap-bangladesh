@@ -6,18 +6,30 @@
 <title>GeoMap Bangladesh</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
-:root{font-family:system-ui,"Noto Sans Bengali",sans-serif;color:#17231f;background:#f4f7f5}*{box-sizing:border-box}body{margin:0}header{background:#0b6b53;color:white;padding:14px 18px}header h1{font-size:1.35rem;margin:0}header p{margin:4px 0 0;font-size:.9rem}main{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:calc(100vh - 76px)}aside{padding:16px;background:white;border-right:1px solid #dce5df;overflow:auto}#map{height:calc(100vh - 76px);min-height:460px;width:100%;background:#e5ece8}.group{border-bottom:1px solid #e5ece7;padding-bottom:14px;margin-bottom:14px}h2{font-size:1rem;margin:0 0 10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}button,.file-label{border:0;border-radius:8px;background:#0b6b53;color:white;padding:10px 9px;font:inherit;cursor:pointer;text-align:center}button.secondary,.file-label{background:#e8f1ec;color:#14543f}button:focus-visible,.file-label:focus-within{outline:3px solid #e4a72d;outline-offset:2px}button.active{background:#a64b12;color:#fff}button:disabled{opacity:.6;cursor:wait}input[type=file]{display:none}#status{font-size:.88rem;color:#40564b;line-height:1.6;min-height:48px}.metric{font-weight:650;margin-top:8px;line-height:1.6}.note{font-size:.78rem;color:#63746a;line-height:1.5}@media(max-width:760px){main{display:flex;flex-direction:column}#map{height:55vh;min-height:340px;order:0}aside{order:1;border:0}.leaflet-container{font:inherit}}
+:root{font-family:system-ui,"Noto Sans Bengali",sans-serif;color:#172b26;background:#eef4f1;font-synthesis:none}*{box-sizing:border-box}body{margin:0;background:#eef4f1}
+header{background:linear-gradient(120deg,#064e3b,#087f5b 60%,#16a085);color:#fff;padding:22px clamp(16px,4vw,42px);box-shadow:0 5px 22px #1238}
+.brand{display:flex;align-items:center;gap:13px}.brand-mark{width:46px;height:46px;border-radius:15px;background:#ffffff20;display:grid;place-items:center;font-size:25px}header h1{font-size:clamp(1.35rem,3vw,1.9rem);margin:0;font-weight:800;letter-spacing:-.4px}header p{margin:5px 0 0;color:#d9f6e9;font-size:.94rem}
+.hero-line{margin-top:15px;color:#e5fff1;font-size:.9rem}
+main{display:grid;grid-template-columns:minmax(300px,365px) minmax(0,1fr);gap:16px;padding:16px;max-width:1700px;margin:auto;min-height:calc(100vh - 125px)}
+aside{background:#fff;border:1px solid #dce9e1;border-radius:18px;padding:17px;box-shadow:0 8px 28px #163b2510;overflow:auto}
+#map{height:calc(100vh - 157px);min-height:500px;width:100%;border-radius:18px;overflow:hidden;border:1px solid #dce9e1;box-shadow:0 8px 28px #163b2510;background:#e4eee8}
+.group{padding:0 0 16px;margin:0 0 16px;border-bottom:1px solid #edf1ee}h2{font-size:1rem;margin:0 0 11px;color:#183c30;display:flex;align-items:center;gap:8px}.section-icon{width:28px;height:28px;border-radius:9px;background:#e6f4ed;color:#08734f;display:grid;place-items:center}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}button,.file-label{border:0;border-radius:11px;background:#087653;color:white;padding:11px 10px;font:inherit;font-size:.88rem;font-weight:650;cursor:pointer;text-align:center;transition:transform .15s,background .15s;display:flex;align-items:center;justify-content:center;gap:6px}button:hover,.file-label:hover{background:#065f46;transform:translateY(-1px)}button.secondary,.file-label{background:#edf5f0;color:#185c43}button.secondary:hover,.file-label:hover{background:#dceee3}button.active{background:#b45309;color:white}button:focus-visible,.file-label:focus-within{outline:3px solid #f2bd4d;outline-offset:2px}button:disabled{opacity:.6;cursor:wait}input[type=file]{display:none}
+#metric{display:grid;gap:9px;margin-top:12px}.metric-empty{padding:13px;border-radius:12px;background:#f5f8f6;color:#6a7c73;font-size:.87rem;line-height:1.5}.metric-card{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #e1eee6}.metric-card small{display:block;color:#60776b;font-size:.78rem;margin-bottom:4px}.metric-card strong{font-size:1.13rem;color:#075b40;font-variant-numeric:tabular-nums}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric-grid .metric-card{padding:10px}.metric-grid strong{font-size:1rem}
+#status{font-size:.86rem;color:#315a48;line-height:1.6;background:#f0f7f2;border:1px solid #e1eee5;border-radius:12px;padding:11px;min-height:48px}.note{font-size:.76rem;color:#718078;line-height:1.55;margin:12px 2px 0}.map-hint{font-size:.8rem;color:#718078;margin:8px 0 0}
+@media(max-width:850px){main{grid-template-columns:1fr;padding:10px;gap:10px}#map{height:52vh;min-height:340px;order:0}aside{order:1;padding:15px}.hero-line{margin-top:10px}}
+@media(min-width:851px) and (max-width:1100px){main{grid-template-columns:300px minmax(0,1fr);padding:10px;gap:10px}aside{padding:13px}}
 </style>
 </head>
 <body>
-<header><h1>GeoMap Bangladesh</h1><p>বাংলাদেশের জন্য সহজ ম্যাপ, GPS ও পরিমাপের টুল</p></header>
+<header><div class="brand"><div class="brand-mark">⌖</div><div><h1>GeoMap Bangladesh</h1><p>বাংলাদেশের স্মার্ট ম্যাপিং ও ভূমি পরিমাপ প্ল্যাটফর্ম</p></div></div><div class="hero-line">আপনার অবস্থান খুঁজুন · দূরত্ব মাপুন · জমির আয়তন হিসাব করুন</div></header>
 <main>
 <aside>
-<section class="group"><h2>লোকেশন</h2><div class="actions"><button id="locate" type="button">আমার GPS লোকেশন</button><button class="secondary" id="reset" type="button">ম্যাপ রিসেট</button></div></section>
-<section class="group"><h2>পরিমাপ</h2><div class="actions"><button id="distance" type="button">দূরত্ব মাপুন</button><button id="area" type="button">জমি/এলাকা মাপুন</button><button class="secondary" id="undo" type="button">শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear" type="button">পরিমাপ মুছুন</button></div><div id="metric" class="metric" aria-live="polite">এখনো কোনো পরিমাপ নেই</div></section>
-<section class="group"><h2>ডেটা</h2><div class="actions"><button id="export" type="button">GeoJSON ডাউনলোড</button><label class="file-label" for="import">GeoJSON খুলুন</label><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div></section>
-<p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। দূরত্ব বা এলাকা মাপার আগে টুল বেছে নিন।</p>
-<p class="note">পরিমাপগুলো আনুমানিক; আইনি জরিপ বা দলিলের মাপ হিসেবে ব্যবহার করবেন না। GPS-এর জন্য HTTPS, ডিভাইসের Location চালু এবং ব্রাউজারের অনুমতি প্রয়োজন। ম্যাপ টাইলের জন্য ইন্টারনেট প্রয়োজন।</p>
+<section class="group"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button id="locate" type="button">◎ আমার GPS লোকেশন</button><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
+<section class="group"><h2><span class="section-icon">↔</span> পরিমাপের টুল</h2><div class="actions"><button id="distance" type="button" aria-pressed="false">↔ দূরত্ব মাপুন</button><button id="area" type="button" aria-pressed="false">▱ জমি মাপুন</button><button class="secondary" id="undo" type="button">↶ শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear" type="button">✕ পরিমাপ মুছুন</button></div><div id="metric" aria-live="polite"><div class="metric-empty">একটি পরিমাপের টুল বেছে নিয়ে ম্যাপে পয়েন্ট চিহ্নিত করুন।</div></div><p class="map-hint">দূরত্ব: কমপক্ষে ২টি পয়েন্ট। জমি: সীমানার কমপক্ষে ৩টি পয়েন্ট।</p></section>
+<section class="group"><h2><span class="section-icon">⇧</span> GeoJSON ডেটা</h2><div class="actions"><button id="export" type="button">↓ GeoJSON ডাউনলোড</button><label class="file-label" for="import">↑ GeoJSON খুলুন</label><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div></section>
+<p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। শুরু করতে দূরত্ব বা জমি মাপার টুল বেছে নিন।</p>
+<p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
 </aside>
 <div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div>
 </main>
@@ -60,9 +72,15 @@ function init(){
   return Math.abs(sum*R*R/2);
  }
  function updateMetric(){
-  if(mode==='distance')metric.textContent='দূরত্ব: '+(totalDistance()>=1000?(totalDistance()/1000).toFixed(3)+' কিমি':totalDistance().toFixed(1)+' মিটার')+' · পয়েন্ট: '+points.length;
-  else if(mode==='area'&&points.length>=3){const a=areaSquareMeters();metric.textContent='আনুমানিক ক্ষেত্রফল: '+a.toFixed(1)+' বর্গমিটার · '+(a/10000).toFixed(4)+' হেক্টর · '+(a/4046.8564224).toFixed(4)+' একর'}
-  else metric.textContent='পয়েন্ট: '+points.length+(mode==='area'?' · ক্ষেত্রফল পেতে অন্তত ৩টি পয়েন্ট দিন':'');
+  if(mode==='distance'){
+   const m=totalDistance(),ft=m*3.280839895,km=m/1000;
+   metric.innerHTML='<div class="metric-card"><small>মোট দূরত্ব</small><strong>'+m.toFixed(2)+' মিটার</strong></div><div class="metric-grid"><div class="metric-card"><small>ফুট (ft)</small><strong>'+ft.toFixed(2)+'</strong></div><div class="metric-card"><small>কিলোমিটার (km)</small><strong>'+km.toFixed(4)+'</strong></div></div><div class="metric-empty">মোট '+points.length+'টি পয়েন্ট · '+Math.max(0,points.length-1)+'টি রেখাংশ</div>';
+  }else if(mode==='area'&&points.length>=3){
+   const sqm=areaSquareMeters(),sqft=sqm*10.7639104167,shotok=sqm/40.468564224,acre=sqm/4046.8564224,hectare=sqm/10000;
+   metric.innerHTML='<div class="metric-card"><small>জমির মোট আয়তন</small><strong>'+shotok.toFixed(4)+' শতাংশ</strong></div><div class="metric-grid"><div class="metric-card"><small>বর্গফুট (sq ft)</small><strong>'+sqft.toFixed(2)+'</strong></div><div class="metric-card"><small>বর্গমিটার (sq m)</small><strong>'+sqm.toFixed(2)+'</strong></div><div class="metric-card"><small>একর (acre)</small><strong>'+acre.toFixed(5)+'</strong></div><div class="metric-card"><small>হেক্টর (ha)</small><strong>'+hectare.toFixed(5)+'</strong></div></div><div class="metric-empty">সীমানার '+points.length+'টি পয়েন্ট দিয়ে হিসাব করা হয়েছে।</div>';
+  }else{
+   metric.innerHTML='<div class="metric-empty">পয়েন্ট: '+points.length+(mode==='area'?' · ক্ষেত্রফল পেতে অন্তত ৩টি পয়েন্ট দিন':mode==='distance'?' · দূরত্ব পেতে অন্তত ২টি পয়েন্ট দিন':' · পরিমাপের টুল নির্বাচন করুন')+'</div>';
+  }
  }
  function redraw(){
   if(line)map.removeLayer(line);if(polygon)map.removeLayer(polygon);markers.forEach(m=>map.removeLayer(m));
