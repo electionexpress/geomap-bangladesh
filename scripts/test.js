@@ -6,7 +6,7 @@ const checks = [
   [/<!doctype html>/i, 'HTML5 document declaration'],
   [/<html lang="bn">/, 'Bangla document language'],
   [/name="viewport"/, 'responsive viewport'],
-  [/id="map"/, 'map container'],
+  [/id="map"/, 'map container'],\n  [/class="map-shell"/, 'premium map workspace'],\n  [/id="zoomIn"/, 'map zoom-in control'],\n  [/id="zoomOut"/, 'map zoom-out control'],\n  [/id="mapFullscreen"/, 'map fullscreen control'],\n  [/hero-pills/, 'feature highlights'],\n  [/--shadow:/, 'premium dashboard design tokens'],
   [/leaflet@1\.9\.4/, 'Leaflet version'],
   [/cdn\.jsdelivr\.net/, 'Leaflet fallback CDN'],
   [/openstreetmap\.org/, 'OpenStreetMap tile source'],
