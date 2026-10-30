@@ -35,7 +35,7 @@ const checks = [
   [/deviceorientation/, 'device compass orientation support'],
   [/function bearingBetween\(/, 'GPS heading calculation'],
   [/function updateHeadingMarker\(/, 'direction arrow marker'],
-  [/trackDistance\/, 'live distance tracking'],
+  [/trackDistance/, 'live distance tracking'],
   [/toFixed\(3\).*কিমি/, 'kilometer tracking display'],
 
 ];
