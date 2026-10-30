@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: geomap-bangladesh
+    runtime: static
+    buildCommand: node scripts/test.js
+    staticPublishPath: .
+    autoDeploy: false
