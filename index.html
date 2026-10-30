@@ -1,35 +1,135 @@
 <!doctype html>
-<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b6b53"><meta name="description" content="GeoMap Bangladesh — GPS, দূরত্ব ও জমির আনুমানিক পরিমাপ এবং GeoJSON টুল।"><title>GeoMap Bangladesh</title>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b6b53"><meta name="description" content="GeoMap Bangladesh — GPS, দূরত্ব ও জমির আনুমানিক পরিমাপ এবং GeoJSON টুল।">
+<title>GeoMap Bangladesh</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
-:root{font-family:system-ui,"Noto Sans Bengali",sans-serif;color:#17231f;background:#f4f7f5}*{box-sizing:border-box}body{margin:0}header{background:#0b6b53;color:white;padding:14px 18px}header h1{font-size:1.35rem;margin:0}header p{margin:4px 0 0;font-size:.9rem}main{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 76px)}aside{padding:16px;background:white;border-right:1px solid #dce5df;overflow:auto}#map{height:calc(100vh - 76px);min-height:480px}.group{border-bottom:1px solid #e5ece7;padding-bottom:14px;margin-bottom:14px}h2{font-size:1rem;margin:0 0 10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}button,.file-label{border:0;border-radius:8px;background:#0b6b53;color:white;padding:10px 9px;font:inherit;cursor:pointer;text-align:center}button.secondary,.file-label{background:#e8f1ec;color:#14543f}input[type=file]{display:none}#status{font-size:.88rem;color:#40564b;line-height:1.5;min-height:42px}.metric{font-weight:650;margin-top:6px}.note{font-size:.78rem;color:#63746a;line-height:1.5}@media(max-width:760px){main{grid-template-columns:1fr}aside{order:2;border:0}#map{height:58vh;min-height:360px;order:1}}
-</style></head><body>
+:root{font-family:system-ui,"Noto Sans Bengali",sans-serif;color:#17231f;background:#f4f7f5}*{box-sizing:border-box}body{margin:0}header{background:#0b6b53;color:white;padding:14px 18px}header h1{font-size:1.35rem;margin:0}header p{margin:4px 0 0;font-size:.9rem}main{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:calc(100vh - 76px)}aside{padding:16px;background:white;border-right:1px solid #dce5df;overflow:auto}#map{height:calc(100vh - 76px);min-height:460px;width:100%;background:#e5ece8}.group{border-bottom:1px solid #e5ece7;padding-bottom:14px;margin-bottom:14px}h2{font-size:1rem;margin:0 0 10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}button,.file-label{border:0;border-radius:8px;background:#0b6b53;color:white;padding:10px 9px;font:inherit;cursor:pointer;text-align:center}button.secondary,.file-label{background:#e8f1ec;color:#14543f}button:focus-visible,.file-label:focus-within{outline:3px solid #e4a72d;outline-offset:2px}button.active{background:#a64b12;color:#fff}button:disabled{opacity:.6;cursor:wait}input[type=file]{display:none}#status{font-size:.88rem;color:#40564b;line-height:1.6;min-height:48px}.metric{font-weight:650;margin-top:8px;line-height:1.6}.note{font-size:.78rem;color:#63746a;line-height:1.5}@media(max-width:760px){main{display:flex;flex-direction:column}#map{height:55vh;min-height:340px;order:0}aside{order:1;border:0}.leaflet-container{font:inherit}}
+</style>
+</head>
+<body>
 <header><h1>GeoMap Bangladesh</h1><p>বাংলাদেশের জন্য সহজ ম্যাপ, GPS ও পরিমাপের টুল</p></header>
-<main><aside>
-<section class="group"><h2>লোকেশন</h2><div class="actions"><button id="locate">আমার GPS লোকেশন</button><button class="secondary" id="reset">ম্যাপ রিসেট</button></div></section>
-<section class="group"><h2>পরিমাপ</h2><div class="actions"><button id="distance">দূরত্ব মাপুন</button><button id="area">জমি/এলাকা মাপুন</button><button class="secondary" id="undo">শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear">পরিমাপ মুছুন</button></div><div id="metric" class="metric">এখনো কোনো পরিমাপ নেই</div></section>
-<section class="group"><h2>ডেটা</h2><div class="actions"><button id="export">GeoJSON ডাউনলোড</button><label class="file-label" for="import">GeoJSON খুলুন</label><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div></section>
+<main>
+<aside>
+<section class="group"><h2>লোকেশন</h2><div class="actions"><button id="locate" type="button">আমার GPS লোকেশন</button><button class="secondary" id="reset" type="button">ম্যাপ রিসেট</button></div></section>
+<section class="group"><h2>পরিমাপ</h2><div class="actions"><button id="distance" type="button">দূরত্ব মাপুন</button><button id="area" type="button">জমি/এলাকা মাপুন</button><button class="secondary" id="undo" type="button">শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear" type="button">পরিমাপ মুছুন</button></div><div id="metric" class="metric" aria-live="polite">এখনো কোনো পরিমাপ নেই</div></section>
+<section class="group"><h2>ডেটা</h2><div class="actions"><button id="export" type="button">GeoJSON ডাউনলোড</button><label class="file-label" for="import">GeoJSON খুলুন</label><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div></section>
 <p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। দূরত্ব বা এলাকা মাপার আগে টুল বেছে নিন।</p>
-<p class="note">পরিমাপগুলো আনুমানিক; আইনি জরিপ বা দলিলের মাপ হিসেবে ব্যবহার করবেন না। ম্যাপ ও GPS-এর জন্য ইন্টারনেট এবং ডিভাইসের অনুমতি প্রয়োজন।</p>
-</aside><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div></main>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<p class="note">পরিমাপগুলো আনুমানিক; আইনি জরিপ বা দলিলের মাপ হিসেবে ব্যবহার করবেন না। GPS-এর জন্য HTTPS, ডিভাইসের Location চালু এবং ব্রাউজারের অনুমতি প্রয়োজন। ম্যাপ টাইলের জন্য ইন্টারনেট প্রয়োজন।</p>
+</aside>
+<div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div>
+</main>
 <script>
 (function(){
-const map=L.map('map').setView([23.8103,90.4125],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-let mode='none',points=[],line=null,polygon=null,markers=[],imported=null;const status=document.getElementById('status'),metric=document.getElementById('metric');function say(s){status.textContent=s}
-function clearDrawings(){if(line)map.removeLayer(line);if(polygon)map.removeLayer(polygon);markers.forEach(m=>map.removeLayer(m));line=polygon=null;markers=[]}
-function haversine(a,b){const R=6371008.8,r=x=>x*Math.PI/180,d1=r(b.lat-a.lat),d2=r(b.lng-a.lng),x=Math.sin(d1/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
-function distance(){let d=0;for(let i=1;i<points.length;i++)d+=haversine(points[i-1],points[i]);return d}
-function area(){let sum=0,R=6378137;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length];sum+=(b.lng-a.lng)*Math.PI/180*(2+Math.sin(a.lat*Math.PI/180)+Math.sin(b.lat*Math.PI/180))}return Math.abs(sum*R*R/2)}
-function showMetric(){if(mode==='distance')metric.textContent='দূরত্ব: '+(distance()>1000?(distance()/1000).toFixed(3)+' কিমি':distance().toFixed(1)+' মিটার');else if(mode==='area'&&points.length>=3){const a=area();metric.textContent='আয়তন: '+(a/10000).toFixed(4)+' হেক্টর · '+(a/4046.856).toFixed(4)+' একর'}else metric.textContent='পয়েন্ট: '+points.length}
-function redraw(){clearDrawings();points.forEach(p=>markers.push(L.circleMarker(p,{radius:5,color:'#075b45'}).addTo(map)));if(points.length>1)line=L.polyline(points,{color:'#087f5b',weight:3}).addTo(map);if(mode==='area'&&points.length>=3)polygon=L.polygon(points,{color:'#087f5b',fillOpacity:.18}).addTo(map);showMetric()}
-map.on('click',e=>{if(mode==='none')return;points.push(e.latlng);redraw();say(points.length+'টি পয়েন্ট যোগ হয়েছে।')});
-document.getElementById('distance').onclick=()=>{mode=mode==='distance'?'none':'distance';points=[];redraw();say(mode==='distance'?'দূরত্বের পথ নির্ধারণ করতে ম্যাপে ধারাবাহিকভাবে ক্লিক করুন।':'পরিমাপ মোড বন্ধ।')};
-document.getElementById('area').onclick=()=>{mode=mode==='area'?'none':'area';points=[];redraw();say(mode==='area'?'সীমানার প্রতিটি কোণে ক্লিক করুন (কমপক্ষে ৩টি পয়েন্ট)।':'পরিমাপ মোড বন্ধ।')};
-document.getElementById('undo').onclick=()=>{points.pop();redraw();say('শেষ পয়েন্ট বাদ দেওয়া হয়েছে।')};document.getElementById('clear').onclick=()=>{points=[];mode='none';redraw();metric.textContent='এখনো কোনো পরিমাপ নেই';say('পরিমাপ মুছে ফেলা হয়েছে।')};document.getElementById('reset').onclick=()=>map.setView([23.8103,90.4125],7);
-document.getElementById('locate').onclick=()=>{if(!navigator.geolocation){say('এই ব্রাউজারে GPS সুবিধা নেই।');return}say('GPS লোকেশন খোঁজা হচ্ছে…');navigator.geolocation.getCurrentPosition(pos=>{const p=[pos.coords.latitude,pos.coords.longitude];map.setView(p,17);L.marker(p).addTo(map).bindPopup('আপনার বর্তমান GPS অবস্থান').openPopup();say('GPS পাওয়া গেছে। নির্ভুলতা প্রায় '+Math.round(pos.coords.accuracy)+' মিটার।')},err=>say('GPS পাওয়া যায়নি: '+err.message),{enableHighAccuracy:true,timeout:15000})};
-function feature(){if(mode==='distance'&&points.length>1)return {type:'Feature',properties:{tool:'distance',unit:'meters',value:distance()},geometry:{type:'LineString',coordinates:points.map(p=>[p.lng,p.lat])}};if(mode==='area'&&points.length>=3)return {type:'Feature',properties:{tool:'area',unit:'square_meters_approx',value:area()},geometry:{type:'Polygon',coordinates:[[...points.map(p=>[p.lng,p.lat]),[points[0].lng,points[0].lat]]]}};return null}
-document.getElementById('export').onclick=()=>{const f=feature(),data={type:'FeatureCollection',features:[...(f?[f]:[]),...(imported?[imported]:[])]},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/geo+json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='geomap-bangladesh.geojson';a.click();URL.revokeObjectURL(url);say('GeoJSON ডাউনলোড শুরু হয়েছে।')};
-document.getElementById('import').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const json=JSON.parse(await file.text());imported=json;const layer=L.geoJSON(json).addTo(map);if(layer.getBounds().isValid())map.fitBounds(layer.getBounds());say('GeoJSON সফলভাবে ম্যাপে দেখানো হয়েছে।')}catch(err){say('GeoJSON ফাইলটি পড়া যায়নি: '+err.message)}};
+'use strict';
+const status=document.getElementById('status'),metric=document.getElementById('metric');
+const say=(message)=>{status.textContent=message};
+function loadLeaflet(){
+ if(window.L)return Promise.resolve();
+ return new Promise((resolve,reject)=>{
+  const fallback=document.createElement('script');
+  fallback.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+  fallback.onload=()=>window.L?resolve():reject(new Error('Leaflet লাইব্রেরি চালু হয়নি'));
+  fallback.onerror=()=>reject(new Error('ম্যাপ লাইব্রেরি ডাউনলোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'));
+  document.head.appendChild(fallback);
+ });
+}
+loadLeaflet().then(init).catch(error=>say(error.message));
+function init(){
+ const map=L.map('map').setView([23.8103,90.4125],7);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+ let mode='none',points=[],line=null,polygon=null,markers=[],gpsMarker=null;
+ const importedFeatures=[],importedLayers=[];
+ const buttons={distance:document.getElementById('distance'),area:document.getElementById('area')};
+ function haversine(a,b){
+  const R=6371008.8,rad=x=>x*Math.PI/180;
+  const dLat=rad(b.lat-a.lat),dLon=rad(b.lng-a.lng);
+  const h=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+ }
+ function totalDistance(){let total=0;for(let i=1;i<points.length;i++)total+=haversine(points[i-1],points[i]);return total}
+ function areaSquareMeters(){
+  if(points.length<3)return 0;
+  const R=6378137;let sum=0;
+  for(let i=0;i<points.length;i++){
+   const a=points[i],b=points[(i+1)%points.length];
+   sum+=(b.lng-a.lng)*Math.PI/180*(2+Math.sin(a.lat*Math.PI/180)+Math.sin(b.lat*Math.PI/180));
+  }
+  return Math.abs(sum*R*R/2);
+ }
+ function updateMetric(){
+  if(mode==='distance')metric.textContent='দূরত্ব: '+(totalDistance()>=1000?(totalDistance()/1000).toFixed(3)+' কিমি':totalDistance().toFixed(1)+' মিটার')+' · পয়েন্ট: '+points.length;
+  else if(mode==='area'&&points.length>=3){const a=areaSquareMeters();metric.textContent='আনুমানিক ক্ষেত্রফল: '+a.toFixed(1)+' বর্গমিটার · '+(a/10000).toFixed(4)+' হেক্টর · '+(a/4046.8564224).toFixed(4)+' একর'}
+  else metric.textContent='পয়েন্ট: '+points.length+(mode==='area'?' · ক্ষেত্রফল পেতে অন্তত ৩টি পয়েন্ট দিন':'');
+ }
+ function redraw(){
+  if(line)map.removeLayer(line);if(polygon)map.removeLayer(polygon);markers.forEach(m=>map.removeLayer(m));
+  line=polygon=null;markers=[];
+  points.forEach(p=>markers.push(L.circleMarker(p,{radius:5,color:'#075b45',weight:2,fillOpacity:1}).addTo(map)));
+  if(points.length>1)line=L.polyline(points,{color:'#087f5b',weight:3}).addTo(map);
+  if(mode==='area'&&points.length>=3)polygon=L.polygon(points,{color:'#087f5b',fillOpacity:.18}).addTo(map);
+  updateMetric();
+ }
+ function setMode(next){
+  mode=mode===next?'none':next;points=[];redraw();
+  Object.entries(buttons).forEach(([key,button])=>{button.classList.toggle('active',mode===key);button.setAttribute('aria-pressed',String(mode===key))});
+  say(mode==='distance'?'দূরত্ব মাপতে ম্যাপে ধারাবাহিকভাবে অন্তত ২টি স্থানে ক্লিক করুন।':mode==='area'?'জমির সীমানার প্রতিটি কোণে ক্লিক করুন; কমপক্ষে ৩টি পয়েন্ট দিন।':'পরিমাপ মোড বন্ধ করা হয়েছে।');
+ }
+ map.on('click',event=>{if(mode==='none')return;points.push({lat:event.latlng.lat,lng:event.latlng.lng});redraw();say(points.length+'টি পয়েন্ট যোগ হয়েছে।')});
+ buttons.distance.addEventListener('click',()=>setMode('distance'));
+ buttons.area.addEventListener('click',()=>setMode('area'));
+ document.getElementById('undo').addEventListener('click',()=>{if(!points.length){say('বাদ দেওয়ার মতো কোনো পয়েন্ট নেই।');return}points.pop();redraw();say('শেষ পয়েন্ট বাদ দেওয়া হয়েছে।')});
+ document.getElementById('clear').addEventListener('click',()=>{points=[];mode='none';redraw();Object.values(buttons).forEach(b=>b.classList.remove('active'));metric.textContent='এখনো কোনো পরিমাপ নেই';say('বর্তমান পরিমাপ মুছে ফেলা হয়েছে।')});
+ document.getElementById('reset').addEventListener('click',()=>{map.setView([23.8103,90.4125],7);setTimeout(()=>map.invalidateSize(),100)});
+ document.getElementById('locate').addEventListener('click',()=>{
+  if(!window.isSecureContext){say('GPS ব্যবহারের জন্য নিরাপদ HTTPS ওয়েবসাইট খুলুন।');return}
+  if(!navigator.geolocation){say('এই ব্রাউজারে GPS সুবিধা নেই।');return}
+  const button=document.getElementById('locate');button.disabled=true;say('GPS লোকেশন খোঁজা হচ্ছে… ডিভাইসের Location চালু রাখুন এবং অনুমতি দিন।');
+  navigator.geolocation.getCurrentPosition(position=>{
+   const lat=position.coords.latitude,lng=position.coords.longitude;
+   if(gpsMarker)map.removeLayer(gpsMarker);
+   gpsMarker=L.marker([lat,lng]).addTo(map).bindPopup('আপনার বর্তমান GPS অবস্থান').openPopup();
+   map.setView([lat,lng],17);button.disabled=false;
+   say('GPS পাওয়া গেছে। আনুমানিক নির্ভুলতা '+Math.round(position.coords.accuracy)+' মিটার।');
+  },error=>{
+   button.disabled=false;
+   const messages={1:'লোকেশন অনুমতি দেওয়া হয়নি। ব্রাউজারের Site settings থেকে Location: Allow করুন।',2:'বর্তমান অবস্থান পাওয়া যাচ্ছে না। ডিভাইসের Location/GPS চালু করে আবার চেষ্টা করুন।',3:'GPS পেতে বেশি সময় লাগছে। খোলা জায়গায় গিয়ে আবার চেষ্টা করুন।'};
+   say(messages[error.code]||('GPS সমস্যা: '+error.message));
+  },{enableHighAccuracy:true,timeout:25000,maximumAge:0});
+ });
+ function currentFeature(){
+  if(mode==='distance'&&points.length>=2)return {type:'Feature',properties:{tool:'distance',unit:'meters',value:totalDistance()},geometry:{type:'LineString',coordinates:points.map(p=>[p.lng,p.lat])}};
+  if(mode==='area'&&points.length>=3){const coords=points.map(p=>[p.lng,p.lat]);coords.push(coords[0]);return {type:'Feature',properties:{tool:'area',unit:'square_meters_approx',value:areaSquareMeters()},geometry:{type:'Polygon',coordinates:[coords]}}}
+  return null;
+ }
+ document.getElementById('export').addEventListener('click',()=>{
+  const features=[...importedFeatures],measured=currentFeature();if(measured)features.push(measured);
+  if(!features.length){say('ডাউনলোডের আগে অন্তত একটি পরিমাপ করুন অথবা GeoJSON ফাইল খুলুন।');return}
+  const blob=new Blob([JSON.stringify({type:'FeatureCollection',features},null,2)],{type:'application/geo+json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='geomap-bangladesh.geojson';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);say('GeoJSON ফাইল ডাউনলোড করা হয়েছে।');
+ });
+ document.getElementById('import').addEventListener('change',async event=>{
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  try{
+   const data=JSON.parse(await file.text());
+   let features;
+   if(data.type==='FeatureCollection'&&Array.isArray(data.features))features=data.features;
+   else if(data.type==='Feature')features=[data];
+   else if(data.type&&data.coordinates)features=[{type:'Feature',properties:{},geometry:data}];
+   else throw new Error('সঠিক GeoJSON Feature, FeatureCollection বা Geometry পাওয়া যায়নি।');
+   const layer=L.geoJSON({type:'FeatureCollection',features});
+   if(!layer.getLayers().length)throw new Error('ফাইলে দেখানোর মতো কোনো বৈধ ফিচার নেই।');
+   importedFeatures.push(...features);
+   importedLayers.push(layer.addTo(map));
+   const bounds=layer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[20,20],maxZoom:16});
+   say(features.length+'টি GeoJSON ফিচার সফলভাবে যোগ হয়েছে।');
+  }catch(error){say('GeoJSON খোলা যায়নি: '+error.message)}
+  finally{event.target.value=''}
+ });
+ setTimeout(()=>map.invalidateSize(),150);
+}
 })();
-</script></body></html>
+</script>
+</body></html>
