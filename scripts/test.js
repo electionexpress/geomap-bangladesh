@@ -28,6 +28,16 @@ const checks = [
   [/role="status"/, 'accessible status region'],
   [/invalidateSize/, 'responsive map resize handling'],
   [/maximumAge:0/, 'fresh GPS reading option'],
+  [/id="trackStart"/, 'live GPS tracking start control'],
+  [/id="trackStop"/, 'live GPS tracking stop control'],
+  [/navigator\.geolocation\.watchPosition/, 'continuous GPS tracking'],
+  [/navigator\.geolocation\.clearWatch/, 'GPS tracking cleanup'],
+  [/deviceorientation/, 'device compass orientation support'],
+  [/function bearingBetween\(/, 'GPS heading calculation'],
+  [/function updateHeadingMarker\(/, 'direction arrow marker'],
+  [/trackDistance\/, 'live distance tracking'],
+  [/toFixed\(3\).*কিমি/, 'kilometer tracking display'],
+
 ];
 
 for (const [pattern, description] of checks) {
