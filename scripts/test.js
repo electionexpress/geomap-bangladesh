@@ -2,28 +2,42 @@ const fs = require('node:fs');
 const assert = require('node:assert/strict');
 
 const html = fs.readFileSync('index.html', 'utf8');
-
-const requiredChecks = [
-  [/<!doctype html>/i, 'HTML5 document declaration exists'],
-  [/<html lang="bn">/, 'Bangla document language is set'],
-  [/name="viewport"/, 'Responsive viewport is configured'],
-  [/id="map"/, 'Map container exists'],
-  [/leaflet@1\.9\.4/, 'Leaflet map library is included'],
-  [/openstreetmap\.org/, 'OpenStreetMap tile source exists'],
-  [/navigator\.geolocation/, 'GPS location support exists'],
-  [/id="locate"/, 'GPS control exists'],
-  [/id="distance"/, 'Distance measurement control exists'],
-  [/id="area"/, 'Area measurement control exists'],
-  [/function haversine\(/, 'Distance calculation is implemented'],
-  [/function area\(/, 'Area calculation is implemented'],
-  [/id="export"/, 'GeoJSON export control exists'],
-  [/id="import"/, 'GeoJSON import control exists'],
-  [/application\/geo\+json/, 'GeoJSON export MIME type is configured'],
-  [/role="status"/, 'Accessible status region exists'],
+const checks = [
+  [/<!doctype html>/i, 'HTML5 document declaration'],
+  [/<html lang="bn">/, 'Bangla document language'],
+  [/name="viewport"/, 'responsive viewport'],
+  [/id="map"/, 'map container'],
+  [/leaflet@1\\.9\\.4/, 'Leaflet version'],
+  [/cdn\\.jsdelivr\\.net/, 'Leaflet fallback CDN'],
+  [/openstreetmap\\.org/, 'OpenStreetMap tile source'],
+  [/navigator\\.geolocation/, 'browser GPS API'],
+  [/window\\.isSecureContext/, 'secure-context GPS guard'],
+  [/getCurrentPosition/, 'GPS location request'],
+  [/id="locate"/, 'GPS control'],
+  [/id="distance"/, 'distance control'],
+  [/id="area"/, 'area control'],
+  [/function haversine\\(/, 'Haversine distance calculation'],
+  [/function areaSquareMeters\\(/, 'area calculation'],
+  [/function totalDistance\\(/, 'multi-segment distance total'],
+  [/id="undo"/, 'undo control'],
+  [/id="clear"/, 'clear control'],
+  [/id="export"/, 'GeoJSON export control'],
+  [/id="import"/, 'GeoJSON import control'],
+  [/FeatureCollection/, 'GeoJSON FeatureCollection handling'],
+  [/application\\/geo\\+json/, 'GeoJSON MIME type'],
+  [/role="status"/, 'accessible status region'],
+  [/invalidateSize/, 'responsive map resize handling'],
+  [/maximumAge:0/, 'fresh GPS reading option'],
 ];
 
-for (const [pattern, message] of requiredChecks) {
-  assert.match(html, pattern, message);
+for (const [pattern, description] of checks) {
+  assert.match(html, pattern, `Missing or broken feature: ${description}`);
 }
 
-console.log(`GeoMap Bangladesh smoke tests passed (${requiredChecks.length} checks).`);
+const inlineScripts = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/gi)];
+assert.ok(inlineScripts.length, 'Inline application script exists');
+for (const [, script] of inlineScripts) {
+  new Function(script);
+}
+
+console.log(`GeoMap Bangladesh checks passed (${checks.length} feature checks + JavaScript syntax).`);
