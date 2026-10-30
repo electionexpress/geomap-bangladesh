@@ -21,10 +21,15 @@ jobs:
   deploy:
     name: Deploy to Render after tests
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.RENDER_DEPLOY_HOOK_URL != ''
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Render deploy
+      - name: Trigger Render deploy when hook is configured
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL is not configured; skipping deployment."
+          else
+            curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+          fi
