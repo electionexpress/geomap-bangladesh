@@ -1,0 +1,11 @@
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const html = fs.readFileSync('index.html', 'utf8');
+assert.match(html, /<html lang="bn">/, 'Bangla HTML document exists');
+assert.match(html, /id="map"/, 'Map container exists');
+assert.match(html, /navigator\.geolocation/, 'GPS support exists');
+assert.match(html, /GeoJSON ডাউনলোড/, 'GeoJSON export UI exists');
+assert.match(html, /id="distance"/, 'Distance tool exists');
+assert.match(html, /id="area"/, 'Area tool exists');
+assert.match(html, /openstreetmap\.org/, 'Map tile source exists');
+console.log('GeoMap Bangladesh smoke tests passed.');
