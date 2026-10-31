@@ -356,6 +356,73 @@ main{min-height:calc(100vh - 110px)}
  .header-track-stats{padding:3px 0 4px}
  body{padding-bottom:8px}
 }
+
+/* Map-only presentation with persistent GPS controls */
+html,body{min-height:100%;width:100%;overflow-x:hidden}
+body{padding-bottom:calc(78px + env(safe-area-inset-bottom));background:#071b1a}
+.site-header{position:relative!important;top:auto!important;z-index:10;padding-inline:clamp(10px,2vw,28px)}
+.site-header .header-top{min-height:54px}
+.header-track-stats{padding:6px 0 8px;gap:7px}
+.header-track-stat{padding:6px 9px}
+main{display:block;width:100%;max-width:none;margin:0;padding:8px 8px 0;min-height:0}
+.map-shell{width:100%;padding:7px;border-radius:14px;border-color:#d5e7dd;box-shadow:0 8px 28px #001b1640}
+.map-topbar{padding:2px 3px 7px;min-height:42px}
+.map-topbar>div:first-child{display:none}
+.map-search{margin:0 7px 0 0;max-width:none}
+.map-search input{min-height:39px}
+.map-tools button{width:34px;height:36px}
+#map{height:calc(100dvh - 190px);min-height:360px;max-height:none;width:100%;border-radius:10px;background:#dce8e4}
+aside,.site-footer{display:none!important}
+.gps-bottom-bar{position:fixed;z-index:2500;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100% - 20px));display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:8px;border:1px solid #b8f4d855;border-radius:17px;background:linear-gradient(125deg,#052f2af5,#075b47f5);box-shadow:0 12px 35px #001c18a6;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+.gps-bottom-bar button{min-width:0;min-height:48px;padding:5px 3px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:7px;border:1px solid #d5ffeb24;border-radius:11px;background:#ffffff0d;color:#f0fff7;box-shadow:none;font-size:.8rem}
+.gps-bottom-bar button span{font-size:1rem;color:#a9f2cb}
+.gps-bottom-bar button small{font-size:.72rem;font-weight:800;white-space:nowrap}
+.gps-bottom-bar button:hover{transform:none;background:#ffffff1b;box-shadow:none}
+.gps-bottom-bar button:disabled{opacity:.42}
+.leaflet-control-layers{border:1px solid #d7e8de!important;border-radius:10px!important;box-shadow:0 4px 16px #123b2522!important}
+.leaflet-control-layers-toggle{width:40px!important;height:40px!important}
+.leaflet-control-zoom a{width:34px!important;height:34px!important;line-height:34px!important}
+.leaflet-control-attribution{background:#ffffffc9!important;border-radius:5px 0 0 0}
+@media(max-width:600px){
+ .site-header{padding-inline:9px}
+ .site-header .header-top{min-height:46px}
+ .site-header .brand-mark{width:31px;height:31px}
+ .site-header .brand-copy strong{font-size:.84rem}
+ .site-header .header-status{font-size:.53rem;padding:5px 6px}
+ .header-track-stats{gap:4px;padding:5px 0 6px}
+ .header-track-stat{gap:3px;padding:4px 5px;flex-direction:column;border-radius:7px}
+ .header-track-stat>span{font-size:.62rem}
+ .header-track-stat small{font-size:.53rem}
+ .header-track-stat strong{font-size:.62rem}
+ .header-track-distance{min-width:0}
+ .header-track-distance strong{font-size:.53rem;white-space:normal;text-align:center}
+ main{padding:5px 5px 0}
+ .map-shell{padding:5px;border-radius:11px}
+ .map-topbar{gap:5px;flex-wrap:nowrap}
+ .map-search{min-width:0;flex:1}
+ .map-search input{font-size:.72rem;padding:8px}
+ .map-search button{padding:8px;font-size:.7rem}
+ .map-tools{gap:3px}
+ .map-tools button{width:30px;height:34px}
+ #map{height:calc(100dvh - 164px);min-height:320px}
+ .gps-bottom-bar{width:calc(100% - 12px);bottom:max(5px,env(safe-area-inset-bottom));gap:5px;padding:6px;border-radius:14px}
+ .gps-bottom-bar button{min-height:46px;gap:5px}
+ .gps-bottom-bar button small{font-size:.65rem}
+ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+}
+@media(max-width:350px){
+ .gps-bottom-bar button{flex-direction:column;gap:1px}
+ .gps-bottom-bar button small{font-size:.58rem}
+ .map-tools button{width:27px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .site-header .header-top{min-height:38px}
+ .header-track-stats{padding:3px 0}
+ #map{height:calc(100dvh - 125px);min-height:230px}
+ .gps-bottom-bar{padding:4px}
+ .gps-bottom-bar button{min-height:38px}
+}
+
 </style>
 </head>
 <body>
@@ -379,8 +446,8 @@ main{min-height:calc(100vh - 110px)}
 <main>
 <div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
 <aside>
-<section class="group" id="gpsPanel"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button id="locate" type="button">◎ আমার GPS লোকেশন</button><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
-<section class="group" id="trackingPanel"><h2><span class="section-icon">⌁</span> লাইভ চলাচল ও দিক</h2><div class="actions"><button id="trackStart" type="button">▶ ট্র্যাক শুরু</button><button class="secondary" id="trackStop" type="button" disabled>■ ট্র্যাক বন্ধ</button></div><div id="trackingMetric" class="metric-empty" style="margin-top:10px">ট্র্যাক বন্ধ। শুরু করলে GPS পথরেখা, দিক ও চলার দূরত্ব দেখাবে।</div><p class="map-hint">কম্পাস সেন্সর থাকলে ডিভাইসের দিক; না থাকলে GPS চলাচল থেকে দিক নির্ণয় হবে।</p></section>
+<section class="group" id="gpsPanel"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
+<section class="group" id="trackingPanel"><h2><span class="section-icon">⌁</span> লাইভ চলাচল ও দিক</h2><div class="actions"></div><div id="trackingMetric" class="metric-empty" style="margin-top:10px">ট্র্যাক বন্ধ। শুরু করলে GPS পথরেখা, দিক ও চলার দূরত্ব দেখাবে।</div><p class="map-hint">কম্পাস সেন্সর থাকলে ডিভাইসের দিক; না থাকলে GPS চলাচল থেকে দিক নির্ণয় হবে।</p></section>
 <section class="group" id="measurePanel"><h2><span class="section-icon">↔</span> পরিমাপের টুল</h2><div class="actions"><button id="distance" type="button" aria-pressed="false">↔ দূরত্ব মাপুন</button><button id="area" type="button" aria-pressed="false">▱ জমি মাপুন</button><button class="secondary" id="undo" type="button">↶ শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear" type="button">✕ পরিমাপ মুছুন</button></div><div id="metric" aria-live="polite"><div class="metric-empty">একটি পরিমাপের টুল বেছে নিয়ে ম্যাপে পয়েন্ট চিহ্নিত করুন।</div></div><p class="map-hint">দূরত্ব: কমপক্ষে ২টি পয়েন্ট। জমি: সীমানার কমপক্ষে ৩টি পয়েন্ট।</p></section>
 
 <section class="group" id="boundaryPanel">
@@ -407,6 +474,12 @@ main{min-height:calc(100vh - 110px)}
 <p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
 </aside>
 </main>
+<nav class="gps-bottom-bar" aria-label="GPS নিয়ন্ত্রণ">
+ <button id="locate" type="button"><span aria-hidden="true">◎</span><small>আমার লোকেশন</small></button>
+ <button id="trackStart" type="button"><span aria-hidden="true">▶</span><small>ট্র্যাক শুরু</small></button>
+ <button id="trackStop" type="button" disabled><span aria-hidden="true">■</span><small>ট্র্যাক বন্ধ</small></button>
+</nav>
+
 <footer class="site-footer"><span><strong>GeoMap Bangladesh</strong> · সহজ বাংলায় স্মার্ট ম্যাপিং</span><span>ম্যাপ ডেটা ও পরিমাপ আনুমানিক। আইনি জমি জরিপের জন্য অনুমোদিত সার্ভেয়ার ব্যবহার করুন।</span></footer>
 
 
@@ -447,7 +520,7 @@ function init(){
   'হালকা (Light)':L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:22,maxNativeZoom:20,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}),
   'ডার্ক (Dark)':L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:22,maxNativeZoom:20,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'})
  };
- baseMaps['রাস্তার ম্যাপ'].addTo(map);
+ baseMaps['স্যাটেলাইট'].addTo(map);
  L.control.scale({imperial:true,metric:true,position:'bottomleft',maxWidth:150}).addTo(map);
  const layerControl=L.control.layers(baseMaps,null,{collapsed:true,position:'topright'});
  layerControl.addTo(map);
