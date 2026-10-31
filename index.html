@@ -77,7 +77,7 @@ function init(){
  document.addEventListener('fullscreenchange',()=>setTimeout(()=>map.invalidateSize(),180));
 
  let mode='none',points=[],line=null,polygon=null,markers=[],gpsMarker=null,gpsAccuracy=null,lastMapCoordinate=null;
- let watchId=null,trackPoints=[],trackLine=null,headingMarker=null,lastHeading=null,lastTrackFix=0,trackDistance=0,orientationHandler=null,lastAcceptedTimestamp=0,lastAcceptedAccuracy=null,lastFixReceivedAt=0,lastCompassAt=0,lastSpeed=0;
+ let watchId=null,trackPoints=[],trackLine=null,headingMarker=null,lastHeading=null,lastTrackFix=0,trackDistance=0,orientationHandler=null,lastAcceptedTimestamp=0,lastAcceptedAccuracy=null,lastFixReceivedAt=0,lastCompassAt=0,lastSpeed=0,positionWindow=[],filteredPosition=null;
  const importedFeatures=[],importedLayers=[];
  const buttons={distance:document.getElementById('distance'),area:document.getElementById('area')};
  function haversine(a,b){
@@ -145,35 +145,51 @@ function init(){
   else if(typeof event.alpha==='number'&&Number.isFinite(event.alpha))heading=(360-event.alpha)%360;
   if(heading!==null){lastCompassAt=Date.now();updateHeadingMarker(trackPoints.length?trackPoints[trackPoints.length-1]:map.getCenter(),heading);updateTrackPanel()}
  }
+ function fuseGpsPosition(raw,accuracy,timestamp){
+  positionWindow.push({lat:raw.lat,lng:raw.lng,accuracy,timestamp});
+  if(positionWindow.length>5)positionWindow.shift();
+  let weightSum=0,latSum=0,lngSum=0;
+  const newest=positionWindow[positionWindow.length-1];
+  for(const fix of positionWindow){
+   const age=Math.max(0,(newest.timestamp-fix.timestamp)/1000);
+   const sigma=Math.max(3,fix.accuracy);
+   const weight=Math.exp(-age/8)/(sigma*sigma);
+   weightSum+=weight;latSum+=fix.lat*weight;lngSum+=fix.lng*weight;
+  }
+  return {lat:latSum/weightSum,lng:lngSum/weightSum};
+ }
  function handleTrackPosition(pos){
   const c=pos.coords,now=Date.now(),timestamp=Number(pos.timestamp)||now;
-  if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||Math.abs(c.latitude)>90||Math.abs(c.longitude)>180){say('GPS থেকে অবৈধ স্থানাঙ্ক এসেছে; পরের আপডেটের অপেক্ষা করছি।');return}
-  if(now-timestamp>30000){say('GPS-এর পাওয়া তথ্য পুরোনো; নতুন অবস্থানের অপেক্ষা করছি।');return}
-  if(!Number.isFinite(c.accuracy)||c.accuracy<=0||c.accuracy>75){say('GPS নির্ভুলতা কম ('+(Number.isFinite(c.accuracy)?Math.round(c.accuracy):'অজানা')+' মিটার); খোলা জায়গায় গিয়ে ভালো সিগন্যালের অপেক্ষা করুন।');return}
-  const p={lat:c.latitude,lng:c.longitude};
+  if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||Math.abs(c.latitude)>90||Math.abs(c.longitude)>180){say('GPS থেকে অবৈধ স্থানাঙ্ক এসেছে; নতুন তথ্যের অপেক্ষা করছি।');return}
+  if(timestamp>now+5000||now-timestamp>20000){say('GPS তথ্যের সময় সঠিক নয় বা তথ্য পুরোনো; নতুন অবস্থানের অপেক্ষা করছি।');return}
+  if(!Number.isFinite(c.accuracy)||c.accuracy<=0||c.accuracy>100){say('GPS সিগন্যাল দুর্বল ('+(Number.isFinite(c.accuracy)?Math.round(c.accuracy):'অজানা')+' মিটার)। খোলা আকাশের নিচে গিয়ে অপেক্ষা করুন।');return}
+  const raw={lat:c.latitude,lng:c.longitude};
+  const p=fuseGpsPosition(raw,c.accuracy,timestamp);
   if(trackPoints.length){
    const prev=trackPoints[trackPoints.length-1],step=haversine(prev,p),elapsed=Math.max(0.5,(timestamp-lastAcceptedTimestamp)/1000);
-   if(step/elapsed>45){say('অস্বাভাবিক GPS লাফ শনাক্ত হয়েছে; এই পয়েন্টটি বাদ দেওয়া হয়েছে।');return}
-   const noiseFloor=Math.max(3,((lastAcceptedAccuracy||c.accuracy)+c.accuracy)*0.25);
-   if(step<noiseFloor){lastAcceptedAccuracy=c.accuracy;lastFixReceivedAt=now;lastSpeed=0;updateTrackPanel();say('GPS সংযুক্ত। অবস্থান স্থির; ক্ষুদ্র GPS বিচ্যুতি বাদ দেওয়া হচ্ছে।');return}
+   const maxPlausibleSpeed=Number.isFinite(c.speed)&&c.speed>=0?Math.max(45,c.speed*2+15):45;
+   if(step/elapsed>maxPlausibleSpeed){positionWindow.pop();say('GPS-এ অস্বাভাবিক লাফ ধরা পড়েছে; ভুল পয়েন্ট বাদ দেওয়া হয়েছে।');return}
+   const noiseFloor=Math.max(2.5,Math.min(8,((lastAcceptedAccuracy||c.accuracy)+c.accuracy)*0.12));
+   if(step<noiseFloor){lastAcceptedAccuracy=c.accuracy;lastFixReceivedAt=now;lastSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:0;updateTrackPanel();say('GPS সংযুক্ত। স্থির অবস্থার ক্ষুদ্র বিচ্যুতি ফিল্টার করা হচ্ছে।');return}
    trackDistance+=step;
-   lastSpeed=step/elapsed;
+   lastSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:step/elapsed;
    const gpsBearing=bearingBetween(prev,p);
    if(now-lastCompassAt>5000)updateHeadingMarker(p,gpsBearing);
    trackPoints.push(p);
-   if(trackLine)trackLine.setLatLngs(trackPoints);else trackLine=L.polyline(trackPoints,{color:'#f59e0b',weight:5,opacity:.9}).addTo(map);
+   if(trackLine)trackLine.setLatLngs(trackPoints);else trackLine=L.polyline(trackPoints,{color:'#f59e0b',weight:5,opacity:.9,smoothFactor:1}).addTo(map);
   }else{
    trackPoints.push(p);
-   trackLine=L.polyline(trackPoints,{color:'#f59e0b',weight:5,opacity:.9}).addTo(map);
-   lastSpeed=0;
+   trackLine=L.polyline(trackPoints,{color:'#f59e0b',weight:5,opacity:.9,smoothFactor:1}).addTo(map);
+   lastSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:0;
   }
+  filteredPosition=p;
   lastAcceptedTimestamp=timestamp;lastAcceptedAccuracy=c.accuracy;lastFixReceivedAt=now;lastTrackFix=now;
-  if(gpsMarker)gpsMarker.setLatLng(p);else gpsMarker=L.circleMarker(p,{radius:8,color:'#fff',weight:3,fillColor:'#0ea5e9',fillOpacity:1}).addTo(map).bindPopup('আপনার লাইভ অবস্থান');
+  if(gpsMarker)gpsMarker.setLatLng(p);else gpsMarker=L.circleMarker(p,{radius:8,color:'#fff',weight:3,fillColor:'#0ea5e9',fillOpacity:1}).addTo(map).bindPopup('ফিল্টার করা লাইভ GPS অবস্থান');
   if(gpsAccuracy)gpsAccuracy.setLatLng(p).setRadius(c.accuracy);else gpsAccuracy=L.circle(p,{radius:c.accuracy,color:'#0284c7',weight:1,fillColor:'#38bdf8',fillOpacity:.12}).addTo(map);
   if(now-lastCompassAt>5000&&lastHeading!==null)updateHeadingMarker(p,lastHeading);
   map.panTo(p,{animate:true,duration:.35});
   updateTrackPanel();
-  say('লাইভ GPS আপডেট হয়েছে। নির্ভুলতা প্রায় '+Math.round(c.accuracy)+' মিটার।');
+  say('লাইভ GPS আপডেট। ডিভাইস-প্রদত্ত নির্ভুলতা ±'+Math.round(c.accuracy)+' মিটার; অবস্থান একাধিক GPS পাঠ থেকে ফিল্টার করা।');
  }
  function startTracking(){
   if(!window.isSecureContext){say('লাইভ GPS ট্র্যাকের জন্য HTTPS প্রয়োজন।');return}
@@ -184,7 +200,7 @@ function init(){
    DeviceOrientationEvent.requestPermission().then(permission=>{if(permission==='granted'){orientationHandler=onOrientation;window.addEventListener('deviceorientation',orientationHandler,true)}}).catch(()=>say('কম্পাস অনুমতি পাওয়া যায়নি; চলাচলের GPS দিক ব্যবহার হবে।'));
   }else if('DeviceOrientationEvent' in window){orientationHandler=onOrientation;window.addEventListener('deviceorientation',orientationHandler,true)}
   try{
-   watchId=navigator.geolocation.watchPosition(handleTrackPosition,error=>{
+   positionWindow=[];filteredPosition=null;lastAcceptedTimestamp=0;lastAcceptedAccuracy=null;lastFixReceivedAt=0;lastSpeed=0;\n   watchId=navigator.geolocation.watchPosition(handleTrackPosition,error=>{
     const messages={1:'লোকেশন অনুমতি দেওয়া হয়নি। ব্রাউজারের Site settings থেকে Location: Allow করুন।',2:'GPS অবস্থান পাওয়া যাচ্ছে না। ডিভাইসের Location চালু করুন।',3:'GPS সময়সীমা শেষ হয়েছে; আবার চেষ্টা করুন।'};
     say(messages[error.code]||('GPS সমস্যা: '+error.message));stopTracking();
    },{enableHighAccuracy:true,maximumAge:0,timeout:30000});
