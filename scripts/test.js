@@ -44,7 +44,20 @@ const required = [
   ['prefers-reduced-motion', 'reduced motion accessibility'],
   ['@media(max-width:620px)', 'mobile responsive layout'],
   ['window.isSecureContext', 'HTTPS GPS security check'],
-  ['aria-live="polite"', 'screen reader live feedback']
+  ['aria-live="polite"', 'screen reader live feedback'],
+  ['id="boundaryPanel"', 'administrative boundary panel'],
+  ['id="boundaryLevel"', 'boundary level selector'],
+  ['ADM1', 'division boundary level'],
+  ['ADM2', 'district boundary level'],
+  ['ADM3', 'subdistrict boundary level'],
+  ['https://www.geoboundaries.org/api/current/gbOpen/BGD/', 'Bangladesh administrative boundary API'],
+  ['simplifiedGeometryGeoJSON', 'simplified boundary geometry download'],
+  ['id="clearBoundaries"', 'boundary layer removal'],
+  ['id="savedPlotsPanel"', 'saved land plot panel'],
+  ['id="savePlot"', 'save measured land plot'],
+  ['localStorage', 'browser-local plot persistence'],
+  ['id="exportPlots"', 'saved plots GeoJSON export'],
+  ['id="savedPlotsList"', 'saved plot list']
 ];
 
 for (const [snippet, description] of required) {
