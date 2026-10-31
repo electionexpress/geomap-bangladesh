@@ -315,6 +315,47 @@ button:focus-visible,.file-label:focus-visible,input:focus-visible,select:focus-
 .site-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px clamp(14px,3vw,34px);color:#64776d;background:#f8fbf9;border-top:1px solid #e3ece6;font-size:.76rem;line-height:1.6}
 @media(max-width:620px){.site-footer{padding:14px;display:grid;gap:5px}.actions button,.actions .file-label{min-height:44px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Clean map-first layout: compact tracking strip and no redundant bottom dock */
+.site-header{padding:0 clamp(12px,3vw,36px)}
+.site-header .header-top{min-height:58px}
+.header-track-stats{display:flex;align-items:center;justify-content:flex-start;gap:7px;padding:6px 0 8px;border-top:1px solid #ffffff16}
+.header-track-stat{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:5px;min-width:0;padding:5px 9px;border:1px solid #b7f7d526;border-radius:9px;background:#ffffff0b;color:#c8f4df}
+.header-track-stat>span{font-size:.75rem;line-height:1;color:#a8e9cc}
+.header-track-stat small{font-size:.63rem;font-weight:650;color:#c8f4df;white-space:nowrap}
+.header-track-stat strong{font-size:.72rem;line-height:1.25;font-variant-numeric:tabular-nums;color:#fff;white-space:nowrap}
+.header-track-distance{flex:0 1 auto}
+.header-track-distance strong{font-size:.66rem;white-space:nowrap;text-align:left;line-height:1.25}
+.header-track-stats.is-active .header-track-stat{border-color:#76e4ad66;background:#0c76584d}
+body{padding-bottom:16px}
+main{min-height:calc(100vh - 110px)}
+@media(max-width:600px){
+ .site-header{padding-inline:9px}
+ .site-header .header-top{min-height:48px}
+ .site-header .brand-mark{width:31px;height:31px}
+ .site-header .brand-copy strong{font-size:.84rem}
+ .site-header .header-status{font-size:.55rem;padding:5px 7px;max-width:none}
+ .header-track-stats{gap:4px;padding:5px 0 6px}
+ .header-track-stat{flex:0 1 auto;gap:3px;padding:4px 6px;border-radius:7px}
+ .header-track-stat>span{font-size:.66rem}
+ .header-track-stat small{font-size:.55rem}
+ .header-track-stat strong{font-size:.63rem}
+ .header-track-distance{flex:1 1 auto;min-width:0}
+ .header-track-distance strong{font-size:.54rem;letter-spacing:-.2px;white-space:normal}
+ main{padding-top:8px}
+}
+@media(max-width:370px){
+ .site-header .header-status{display:none}
+ .header-track-stat{padding-inline:4px}
+ .header-track-stat small{font-size:.51rem}
+ .header-track-stat strong{font-size:.58rem}
+ .header-track-distance strong{font-size:.49rem}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .site-header .header-top{min-height:43px}
+ .header-track-stats{padding:3px 0 4px}
+ body{padding-bottom:8px}
+}
 </style>
 </head>
 <body>
@@ -327,10 +368,10 @@ button:focus-visible,.file-label:focus-visible,input:focus-visible,select:focus-
       </a>
       <div class="header-status"><span class="status-pulse"></span><span>ম্যাপিং ওয়ার্কস্পেস প্রস্তুত</span></div>
     </div>
-    <div class="header-track-stats" id="headerTrackStats" aria-label="লাইভ ট্র্যাকিং পরিসংখ্যান" aria-live="polite">
-      <div class="header-track-stat"><span>সময়</span><strong id="headerTrackTime">00:00:00</strong></div>
-      <div class="header-track-stat"><span id="headerTrackPointsLabel">GPS পয়েন্ট</span><strong id="headerTrackPoints">0</strong></div>
-      <div class="header-track-stat header-track-distance"><span id="headerTrackDistanceLabel">GPS দূরত্ব</span><strong id="headerTrackDistance">0.0 মি · 0.00 কিমি · 0.0 ফুট</strong></div>
+    <div class="header-track-stats" id="headerTrackStats" aria-label="ট্র্যাকিং পরিসংখ্যান" aria-live="polite">
+      <div class="header-track-stat"><span aria-hidden="true">◷</span><small>সময়</small><strong id="headerTrackTime">00:00:00</strong></div>
+      <div class="header-track-stat"><span aria-hidden="true">⌖</span><small id="headerTrackPointsLabel">GPS পয়েন্ট</small><strong id="headerTrackPoints">0</strong></div>
+      <div class="header-track-stat header-track-distance"><span aria-hidden="true">↗</span><small id="headerTrackDistanceLabel">GPS দূরত্ব</small><strong id="headerTrackDistance">0.0 মি · 0.00 কিমি · 0.0 ফুট</strong></div>
     </div>
 
   </div>
@@ -368,39 +409,7 @@ button:focus-visible,.file-label:focus-visible,input:focus-visible,select:focus-
 </main>
 <footer class="site-footer"><span><strong>GeoMap Bangladesh</strong> · সহজ বাংলায় স্মার্ট ম্যাপিং</span><span>ম্যাপ ডেটা ও পরিমাপ আনুমানিক। আইনি জমি জরিপের জন্য অনুমোদিত সার্ভেয়ার ব্যবহার করুন।</span></footer>
 
-<nav class="quick-dock" aria-label="প্রধান নেভিগেশন ও দ্রুত ম্যাপিং অপশন">
-  <section class="dock-hero" aria-label="GeoMap পরিচিতি">
-    <div class="dock-hero-copy">
-      <span class="dock-kicker">YOUR MAP. YOUR DATA. YOUR DISCOVERY.</span>
-      <strong>বাংলাদেশকে দেখুন <em>নতুন দৃষ্টিতে</em></strong>
-      <small>নিজের অবস্থান জানুন, দূরত্ব ও জমির আয়তন মাপুন—সহজ বাংলায়।</small>
-    </div>
-    <div class="dock-feature-chips"><span>⌖ GPS</span><span>↔ পরিমাপ</span><span>◇ GeoJSON</span></div>
-  </section>
-  <div class="dock-nav-wrap">
-    <div class="dock-heading"><span class="dock-indicator"></span> ওয়ার্কস্পেস</div>
-    <div class="dock-nav-scroll">
-      <div class="app-nav" role="group" aria-label="ওয়ার্কস্পেস নির্বাচন">
-        <button type="button" data-view="all" aria-current="page"><span>▦</span><small>ওভারভিউ</small></button>
-        <button type="button" data-view="gps"><span>⌖</span><small>GPS লোকেশন</small></button>
-        <button type="button" data-view="tracking"><span>➤</span><small>লাইভ ট্র্যাকিং</small></button>
-        <button type="button" data-view="measure"><span>↔</span><small>পরিমাপ</small></button>
-        <button type="button" data-view="geojson"><span>⇧</span><small>GeoJSON</small></button>
-        <button type="button" data-view="boundaries"><span>▧</span><small>সীমানা</small></button>
-        <button type="button" data-view="plots"><span>▱</span><small>সংরক্ষিত প্লট</small></button>
-      </div>
-    </div>
-  </div>
-  <div class="dock-actions" aria-label="দ্রুত ম্যাপিং টুল">
-    <button type="button" data-quick="locate"><span>⌖</span><small>GPS</small></button>
-    <button type="button" data-quick="trackStart"><span>➤</span><small>ট্র্যাক</small></button>
-    <button type="button" data-quick="distance"><span>↔</span><small>দূরত্ব</small></button>
-    <button type="button" data-quick="area"><span>▱</span><small>জমি</small></button>
-    <button type="button" data-quick="undo"><span>↶</span><small>Undo</small></button>
-    <button type="button" data-quick="clear"><span>✕</span><small>মুছুন</small></button>
-    <button type="button" data-quick="export"><span>⇩</span><small>ডাউনলোড</small></button>
-  </div>
-</nav>
+
 <script>
 (function(){
 'use strict';
