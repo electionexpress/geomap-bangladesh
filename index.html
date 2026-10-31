@@ -94,6 +94,8 @@ button:disabled{filter:saturate(.55)}
       <button type="button" data-view="tracking"><span>➤</span> লাইভ ট্র্যাকিং</button>
       <button type="button" data-view="measure"><span>↔</span> পরিমাপ</button>
       <button type="button" data-view="geojson"><span>⇧</span> GeoJSON</button>
+      <button type="button" data-view="boundaries"><span>▧</span> সীমানা</button>
+      <button type="button" data-view="plots"><span>▱</span> সংরক্ষিত প্লট</button>
     </nav>
   </div>
 </header>
@@ -103,6 +105,26 @@ button:disabled{filter:saturate(.55)}
 <section class="group" id="gpsPanel"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button id="locate" type="button">◎ আমার GPS লোকেশন</button><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
 <section class="group" id="trackingPanel"><h2><span class="section-icon">⌁</span> লাইভ চলাচল ও দিক</h2><div class="actions"><button id="trackStart" type="button">▶ ট্র্যাক শুরু</button><button class="secondary" id="trackStop" type="button" disabled>■ ট্র্যাক বন্ধ</button></div><div id="trackingMetric" class="metric-empty" style="margin-top:10px">ট্র্যাক বন্ধ। শুরু করলে GPS পথরেখা, দিক ও চলার দূরত্ব দেখাবে।</div><p class="map-hint">কম্পাস সেন্সর থাকলে ডিভাইসের দিক; না থাকলে GPS চলাচল থেকে দিক নির্ণয় হবে।</p></section>
 <section class="group" id="measurePanel"><h2><span class="section-icon">↔</span> পরিমাপের টুল</h2><div class="actions"><button id="distance" type="button" aria-pressed="false">↔ দূরত্ব মাপুন</button><button id="area" type="button" aria-pressed="false">▱ জমি মাপুন</button><button class="secondary" id="undo" type="button">↶ শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear" type="button">✕ পরিমাপ মুছুন</button></div><div id="metric" aria-live="polite"><div class="metric-empty">একটি পরিমাপের টুল বেছে নিয়ে ম্যাপে পয়েন্ট চিহ্নিত করুন।</div></div><p class="map-hint">দূরত্ব: কমপক্ষে ২টি পয়েন্ট। জমি: সীমানার কমপক্ষে ৩টি পয়েন্ট।</p></section>
+
+<section class="group" id="boundaryPanel">
+ <h2><span class="section-icon">▧</span> প্রশাসনিক সীমানা</h2>
+ <p class="map-hint">বাংলাদেশের বিভাগ, জেলা ও নিম্ন প্রশাসনিক সীমানা ম্যাপে দেখুন। ডেটা geoBoundaries থেকে লোড হবে।</p>
+ <label for="boundaryLevel" class="map-hint">সীমানার স্তর</label>
+ <select id="boundaryLevel" style="width:100%;padding:11px;border:1px solid #dce9e1;border-radius:11px;background:#f8fbf9;color:#183c30;font:inherit;margin:6px 0 9px">
+  <option value="ADM1">ADM1 · বিভাগ</option><option value="ADM2">ADM2 · জেলা</option><option value="ADM3">ADM3 · উপজেলা/স্থানীয় স্তর</option><option value="ADM4">ADM4 · আরও স্থানীয় স্তর (উপলভ্য হলে)</option>
+ </select>
+ <div class="actions"><button id="loadBoundaries" type="button">সীমানা লোড করুন</button><button class="secondary" id="clearBoundaries" type="button">সীমানা সরান</button></div>
+ <p id="boundaryStatus" class="map-hint" role="status" aria-live="polite">সীমানা এখনো লোড করা হয়নি।</p>
+ <p class="note">সীমানার স্তর ও নাম উৎস ডেটার ওপর নির্ভরশীল; প্রশাসনিক বা আইনি কাজে সরকারি যাচাইকৃত ডেটা মিলিয়ে নিন। © geoBoundaries (CC BY 4.0)।</p>
+</section>
+<section class="group" id="savedPlotsPanel">
+ <h2><span class="section-icon">▱</span> জমির প্লট সংরক্ষণ</h2>
+ <p class="map-hint">জমির সীমানা মাপার পর নাম দিয়ে এই ব্রাউজারে সংরক্ষণ করুন।</p>
+ <input id="plotName" type="text" maxlength="70" placeholder="প্লটের নাম (যেমন: বাড়ির জমি)" aria-label="প্লটের নাম" style="width:100%;padding:11px;border:1px solid #dce9e1;border-radius:11px;margin:6px 0 9px;font:inherit">
+ <div class="actions"><button id="savePlot" type="button">প্লট সংরক্ষণ</button><button class="secondary" id="exportPlots" type="button">সব প্লট ডাউনলোড</button></div>
+ <div id="savedPlotsList" class="metric-empty" style="margin-top:10px" aria-live="polite">এখনো কোনো প্লট সংরক্ষণ করা হয়নি।</div>
+ <p class="note">প্লট এই ডিভাইসের ব্রাউজারে থাকে (localStorage); ব্রাউজারের ডেটা মুছে গেলে হারাতে পারে। নিয়মিত GeoJSON ব্যাকআপ রাখুন।</p>
+</section>
 <section class="group" id="geojsonPanel"><h2><span class="section-icon">⇧</span> GeoJSON ডেটা</h2><div class="actions"><button id="export" type="button">↓ GeoJSON ডাউনলোড</button><label class="file-label" for="import">↑ GeoJSON খুলুন</label><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div></section>
 <p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। শুরু করতে দূরত্ব বা জমি মাপার টুল বেছে নিন।</p>
 <p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
@@ -115,7 +137,7 @@ button:disabled{filter:saturate(.55)}
 const status=document.getElementById('status'),metric=document.getElementById('metric');
 const say=(message)=>{status.textContent=message};
  const viewButtons=[...document.querySelectorAll('.app-nav [data-view]')];
- const viewPanels={gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel')};
+ const viewPanels={gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),plots:document.getElementById('savedPlotsPanel')};
  viewButtons.forEach(button=>button.addEventListener('click',()=>{
   const view=button.dataset.view;
   viewButtons.forEach(item=>{if(view==='all'&&item.dataset.view==='all'||item.dataset.view===view)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
@@ -315,8 +337,68 @@ function init(){
   if(mode==='area'&&points.length>=3){const coords=points.map(p=>[p.lng,p.lat]);coords.push(coords[0]);return {type:'Feature',properties:{tool:'area',unit:'square_meters_approx',value:areaSquareMeters()},geometry:{type:'Polygon',coordinates:[coords]}}}
   return null;
  }
+
+ // Administrative boundaries from geoBoundaries (gbOpen, CC-BY 4.0).
+ let boundaryLayer=null;
+ const boundaryStatus=document.getElementById('boundaryStatus');
+ document.getElementById('loadBoundaries').addEventListener('click',async()=>{
+  const level=document.getElementById('boundaryLevel').value,button=document.getElementById('loadBoundaries');
+  button.disabled=true;boundaryStatus.textContent='বাংলাদেশের '+level+' সীমানার তথ্য খোঁজা হচ্ছে…';
+  try{
+   const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
+   if(!metaResponse.ok)throw new Error('সীমানার তথ্য পাওয়া যায়নি (HTTP '+metaResponse.status+')');
+   const metadata=await metaResponse.json();
+   if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('এই স্তরের সীমানা ডেটা উৎসে পাওয়া যায়নি। অন্য স্তর নির্বাচন করুন।');
+   const geoResponse=await fetch(metadata.simplifiedGeometryGeoJSON,{headers:{Accept:'application/geo+json,application/json'}});
+   if(!geoResponse.ok)throw new Error('সীমানার GeoJSON ডাউনলোড করা যায়নি।');
+   const geo=await geoResponse.json();
+   if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
+   const nextLayer=L.geoJSON(geo,{style:()=>({color:'#087653',weight:2,opacity:.9,fillColor:'#39a979',fillOpacity:.08}),onEachFeature:(feature,layer)=>{const props=feature.properties||{},name=props.shapeName||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.name||props.NAME_1||props.NAME_2||'সীমানা';layer.bindTooltip(String(name),{sticky:true})}});
+   if(!nextLayer.getLayers().length)throw new Error('এই সীমানা ফাইলে কোনো মানচিত্র ফিচার নেই।');
+   if(boundaryLayer)map.removeLayer(boundaryLayer);boundaryLayer=nextLayer.addTo(map);
+   const bounds=boundaryLayer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[18,18]});
+   boundaryStatus.textContent=(metadata.boundaryName||'বাংলাদেশ')+' · '+level+' · '+nextLayer.getLayers().length+'টি সীমানা ইউনিট · '+(metadata.boundaryYearRepresented||'বছর উল্লেখ নেই')+' · উৎস: geoBoundaries';
+   say('প্রশাসনিক সীমানা ম্যাপে দেখানো হয়েছে।');
+  }catch(error){boundaryStatus.textContent='সীমানা লোড হয়নি: '+error.message;say(error.message)}
+  finally{button.disabled=false}
+ });
+ document.getElementById('clearBoundaries').addEventListener('click',()=>{if(boundaryLayer){map.removeLayer(boundaryLayer);boundaryLayer=null}boundaryStatus.textContent='সীমানা ম্যাপ থেকে সরানো হয়েছে।';say('প্রশাসনিক সীমানা সরানো হয়েছে।')});
+
+ // Saved land plots are stored locally on this browser only.
+ const plotStorageKey='geomap-bangladesh:saved-plots:v1';
+ let savedPlots=[];
+ try{const stored=JSON.parse(localStorage.getItem(plotStorageKey)||'[]');if(Array.isArray(stored))savedPlots=stored.filter(item=>item&&item.feature&&item.feature.type==='Feature'&&item.feature.geometry&&item.feature.geometry.type==='Polygon'&&Array.isArray(item.feature.geometry.coordinates));}catch(error){savedPlots=[]}
+ function persistPlots(){try{localStorage.setItem(plotStorageKey,JSON.stringify(savedPlots));return true}catch(error){say('ব্রাউজারের স্টোরেজ পূর্ণ বা বন্ধ; প্লট সংরক্ষণ করা যায়নি। GeoJSON ডাউনলোড করুন।');return false}}
+ function renderSavedPlots(){
+  const list=document.getElementById('savedPlotsList');list.replaceChildren();
+  if(!savedPlots.length){list.textContent='এখনো কোনো প্লট সংরক্ষণ করা হয়নি।';return}
+  savedPlots.forEach((item,index)=>{
+   const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #e8f0eb';
+   const info=document.createElement('div');info.style.cssText='min-width:0;display:grid;gap:3px';
+   const title=document.createElement('strong');title.textContent=item.name||('প্লট '+(index+1));title.style.cssText='font-size:.85rem;color:#185c43;overflow-wrap:anywhere';
+   const sub=document.createElement('small');sub.textContent=new Date(item.savedAt||Date.now()).toLocaleString('bn-BD');sub.style.color='#718078';info.append(title,sub);
+   const actions=document.createElement('div');actions.style.cssText='display:flex;gap:5px;flex-shrink:0';
+   const show=document.createElement('button');show.type='button';show.className='secondary';show.textContent='দেখুন';show.style.padding='7px 9px';show.addEventListener('click',()=>{const layer=L.geoJSON(item.feature).addTo(map),bounds=layer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[24,24],maxZoom:18});say('সংরক্ষিত প্লট ম্যাপে দেখানো হয়েছে।')});
+   const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='মুছুন';remove.style.padding='7px 9px';remove.addEventListener('click',()=>{savedPlots.splice(index,1);if(persistPlots())renderSavedPlots()});
+   actions.append(show,remove);row.append(info,actions);list.append(row);
+  });
+ }
+ document.getElementById('savePlot').addEventListener('click',()=>{
+  if(mode!=='area'||points.length<3){say('প্লট সংরক্ষণের আগে জমি মাপার টুলে অন্তত ৩টি সীমানা পয়েন্ট দিন।');return}
+  const feature=currentFeature();if(!feature||feature.geometry.type!=='Polygon'){say('বৈধ জমির সীমানা পাওয়া যায়নি।');return}
+  const name=document.getElementById('plotName').value.trim()||('আমার প্লট '+(savedPlots.length+1));
+  savedPlots.push({name,savedAt:new Date().toISOString(),feature});
+  if(persistPlots()){renderSavedPlots();document.getElementById('plotName').value='';say('“'+name+'” প্লট এই ব্রাউজারে সংরক্ষণ করা হয়েছে।')}
+ });
+ document.getElementById('exportPlots').addEventListener('click',()=>{
+  if(!savedPlots.length){say('ডাউনলোড করার মতো কোনো সংরক্ষিত প্লট নেই।');return}
+  const data={type:'FeatureCollection',features:savedPlots.map(item=>({...item.feature,properties:{...(item.feature.properties||{}),plotName:item.name,savedAt:item.savedAt}}))};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/geo+json'}));const a=document.createElement('a');a.href=url;a.download='geomap-bangladesh-saved-plots.geojson';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);say('সব সংরক্ষিত প্লট GeoJSON হিসেবে ডাউনলোড হয়েছে।')
+ });
+ renderSavedPlots();
+
  document.getElementById('export').addEventListener('click',()=>{
-  const features=[...importedFeatures],measured=currentFeature();if(measured)features.push(measured);
+  const features=[...importedFeatures,...savedPlots.map(item=>({...item.feature,properties:{...(item.feature.properties||{}),plotName:item.name,savedAt:item.savedAt}}))],measured=currentFeature();if(measured)features.push(measured);
   if(!features.length){say('ডাউনলোডের আগে অন্তত একটি পরিমাপ করুন অথবা GeoJSON ফাইল খুলুন।');return}
   const blob=new Blob([JSON.stringify({type:'FeatureCollection',features},null,2)],{type:'application/geo+json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='geomap-bangladesh.geojson';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);say('GeoJSON ফাইল ডাউনলোড করা হয়েছে।');
