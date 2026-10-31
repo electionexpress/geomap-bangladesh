@@ -15,7 +15,6 @@ const required = [
   ['class="dock-actions"', 'quick map actions separated in bottom dock'],
   ['data-view="boundaries"', 'bottom navigation includes boundaries workspace'],
   ['data-view="plots"', 'bottom navigation includes saved plots workspace'],
-  ['class="site-header .app-nav"', 'header navigation moved out of header'],
   ['data-quick="locate"', 'bottom GPS shortcut'],
   ['data-quick="trackStart"', 'bottom tracking shortcut'],
   ['data-quick="distance"', 'bottom distance shortcut'],
