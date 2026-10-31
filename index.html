@@ -74,7 +74,9 @@ button:disabled{filter:saturate(.55)}
 .header-track-stat strong{font-size:.82rem;font-variant-numeric:tabular-nums;color:#fff;white-space:nowrap}
 .header-track-stats.is-active .header-track-stat{border-color:#76e4ad66;background:#0c76584d}
 @media(max-width:620px){.header-track-stats{gap:5px;padding:7px 0}.header-track-stat{padding:7px 4px;gap:4px;flex-direction:column;border-radius:9px}.header-track-stat span{font-size:.61rem}.header-track-stat strong{font-size:.72rem}}
-@media(max-width:360px){.header-track-stat strong{font-size:.65rem}}
+.header-track-distance strong{font-size:.72rem;white-space:normal;text-align:center;line-height:1.45}
+@media(max-width:620px){.header-track-distance strong{font-size:.62rem;letter-spacing:-.2px}}
+@media(max-width:360px){.header-track-stat strong{font-size:.65rem}.header-track-distance strong{font-size:.55rem}}
 /* Sticky compact header and always-available bottom action dock */
 html{scroll-padding-top:112px}
 .site-header{position:sticky;top:0;z-index:1400;overflow:visible}
@@ -314,7 +316,7 @@ aside{max-height:calc(100dvh - 90px);overscroll-behavior:contain}
     <div class="header-track-stats" id="headerTrackStats" aria-label="লাইভ ট্র্যাকিং পরিসংখ্যান" aria-live="polite">
       <div class="header-track-stat"><span>সময়</span><strong id="headerTrackTime">00:00:00</strong></div>
       <div class="header-track-stat"><span>পয়েন্ট</span><strong id="headerTrackPoints">0</strong></div>
-      <div class="header-track-stat"><span>দূরত্ব</span><strong id="headerTrackDistance">0.0 মি</strong></div>
+      <div class="header-track-stat header-track-distance"><span>দূরত্ব</span><strong id="headerTrackDistance">0.0 মি · 0.00 কিমি · 0.0 ফুট</strong></div>
     </div>
 
   </div>
@@ -499,7 +501,7 @@ function init(){
   const m=trackDistance;
   document.getElementById('headerTrackTime').textContent=formatTrackDuration();
   document.getElementById('headerTrackPoints').textContent=trackPoints.length.toLocaleString('bn-BD');
-  document.getElementById('headerTrackDistance').textContent=m>=1000?(m/1000).toFixed(2)+' কিমি':m.toFixed(1)+' মি';
+  document.getElementById('headerTrackDistance').textContent=m.toFixed(1)+' মি · '+(m/1000).toFixed(3)+' কিমি · '+(m*3.280839895).toFixed(1)+' ফুট';
   document.getElementById('headerTrackStats').classList.toggle('is-active',watchId!==null);
  }
  function updateTrackPanel(){
