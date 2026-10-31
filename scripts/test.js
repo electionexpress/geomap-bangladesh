@@ -6,7 +6,7 @@ const checks = [
   [/<!doctype html>/i, 'HTML5 document declaration'],
   [/id="placeSearch"/, 'map place search form'],
   [/id="placeQuery"/, 'place and address search input'],
-  [/nominatim.openstreetmap.org/search/, 'OpenStreetMap geocoding service'],
+  [/nominatim\\.openstreetmap\\.org\\/search/, 'OpenStreetMap geocoding service'],
   [/L\.control\.scale/, 'map scale ruler'],
   [/id="coordinateReadout"/, 'map coordinate readout'],
   [/id="copyCoordinates"/, 'copy map coordinates control'],
