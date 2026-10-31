@@ -361,7 +361,7 @@ button:focus-visible,.file-label:focus-visible,input:focus-visible,select:focus-
  <div id="savedPlotsList" class="metric-empty" style="margin-top:10px" aria-live="polite">এখনো কোনো প্লট সংরক্ষণ করা হয়নি।</div>
  <p class="note">প্লট এই ডিভাইসের ব্রাউজারে থাকে (localStorage); ব্রাউজারের ডেটা মুছে গেলে হারাতে পারে। নিয়মিত GeoJSON ব্যাকআপ রাখুন।</p>
 </section>
-<section class="group" id="geojsonPanel"><h2><span class="section-icon">⇧</span> GeoJSON ডেটা</h2><div class="actions"><button id="export" type="button">↓ GeoJSON ডাউনলোড</button><label class="file-label" for="import">↑ GeoJSON খুলুন</label><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div></section>
+<section class="group" id="geojsonPanel"><h2><span class="section-icon">⇧</span> GeoJSON ডেটা</h2><div class="actions"><button id="export" type="button">↓ GeoJSON ডাউনলোড</button><label class="file-label" for="import">↑ GeoJSON খুলুন</label><button class="secondary" id="clearImported" type="button">আমদানি করা ডেটা সরান</button><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div><p id="importStatus" class="map-hint" role="status" aria-live="polite">আমদানি করা ডেটা এখনো নেই।</p></section>
 <p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। শুরু করতে দূরত্ব বা জমি মাপার টুল বেছে নিন।</p>
 <p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
 </aside>
@@ -761,9 +761,16 @@ function init(){
    importedFeatures.push(...features);
    importedLayers.push(layer.addTo(map));
    map.fitBounds(bounds,{padding:[20,20],maxZoom:16});
+   document.getElementById('importStatus').textContent=importedFeatures.length+'টি ফিচার ম্যাপে লোড আছে।';
    say(features.length+'টি GeoJSON ফিচার সফলভাবে যোগ হয়েছে।');
   }catch(error){say('GeoJSON খোলা যায়নি: '+error.message)}
   finally{event.target.value=''}
+ });
+ document.getElementById('clearImported').addEventListener('click',()=>{
+  importedLayers.forEach(layer=>{if(map.hasLayer(layer))map.removeLayer(layer)});
+  importedLayers.length=0;importedFeatures.length=0;
+  document.getElementById('importStatus').textContent='আমদানি করা ডেটা সরানো হয়েছে।';
+  say('আমদানি করা GeoJSON ডেটা ম্যাপ ও রপ্তানি তালিকা থেকে সরানো হয়েছে।');
  });
  setTimeout(()=>map.invalidateSize(),150);
 }
