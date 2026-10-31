@@ -99,6 +99,47 @@ body{padding-bottom:94px}
 }
 @media(prefers-reduced-motion:reduce){.site-header .hero-content,.site-header.is-scrolled .hero-content{transition:none}}
 
+
+/* Redesigned combined sticky bottom navigation + map tools */
+.site-header .app-nav{display:none!important}
+.quick-dock{width:min(820px,calc(100% - 24px));display:flex;flex-direction:column;gap:7px;padding:9px 11px 10px;border-radius:19px}
+.dock-nav-wrap{min-width:0;border-bottom:1px solid #ffffff22;padding-bottom:7px}
+.dock-heading{display:flex;align-items:center;gap:7px;padding:0 5px 5px;color:#bcebd2;font-size:.62rem;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
+.dock-indicator{width:6px;height:6px;border-radius:50%;background:#70e4a6;box-shadow:0 0 0 3px #70e4a626}
+.dock-nav-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.dock-nav-scroll::-webkit-scrollbar{display:none}
+.quick-dock .app-nav{display:flex;align-items:stretch;gap:5px;width:max-content;min-width:100%}
+.quick-dock .app-nav button{flex:0 0 auto;min-width:76px;min-height:46px;padding:5px 9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid transparent;border-radius:11px;background:transparent;color:#e4fff0;box-shadow:none}
+.quick-dock .app-nav button>span{font-size:1.05rem;line-height:1.15;color:#a8f0cb}
+.quick-dock .app-nav button small{font-size:.61rem;line-height:1.2;font-weight:750;white-space:nowrap}
+.quick-dock .app-nav button[aria-current=page]{background:#dfffee;color:#07513d;border-color:#dfffee;box-shadow:0 3px 12px #002c2040}
+.quick-dock .app-nav button[aria-current=page]>span{color:#087653}
+.dock-actions{display:flex;align-items:stretch;justify-content:space-around;gap:4px}
+.quick-dock .dock-actions button{flex:1 1 0;min-width:0;min-height:43px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1px solid #ffffff12;border-radius:10px;background:#ffffff0b;color:#e5fff1;box-shadow:none}
+.quick-dock .dock-actions button span{font-size:1.02rem;line-height:1.1;color:#a8f0cb}
+.quick-dock .dock-actions button small{font-size:.59rem;line-height:1.2;font-weight:750;white-space:nowrap}
+.quick-dock .dock-actions button:hover,.quick-dock .app-nav button:hover{transform:none;background:#ffffff1c;border-color:#ffffff30;box-shadow:none}
+.quick-dock .dock-actions button:active{background:#d8ffea;color:#07513d}
+body{padding-bottom:142px}
+@media(max-width:620px){
+ .quick-dock{width:calc(100% - 12px);bottom:max(6px,env(safe-area-inset-bottom));gap:5px;padding:7px 7px 8px;border-radius:16px}
+ .dock-nav-wrap{padding-bottom:5px}
+ .dock-heading{font-size:.57rem;padding-bottom:3px}
+ .quick-dock .app-nav{gap:3px}
+ .quick-dock .app-nav button{min-width:67px;min-height:42px;padding:4px 6px}
+ .quick-dock .app-nav button>span{font-size:.98rem}
+ .quick-dock .app-nav button small{font-size:.56rem}
+ .dock-actions{gap:3px}
+ .quick-dock .dock-actions button{min-height:39px;padding:3px 1px;border-radius:8px}
+ .quick-dock .dock-actions button span{font-size:.94rem}
+ .quick-dock .dock-actions button small{font-size:.54rem}
+ body{padding-bottom:132px}
+}
+@media(max-width:370px){
+ .quick-dock .app-nav button{min-width:62px}
+ .quick-dock .dock-actions button small{font-size:.49rem}
+}
+
 </style>
 </head>
 <body>
@@ -120,16 +161,7 @@ body{padding-bottom:94px}
       </div>
       <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="hero-pin">⌖</div><span class="map-coordinate-tag">23.8103° N · 90.4125° E</span><span class="map-label-tag">BANGLADESH</span></div>
     </div>
-    <nav class="app-nav" aria-label="প্রধান নেভিগেশন">
-      <span class="nav-label">ওয়ার্কস্পেস</span>
-      <button type="button" data-view="all" aria-current="page"><span>▦</span> ওভারভিউ</button>
-      <button type="button" data-view="gps"><span>⌖</span> GPS লোকেশন</button>
-      <button type="button" data-view="tracking"><span>➤</span> লাইভ ট্র্যাকিং</button>
-      <button type="button" data-view="measure"><span>↔</span> পরিমাপ</button>
-      <button type="button" data-view="geojson"><span>⇧</span> GeoJSON</button>
-      <button type="button" data-view="boundaries"><span>▧</span> সীমানা</button>
-      <button type="button" data-view="plots"><span>▱</span> সংরক্ষিত প্লট</button>
-    </nav>
+
   </div>
 </header>
 <main>
@@ -165,14 +197,30 @@ body{padding-bottom:94px}
 </main>
 <footer class="site-footer"><span><strong>GeoMap Bangladesh</strong> · সহজ বাংলায় স্মার্ট ম্যাপিং</span><span>ম্যাপ ডেটা ও পরিমাপ আনুমানিক। আইনি জমি জরিপের জন্য অনুমোদিত সার্ভেয়ার ব্যবহার করুন।</span></footer>
 
-<nav class="quick-dock" aria-label="দ্রুত ম্যাপিং অপশন">
-  <button type="button" data-quick="locate"><span>⌖</span><small>GPS</small></button>
-  <button type="button" data-quick="trackStart"><span>➤</span><small>ট্র্যাক</small></button>
-  <button type="button" data-quick="distance"><span>↔</span><small>দূরত্ব</small></button>
-  <button type="button" data-quick="area"><span>▱</span><small>জমি</small></button>
-  <button type="button" data-quick="undo"><span>↶</span><small>Undo</small></button>
-  <button type="button" data-quick="clear"><span>✕</span><small>মুছুন</small></button>
-  <button type="button" data-quick="export"><span>⇩</span><small>ডাউনলোড</small></button>
+<nav class="quick-dock" aria-label="প্রধান নেভিগেশন ও দ্রুত ম্যাপিং অপশন">
+  <div class="dock-nav-wrap">
+    <div class="dock-heading"><span class="dock-indicator"></span> ওয়ার্কস্পেস</div>
+    <div class="dock-nav-scroll">
+      <div class="app-nav" role="group" aria-label="ওয়ার্কস্পেস নির্বাচন">
+        <button type="button" data-view="all" aria-current="page"><span>▦</span><small>ওভারভিউ</small></button>
+        <button type="button" data-view="gps"><span>⌖</span><small>GPS লোকেশন</small></button>
+        <button type="button" data-view="tracking"><span>➤</span><small>লাইভ ট্র্যাকিং</small></button>
+        <button type="button" data-view="measure"><span>↔</span><small>পরিমাপ</small></button>
+        <button type="button" data-view="geojson"><span>⇧</span><small>GeoJSON</small></button>
+        <button type="button" data-view="boundaries"><span>▧</span><small>সীমানা</small></button>
+        <button type="button" data-view="plots"><span>▱</span><small>সংরক্ষিত প্লট</small></button>
+      </div>
+    </div>
+  </div>
+  <div class="dock-actions" aria-label="দ্রুত ম্যাপিং টুল">
+    <button type="button" data-quick="locate"><span>⌖</span><small>GPS</small></button>
+    <button type="button" data-quick="trackStart"><span>➤</span><small>ট্র্যাক</small></button>
+    <button type="button" data-quick="distance"><span>↔</span><small>দূরত্ব</small></button>
+    <button type="button" data-quick="area"><span>▱</span><small>জমি</small></button>
+    <button type="button" data-quick="undo"><span>↶</span><small>Undo</small></button>
+    <button type="button" data-quick="clear"><span>✕</span><small>মুছুন</small></button>
+    <button type="button" data-quick="export"><span>⇩</span><small>ডাউনলোড</small></button>
+  </div>
 </nav>
 <script>
 (function(){
