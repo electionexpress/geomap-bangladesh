@@ -177,3 +177,34 @@ assert.ok(html.includes('MAX_FILE_BYTES=10*1024*1024'), 'GeoJSON import enforces
 assert.ok(html.includes('MAX_FEATURES=5000'), 'GeoJSON import enforces a feature-count limit');
 
 console.log('GeoMap Bangladesh functional logic checks passed (distance, area, DOM references, GeoJSON limits).');
+
+const geometryContext = {};
+vm.createContext(geometryContext);
+for (const name of ['validPosition', 'validLine', 'validRing', 'validGeoJSONGeometry', 'validGeoJSONFeature']) {
+  vm.runInContext(extractFunction(appScript, name), geometryContext);
+}
+const validPolygon = {type:'Polygon',coordinates:[[[90,23],[90.001,23],[90.001,23.001],[90,23.001],[90,23]]]};
+assert.equal(geometryContext.validGeoJSONFeature({type:'Feature',properties:{},geometry:validPolygon}), true, 'Valid GeoJSON polygon is accepted');
+assert.equal(geometryContext.validGeoJSONGeometry({type:'Point',coordinates:[181,23]}), false, 'Longitude outside WGS84 range is rejected');
+assert.equal(geometryContext.validGeoJSONGeometry({type:'Point',coordinates:[90,91]}), false, 'Latitude outside WGS84 range is rejected');
+assert.equal(geometryContext.validGeoJSONGeometry({type:'LineString',coordinates:[[90,23]]}), false, 'LineString with fewer than two positions is rejected');
+assert.equal(geometryContext.validGeoJSONGeometry({type:'Polygon',coordinates:[[[90,23],[90.001,23],[90,23.001]]]}), false, 'Unclosed or undersized polygon ring is rejected');
+assert.equal(geometryContext.validGeoJSONGeometry({type:'GeometryCollection',geometries:[]}), false, 'Empty GeometryCollection is rejected');
+assert.equal(geometryContext.validGeoJSONFeature({type:'Feature',properties:[],geometry:validPolygon}), false, 'Non-object GeoJSON properties are rejected');
+
+const datelinePoints = [{lat:10,lng:179.9},{lat:10,lng:-179.9},{lat:10.1,lng:-179.9},{lat:10.1,lng:179.9}];
+mathContext.points = datelinePoints;
+const datelineArea = mathContext.areaSquareMeters();
+assert.ok(datelineArea > 20_000_000 && datelineArea < 30_000_000, 'Area calculation handles polygons crossing the antimeridian');
+
+const gpsContext = {positionWindow:[]};
+vm.createContext(gpsContext);
+vm.runInContext(extractFunction(appScript, 'fuseGpsPosition'), gpsContext);
+gpsContext.positionWindow = [
+  {lat:0,lng:179.9,accuracy:5,timestamp:1000},
+  {lat:0,lng:-179.9,accuracy:5,timestamp:1000}
+];
+const datelineFix = gpsContext.fuseGpsPosition({lat:0,lng:-179.9},5,1000);
+assert.ok(Math.abs(datelineFix.lng) > 179.8, 'GPS smoothing averages longitude across the antimeridian without jumping to Greenwich');
+
+console.log('GeoMap Bangladesh advanced geospatial checks passed (GeoJSON geometry, WGS84 bounds, antimeridian area and GPS smoothing).');
