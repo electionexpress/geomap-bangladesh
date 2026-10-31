@@ -195,7 +195,7 @@ assert.equal(geometryContext.validGeoJSONFeature({type:'Feature',properties:[],g
 const datelinePoints = [{lat:10,lng:179.9},{lat:10,lng:-179.9},{lat:10.1,lng:-179.9},{lat:10.1,lng:179.9}];
 mathContext.points = datelinePoints;
 const datelineArea = mathContext.areaSquareMeters();
-assert.ok(datelineArea > 20_000_000 && datelineArea < 30_000_000, 'Area calculation handles polygons crossing the antimeridian');
+assert.ok(datelineArea > 200_000_000 && datelineArea < 300_000_000, 'Area calculation handles polygons crossing the antimeridian');
 
 const gpsContext = {positionWindow:[]};
 vm.createContext(gpsContext);
