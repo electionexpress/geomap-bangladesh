@@ -30,6 +30,21 @@ main{display:grid;grid-template-columns:minmax(310px,380px) minmax(0,1fr);gap:18
 @media(min-width:701px) and (max-width:1000px){.hero-art{flex-basis:205px;margin-right:0}.hero-pin{width:76px;height:76px}.orbit-one{width:175px}.orbit-two{width:140px}.map-coordinate-tag{right:-12px}}
 @media(prefers-reduced-motion:no-preference){.status-pulse{animation:statusGlow 2.4s ease-in-out infinite}@keyframes statusGlow{50%{box-shadow:0 0 0 7px #6ee7a50b}}}
 
+
+/* Map-first workspace layout */
+main{display:flex;flex-direction:column;gap:18px;padding:18px clamp(12px,2.2vw,30px) 28px;max-width:1800px;margin:0 auto;min-height:0}
+.map-shell{order:0;width:100%;padding:12px;border-radius:20px}
+#map{height:clamp(420px,62vh,720px);min-height:420px;border-radius:14px}
+.map-topbar{min-height:48px;padding:4px 4px 12px}
+aside{order:1;width:100%;max-height:none;overflow:visible;align-self:stretch;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:15px;border-radius:18px}
+aside .group{min-width:0;margin:0;padding:15px;border:1px solid #e5eee8;border-radius:15px;background:linear-gradient(180deg,#fff,#fbfdfb);box-shadow:0 5px 18px #123b2509}
+aside .group h2{min-height:32px;margin-bottom:12px}
+aside #status,aside .note{grid-column:1/-1;margin:0}
+aside .note{padding:2px 4px 0}
+.actions{gap:8px}.actions button,.actions .file-label{min-width:0;min-height:42px}
+@media(max-width:1050px){aside{grid-template-columns:repeat(2,minmax(0,1fr))}#map{height:58vh;min-height:400px}}
+@media(max-width:620px){main{padding:10px;gap:12px}.map-shell{padding:8px;border-radius:16px}#map{height:55vh;min-height:350px}.map-topbar{gap:8px}aside{grid-template-columns:1fr;padding:10px;gap:9px;border-radius:15px}aside .group{padding:13px}.map-footnote{font-size:.68rem}}
+
 </style>
 </head>
 <body>
@@ -62,6 +77,7 @@ main{display:grid;grid-template-columns:minmax(310px,380px) minmax(0,1fr);gap:18
   </div>
 </header>
 <main>
+<div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
 <aside>
 <section class="group" id="gpsPanel"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button id="locate" type="button">◎ আমার GPS লোকেশন</button><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
 <section class="group" id="trackingPanel"><h2><span class="section-icon">⌁</span> লাইভ চলাচল ও দিক</h2><div class="actions"><button id="trackStart" type="button">▶ ট্র্যাক শুরু</button><button class="secondary" id="trackStop" type="button" disabled>■ ট্র্যাক বন্ধ</button></div><div id="trackingMetric" class="metric-empty" style="margin-top:10px">ট্র্যাক বন্ধ। শুরু করলে GPS পথরেখা, দিক ও চলার দূরত্ব দেখাবে।</div><p class="map-hint">কম্পাস সেন্সর থাকলে ডিভাইসের দিক; না থাকলে GPS চলাচল থেকে দিক নির্ণয় হবে।</p></section>
@@ -70,7 +86,6 @@ main{display:grid;grid-template-columns:minmax(310px,380px) minmax(0,1fr);gap:18
 <p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। শুরু করতে দূরত্ব বা জমি মাপার টুল বেছে নিন।</p>
 <p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
 </aside>
-<div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
 </main>
 <script>
 (function(){
