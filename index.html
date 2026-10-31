@@ -45,6 +45,27 @@ aside .note{padding:2px 4px 0}
 @media(max-width:1050px){aside{grid-template-columns:repeat(2,minmax(0,1fr))}#map{height:58vh;min-height:400px}}
 @media(max-width:620px){main{padding:10px;gap:12px}.map-shell{padding:8px;border-radius:16px}#map{height:55vh;min-height:350px}.map-topbar{gap:8px}aside{grid-template-columns:1fr;padding:10px;gap:9px;border-radius:15px}aside .group{padding:13px}.map-footnote{font-size:.68rem}}
 
+
+/* Final visual consistency and accessibility layer */
+:root{color-scheme:light;scroll-behavior:smooth}
+body{font-family:Inter,"Noto Sans Bengali",system-ui,sans-serif;color:#18352b}
+.site-header{position:relative;top:0}
+main{width:min(100%,1800px)}
+.map-shell,aside{box-shadow:0 12px 34px #103d2810}
+.map-topbar strong{font-weight:800;letter-spacing:-.2px}
+.map-topbar small,.map-hint,.note{line-height:1.65}
+aside .group{transition:border-color .18s,box-shadow .18s}
+aside .group:focus-within{border-color:#b8ddc8;box-shadow:0 8px 22px #08765312}
+button,.file-label{min-height:42px}
+button:focus-visible,.file-label:focus-visible,input:focus-visible{outline:3px solid #f0b84b;outline-offset:2px}
+button:disabled{filter:saturate(.55)}
+#status{border-left:4px solid #0a8b62;background:#f2faf5}
+#map{isolation:isolate}
+.site-footer{width:min(100% - 28px,1760px);margin:0 auto 22px;padding:16px 18px;border:1px solid #e2ece5;border-radius:15px;background:#ffffffc9;color:#687a70;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.75rem;line-height:1.6}
+.site-footer strong{color:#1c5b43}
+@media(max-width:620px){.site-footer{margin-bottom:12px;padding:13px;font-size:.7rem}.header-status{max-width:38px;overflow:hidden}.map-search input{min-height:42px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 </style>
 </head>
 <body>
@@ -87,6 +108,7 @@ aside .note{padding:2px 4px 0}
 <p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
 </aside>
 </main>
+<footer class="site-footer"><span><strong>GeoMap Bangladesh</strong> · সহজ বাংলায় স্মার্ট ম্যাপিং</span><span>ম্যাপ ডেটা ও পরিমাপ আনুমানিক। আইনি জমি জরিপের জন্য অনুমোদিত সার্ভেয়ার ব্যবহার করুন।</span></footer>
 <script>
 (function(){
 'use strict';
@@ -257,7 +279,8 @@ function init(){
    DeviceOrientationEvent.requestPermission().then(permission=>{if(permission==='granted'){orientationHandler=onOrientation;window.addEventListener('deviceorientation',orientationHandler,true)}}).catch(()=>say('কম্পাস অনুমতি পাওয়া যায়নি; চলাচলের GPS দিক ব্যবহার হবে।'));
   }else if('DeviceOrientationEvent' in window){orientationHandler=onOrientation;window.addEventListener('deviceorientation',orientationHandler,true)}
   try{
-   positionWindow=[];filteredPosition=null;lastAcceptedTimestamp=0;lastAcceptedAccuracy=null;lastFixReceivedAt=0;lastSpeed=0;\n   watchId=navigator.geolocation.watchPosition(handleTrackPosition,error=>{
+   positionWindow=[];filteredPosition=null;lastAcceptedTimestamp=0;lastAcceptedAccuracy=null;lastFixReceivedAt=0;lastSpeed=0;
+   watchId=navigator.geolocation.watchPosition(handleTrackPosition,error=>{
     const messages={1:'লোকেশন অনুমতি দেওয়া হয়নি। ব্রাউজারের Site settings থেকে Location: Allow করুন।',2:'GPS অবস্থান পাওয়া যাচ্ছে না। ডিভাইসের Location চালু করুন।',3:'GPS সময়সীমা শেষ হয়েছে; আবার চেষ্টা করুন।'};
     say(messages[error.code]||('GPS সমস্যা: '+error.message));stopTracking();
    },{enableHighAccuracy:true,maximumAge:0,timeout:30000});
