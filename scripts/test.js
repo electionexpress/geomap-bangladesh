@@ -129,3 +129,51 @@ assert.ok(scriptStart >= 0 && scriptEnd > scriptStart, 'Inline application scrip
 new Function(html.slice(scriptStart + 8, scriptEnd));
 
 console.log('GeoMap Bangladesh checks passed (' + required.length + ' feature checks + JavaScript syntax).');
+
+
+// Structural integrity: every static getElementById reference must resolve in the page.
+const ids = new Set([...html.matchAll(/\\bid=["']([^"']+)["']/g)].map(match => match[1]));
+const referencedIds = new Set([...html.matchAll(/getElementById\\(['"]([^'"]+)['"]\\)/g)].map(match => match[1]));
+for (const id of referencedIds) {
+  assert.ok(ids.has(id), 'JavaScript references missing HTML element: ' + id);
+}
+assert.equal(ids.size, [...ids].length, 'HTML element IDs must be unique');
+
+// Exercise the real distance and area functions extracted from the application script.
+function extractFunction(source, name) {
+  const marker = 'function ' + name + '(';
+  const start = source.indexOf(marker);
+  assert.ok(start >= 0, 'Application function exists: ' + name);
+  const open = source.indexOf('{', start);
+  let depth = 0, quote = null, escaped = false;
+  for (let i = open; i < source.length; i++) {
+    const ch = source[i];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (ch === '\\\\') escaped = true;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
+    if (ch === '{') depth++;
+    if (ch === '}' && --depth === 0) return source.slice(start, i + 1);
+  }
+  throw new Error('Could not extract function: ' + name);
+}
+const vm = require('node:vm');
+const appScript = html.slice(scriptStart + 8, scriptEnd);
+const mathContext = { points: [] };
+vm.createContext(mathContext);
+vm.runInContext(extractFunction(appScript, 'haversine'), mathContext);
+vm.runInContext(extractFunction(appScript, 'areaSquareMeters'), mathContext);
+const oneDegreeMillimeter = mathContext.haversine({lat:0,lng:0},{lat:0,lng:0.001});
+assert.ok(Math.abs(oneDegreeMillimeter - 111.195) < 0.5, 'Haversine distance is accurate for a known 0.001° segment');
+mathContext.points = [{lat:0,lng:0},{lat:0,lng:0.001},{lat:0.001,lng:0.001},{lat:0.001,lng:0}];
+const squareArea = mathContext.areaSquareMeters();
+assert.ok(squareArea > 12_000 && squareArea < 12_500, 'Area calculation returns expected square area near equator');
+mathContext.points = [{lat:0,lng:0},{lat:0,lng:0.001}];
+assert.equal(mathContext.areaSquareMeters(), 0, 'Area calculation requires at least three points');
+assert.ok(html.includes('MAX_FILE_BYTES=10*1024*1024'), 'GeoJSON import enforces a 10 MB file limit');
+assert.ok(html.includes('MAX_FEATURES=5000'), 'GeoJSON import enforces a feature-count limit');
+
+console.log('GeoMap Bangladesh functional logic checks passed (distance, area, DOM references, GeoJSON limits).');
