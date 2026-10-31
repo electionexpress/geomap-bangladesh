@@ -301,6 +301,20 @@ aside{max-height:calc(100dvh - 90px);overscroll-behavior:contain}
 @supports not (height:100dvh){#map{height:calc(100vh - 210px)}.quick-dock{max-height:43vh}}
 @media(prefers-reduced-motion:reduce){.quick-dock,.site-header{scroll-behavior:auto;transition:none}}
 
+
+/* Premium interaction and operational feedback layer */
+:root{--brand-ink:#102f27;--brand-green:#087653;--brand-line:#dce9e1;--brand-surface:#ffffff;--brand-glow:0 14px 34px #0b503018}
+button,.file-label{min-height:42px;letter-spacing:.005em}
+button:focus-visible,.file-label:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f0b84b;outline-offset:3px}
+.group{scroll-margin-top:100px}
+.group h2{letter-spacing:-.015em}
+.metric-card,.metric-empty,#trackingMetric,#status{transition:border-color .18s ease,box-shadow .18s ease}
+.metric-card:hover{border-color:#b8ddc8;box-shadow:0 8px 20px #0b50300c}
+#status[role=status]{border-left:3px solid #0b8b61}
+#boundaryStatus{overflow-wrap:anywhere}
+.site-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px clamp(14px,3vw,34px);color:#64776d;background:#f8fbf9;border-top:1px solid #e3ece6;font-size:.76rem;line-height:1.6}
+@media(max-width:620px){.site-footer{padding:14px;display:grid;gap:5px}.actions button,.actions .file-label{min-height:44px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -681,17 +695,28 @@ function init(){
  document.getElementById('import').addEventListener('change',async event=>{
   const file=event.target.files&&event.target.files[0];if(!file)return;
   try{
+   const MAX_FILE_BYTES=10*1024*1024,MAX_FEATURES=5000;
+   if(file.size>MAX_FILE_BYTES)throw new Error('ফাইল ১০ MB-এর বেশি। ছোট GeoJSON ফাইল ব্যবহার করুন।');
    const data=JSON.parse(await file.text());
    let features;
    if(data.type==='FeatureCollection'&&Array.isArray(data.features))features=data.features;
    else if(data.type==='Feature')features=[data];
    else if(data.type&&data.coordinates)features=[{type:'Feature',properties:{},geometry:data}];
    else throw new Error('সঠিক GeoJSON Feature, FeatureCollection বা Geometry পাওয়া যায়নি।');
+   if(!features.length)throw new Error('GeoJSON ফাইলে কোনো ফিচার নেই।');
+   if(features.length>MAX_FEATURES)throw new Error('একটি ফাইলে সর্বোচ্চ ৫,০০০টি ফিচার খোলা যাবে।');
+   for(const [index,feature] of features.entries()){
+    if(!feature||feature.type!=='Feature'||!feature.geometry||typeof feature.geometry.type!=='string'||!Array.isArray(feature.geometry.coordinates)&&!Array.isArray(feature.geometry.geometries)){
+     throw new Error('ফিচার '+(index+1)+'-এর জ্যামিতি সঠিক নয়।');
+    }
+   }
    const layer=L.geoJSON({type:'FeatureCollection',features});
    if(!layer.getLayers().length)throw new Error('ফাইলে দেখানোর মতো কোনো বৈধ ফিচার নেই।');
+   const bounds=layer.getBounds();
+   if(!bounds.isValid())throw new Error('GeoJSON-এ বৈধ মানচিত্র স্থানাঙ্ক পাওয়া যায়নি।');
    importedFeatures.push(...features);
    importedLayers.push(layer.addTo(map));
-   const bounds=layer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[20,20],maxZoom:16});
+   map.fitBounds(bounds,{padding:[20,20],maxZoom:16});
    say(features.length+'টি GeoJSON ফিচার সফলভাবে যোগ হয়েছে।');
   }catch(error){say('GeoJSON খোলা যায়নি: '+error.message)}
   finally{event.target.value=''}
