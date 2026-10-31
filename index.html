@@ -464,7 +464,10 @@ function init(){
   const R=6378137;let sum=0;
   for(let i=0;i<points.length;i++){
    const a=points[i],b=points[(i+1)%points.length];
-   sum+=(b.lng-a.lng)*Math.PI/180*(2+Math.sin(a.lat*Math.PI/180)+Math.sin(b.lat*Math.PI/180));
+   let deltaLng=b.lng-a.lng;
+   while(deltaLng>180)deltaLng-=360;
+   while(deltaLng< -180)deltaLng+=360;
+   sum+=deltaLng*Math.PI/180*(2+Math.sin(a.lat*Math.PI/180)+Math.sin(b.lat*Math.PI/180));
   }
   return Math.abs(sum*R*R/2);
  }
@@ -533,15 +536,16 @@ function init(){
  function fuseGpsPosition(raw,accuracy,timestamp){
   positionWindow.push({lat:raw.lat,lng:raw.lng,accuracy,timestamp});
   if(positionWindow.length>5)positionWindow.shift();
-  let weightSum=0,latSum=0,lngSum=0;
+  let weightSum=0,latSum=0,lngSinSum=0,lngCosSum=0;
   const newest=positionWindow[positionWindow.length-1];
   for(const fix of positionWindow){
    const age=Math.max(0,(newest.timestamp-fix.timestamp)/1000);
    const sigma=Math.max(3,fix.accuracy);
-   const weight=Math.exp(-age/8)/(sigma*sigma);
-   weightSum+=weight;latSum+=fix.lat*weight;lngSum+=fix.lng*weight;
+   const weight=Math.exp(-age/8)/(sigma*sigma),longitude=fix.lng*Math.PI/180;
+   weightSum+=weight;latSum+=fix.lat*weight;
+   lngSinSum+=Math.sin(longitude)*weight;lngCosSum+=Math.cos(longitude)*weight;
   }
-  return {lat:latSum/weightSum,lng:lngSum/weightSum};
+  return {lat:latSum/weightSum,lng:Math.atan2(lngSinSum,lngCosSum)*180/Math.PI};
  }
  function handleTrackPosition(pos){
   const c=pos.coords,now=Date.now(),timestamp=Number(pos.timestamp)||now;
@@ -627,6 +631,36 @@ function init(){
   return null;
  }
 
+ // Strict GeoJSON validation: reject malformed coordinates before Leaflet renders anything.
+ function validPosition(position){
+  return Array.isArray(position)&&position.length>=2&&position.every(Number.isFinite)&&
+   position[0]>=-180&&position[0]<=180&&position[1]>=-90&&position[1]<=90;
+ }
+ function validLine(coordinates,min=2){
+  return Array.isArray(coordinates)&&coordinates.length>=min&&coordinates.every(validPosition);
+ }
+ function validRing(ring){
+  return validLine(ring,4)&&ring[0][0]===ring[ring.length-1][0]&&ring[0][1]===ring[ring.length-1][1];
+ }
+ function validGeoJSONGeometry(geometry){
+  if(!geometry||typeof geometry!=='object')return false;
+  const c=geometry.coordinates;
+  switch(geometry.type){
+   case 'Point':return validPosition(c);
+   case 'MultiPoint':return Array.isArray(c)&&c.length>0&&c.every(validPosition);
+   case 'LineString':return validLine(c);
+   case 'MultiLineString':return Array.isArray(c)&&c.length>0&&c.every(line=>validLine(line));
+   case 'Polygon':return Array.isArray(c)&&c.length>0&&c.every(validRing);
+   case 'MultiPolygon':return Array.isArray(c)&&c.length>0&&c.every(poly=>Array.isArray(poly)&&poly.length>0&&poly.every(validRing));
+   case 'GeometryCollection':return Array.isArray(geometry.geometries)&&geometry.geometries.length>0&&geometry.geometries.every(validGeoJSONGeometry);
+   default:return false;
+  }
+ }
+ function validGeoJSONFeature(feature){
+  return !!feature&&feature.type==='Feature'&&
+   (feature.properties===null||feature.properties===undefined||typeof feature.properties==='object'&&!Array.isArray(feature.properties))&&
+   validGeoJSONGeometry(feature.geometry);
+ }
  // Administrative boundaries from geoBoundaries (gbOpen, CC-BY 4.0).
  let boundaryLayer=null;
  const boundaryStatus=document.getElementById('boundaryStatus');
@@ -638,10 +672,14 @@ function init(){
    if(!metaResponse.ok)throw new Error('সীমানার তথ্য পাওয়া যায়নি (HTTP '+metaResponse.status+')');
    const metadata=await metaResponse.json();
    if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('এই স্তরের সীমানা ডেটা উৎসে পাওয়া যায়নি। অন্য স্তর নির্বাচন করুন।');
-   const geoResponse=await fetch(metadata.simplifiedGeometryGeoJSON,{headers:{Accept:'application/geo+json,application/json'}});
+   const boundaryUrl=new URL(metadata.simplifiedGeometryGeoJSON);
+   if(boundaryUrl.protocol!=='https:')throw new Error('সীমানার ডেটা নিরাপদ HTTPS উৎস থেকে আসেনি।');
+   const geoResponse=await fetch(boundaryUrl.href,{headers:{Accept:'application/geo+json,application/json'}});
    if(!geoResponse.ok)throw new Error('সীমানার GeoJSON ডাউনলোড করা যায়নি।');
    const geo=await geoResponse.json();
    if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
+   const boundaryFeatures=geo.type==='FeatureCollection'?geo.features:[geo];
+   if(!Array.isArray(boundaryFeatures)||!boundaryFeatures.length||boundaryFeatures.length>50000||!boundaryFeatures.every(validGeoJSONFeature))throw new Error('সীমানার GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে।');
    const nextLayer=L.geoJSON(geo,{style:()=>({color:'#087653',weight:2,opacity:.9,fillColor:'#39a979',fillOpacity:.08}),onEachFeature:(feature,layer)=>{const props=feature.properties||{},name=props.shapeName||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.name||props.NAME_1||props.NAME_2||'সীমানা';layer.bindTooltip(String(name),{sticky:true})}});
    if(!nextLayer.getLayers().length)throw new Error('এই সীমানা ফাইলে কোনো মানচিত্র ফিচার নেই।');
    if(boundaryLayer)map.removeLayer(boundaryLayer);boundaryLayer=nextLayer.addTo(map);
@@ -706,9 +744,7 @@ function init(){
    if(!features.length)throw new Error('GeoJSON ফাইলে কোনো ফিচার নেই।');
    if(features.length>MAX_FEATURES)throw new Error('একটি ফাইলে সর্বোচ্চ ৫,০০০টি ফিচার খোলা যাবে।');
    for(const [index,feature] of features.entries()){
-    if(!feature||feature.type!=='Feature'||!feature.geometry||typeof feature.geometry.type!=='string'||!Array.isArray(feature.geometry.coordinates)&&!Array.isArray(feature.geometry.geometries)){
-     throw new Error('ফিচার '+(index+1)+'-এর জ্যামিতি সঠিক নয়।');
-    }
+    if(!validGeoJSONFeature(feature))throw new Error('ফিচার '+(index+1)+'-এর GeoJSON জ্যামিতি বা স্থানাঙ্ক সঠিক নয়।');
    }
    const layer=L.geoJSON({type:'FeatureCollection',features});
    if(!layer.getLayers().length)throw new Error('ফাইলে দেখানোর মতো কোনো বৈধ ফিচার নেই।');
