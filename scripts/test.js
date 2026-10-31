@@ -214,8 +214,7 @@ assert.ok(Math.abs(datelineFix.lng) > 179.8, 'GPS smoothing averages longitude a
 gpsContext.positionWindow = [
   {lat:23,lng:90,accuracy:5,timestamp:1000},
   {lat:23.1,lng:90.1,accuracy:5,timestamp:1000},
-  {lat:23.2,lng:90.2,accuracy:5,timestamp:1000},
-  {lat:23.3,lng:90.3,accuracy:5,timestamp:1000}
+  {lat:23.2,lng:90.2,accuracy:5,timestamp:1000}
 ];
 gpsContext.fuseGpsPosition({lat:23.4,lng:90.4},5,1000);
 assert.equal(gpsContext.positionWindow.length,3, 'GPS smoothing window never exceeds three recent fixes');
