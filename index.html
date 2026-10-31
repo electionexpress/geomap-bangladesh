@@ -66,6 +66,39 @@ button:disabled{filter:saturate(.55)}
 @media(max-width:620px){.site-footer{margin-bottom:12px;padding:13px;font-size:.7rem}.header-status{max-width:38px;overflow:hidden}.map-search input{min-height:42px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+
+/* Sticky compact header and always-available bottom action dock */
+html{scroll-padding-top:112px}
+.site-header{position:sticky;top:0;z-index:1400;overflow:visible}
+.site-header .header-inner{position:relative}
+.site-header.is-scrolled .hero-content{min-height:0;padding:0;max-height:0;opacity:0;overflow:hidden;pointer-events:none;transition:max-height .22s ease,padding .22s ease,opacity .16s ease}
+.site-header .hero-content{transition:max-height .22s ease,padding .22s ease,opacity .16s ease;max-height:260px}
+.site-header.is-scrolled .header-top{min-height:58px}
+.site-header.is-scrolled .app-nav{padding-top:6px;padding-bottom:8px}
+.site-header.is-scrolled .brand-mark{width:36px;height:36px}
+.site-header.is-scrolled .brand-copy small{display:none}
+.quick-dock{position:fixed;z-index:1600;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(760px,calc(100% - 24px));display:flex;align-items:stretch;justify-content:space-around;gap:5px;padding:8px;background:#073f34f2;border:1px solid #b8f4d83d;border-radius:18px;box-shadow:0 12px 38px #052f2955;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.quick-dock button{flex:1 1 0;min-width:0;min-height:54px;padding:5px 3px;display:flex;flex-direction:column;justify-content:center;gap:2px;border:1px solid transparent;border-radius:12px;background:transparent;color:#e5fff1;box-shadow:none}
+.quick-dock button span{font-size:1.15rem;line-height:1.2;color:#a8f0cb}
+.quick-dock button small{font-size:.66rem;line-height:1.2;font-weight:750;white-space:nowrap}
+.quick-dock button:hover,.quick-dock button:focus-visible{transform:none;background:#ffffff18;border-color:#ffffff25;box-shadow:none}
+.quick-dock button:active{background:#d8ffea;color:#07513d}
+body{padding-bottom:94px}
+@media(max-width:620px){
+ .site-header{padding-left:12px;padding-right:12px}
+ .site-header .header-top{min-height:58px}
+ .site-header .brand-mark{width:36px;height:36px}
+ .site-header .brand-copy strong{font-size:.94rem}
+ .site-header .app-nav{gap:3px}
+ .site-header .app-nav button{padding:8px 9px;font-size:.68rem}
+ .quick-dock{width:calc(100% - 14px);bottom:max(7px,env(safe-area-inset-bottom));gap:2px;padding:6px;border-radius:15px}
+ .quick-dock button{min-height:50px;padding:4px 1px}
+ .quick-dock button span{font-size:1.05rem}
+ .quick-dock button small{font-size:.59rem}
+ body{padding-bottom:82px}
+}
+@media(prefers-reduced-motion:reduce){.site-header .hero-content,.site-header.is-scrolled .hero-content{transition:none}}
+
 </style>
 </head>
 <body>
@@ -131,6 +164,16 @@ button:disabled{filter:saturate(.55)}
 </aside>
 </main>
 <footer class="site-footer"><span><strong>GeoMap Bangladesh</strong> · সহজ বাংলায় স্মার্ট ম্যাপিং</span><span>ম্যাপ ডেটা ও পরিমাপ আনুমানিক। আইনি জমি জরিপের জন্য অনুমোদিত সার্ভেয়ার ব্যবহার করুন।</span></footer>
+
+<nav class="quick-dock" aria-label="দ্রুত ম্যাপিং অপশন">
+  <button type="button" data-quick="locate"><span>⌖</span><small>GPS</small></button>
+  <button type="button" data-quick="trackStart"><span>➤</span><small>ট্র্যাক</small></button>
+  <button type="button" data-quick="distance"><span>↔</span><small>দূরত্ব</small></button>
+  <button type="button" data-quick="area"><span>▱</span><small>জমি</small></button>
+  <button type="button" data-quick="undo"><span>↶</span><small>Undo</small></button>
+  <button type="button" data-quick="clear"><span>✕</span><small>মুছুন</small></button>
+  <button type="button" data-quick="export"><span>⇩</span><small>ডাউনলোড</small></button>
+</nav>
 <script>
 (function(){
 'use strict';
