@@ -56,6 +56,11 @@ const required = [
   ['function fuseGpsPosition(', 'accuracy-weighted GPS filtering'],
   ['function handleTrackPosition(', 'GPS fix validation'],
   ['noiseFloor', 'GPS jitter filtering'],
+  ['c.accuracy>50', 'poor-quality GPS fixes are rejected above 50m accuracy'],
+  ['timestamp<=lastAcceptedTimestamp', 'duplicate or out-of-order GPS timestamps are rejected'],
+  ['positionWindow.length>3', 'GPS smoothing uses a bounded three-fix window'],
+  ['timestamp-fix.timestamp)<=3000', 'GPS smoothing excludes fixes older than three seconds'],
+  ['Math.min(55,Math.max(18,reportedSpeed*2+8))', 'GPS route jump filter uses a bounded plausible-speed threshold'],
   ['id="trackStart"', 'tracking start control'],
   ['id="trackStop"', 'tracking stop control'],
   ['id="headerTrackStats"', 'live tracking metrics in sticky header'],
@@ -206,5 +211,16 @@ gpsContext.positionWindow = [
 ];
 const datelineFix = gpsContext.fuseGpsPosition({lat:0,lng:-179.9},5,1000);
 assert.ok(Math.abs(datelineFix.lng) > 179.8, 'GPS smoothing averages longitude across the antimeridian without jumping to Greenwich');
+gpsContext.positionWindow = [
+  {lat:23,lng:90,accuracy:5,timestamp:1000},
+  {lat:23.1,lng:90.1,accuracy:5,timestamp:1000},
+  {lat:23.2,lng:90.2,accuracy:5,timestamp:1000},
+  {lat:23.3,lng:90.3,accuracy:5,timestamp:1000}
+];
+gpsContext.fuseGpsPosition({lat:23.4,lng:90.4},5,1000);
+assert.equal(gpsContext.positionWindow.length,3, 'GPS smoothing window never exceeds three recent fixes');
+gpsContext.positionWindow = [{lat:23,lng:90,accuracy:5,timestamp:1000}];
+const recentOnlyFix = gpsContext.fuseGpsPosition({lat:23.01,lng:90.01},5,6000);
+assert.ok(Math.abs(recentOnlyFix.lat-23.01)<1e-9, 'GPS smoothing drops stale fixes older than three seconds');
 
 console.log('GeoMap Bangladesh advanced geospatial checks passed (GeoJSON geometry, WGS84 bounds, antimeridian area and GPS smoothing).');
