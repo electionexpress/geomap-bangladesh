@@ -140,6 +140,60 @@ body{padding-bottom:142px}
  .quick-dock .dock-actions button small{font-size:.49rem}
 }
 
+
+/* Mobile-first compact identity: sticky brand header + mini intro in bottom dock */
+.site-header{position:sticky!important;top:0;z-index:1400;padding:0 clamp(12px,3vw,32px);overflow:visible}
+.site-header .header-top{min-height:62px;border:0}
+.site-header .brand-mark{width:38px;height:38px;border-radius:12px}
+.site-header .brand-copy strong{font-size:1rem}
+.site-header .brand-copy small{font-size:.52rem;letter-spacing:1.1px}
+.site-header .header-status{font-size:.68rem;padding:7px 10px}
+.site-header .hero-content{display:none!important}
+.quick-dock{width:min(760px,calc(100% - 20px));max-height:min(48vh,330px);overflow:hidden;gap:5px;padding:8px 10px 9px;border-radius:17px}
+.dock-hero{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 5px 7px;border-bottom:1px solid #ffffff24;min-width:0}
+.dock-hero-copy{display:grid;gap:2px;min-width:0}
+.dock-kicker{font-size:.48rem;letter-spacing:1.4px;color:#a8e9cc;font-weight:850}
+.dock-hero-copy strong{font-size:.78rem;line-height:1.25;color:#f2fff7;white-space:nowrap}
+.dock-hero-copy strong em{font-style:normal;color:#9aebc5}
+.dock-hero-copy small{font-size:.57rem;line-height:1.35;color:#d0eee1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px}
+.dock-feature-chips{display:flex;gap:4px;flex:0 0 auto}
+.dock-feature-chips span{border:1px solid #c9ffe32b;background:#ffffff0d;color:#e2fff0;border-radius:99px;padding:4px 6px;font-size:.52rem;white-space:nowrap}
+.dock-nav-wrap{padding-bottom:5px}
+.quick-dock .app-nav button{min-width:68px;min-height:40px;padding:4px 6px}
+.quick-dock .dock-actions button{min-height:38px}
+body{padding-bottom:190px}
+@media(max-width:620px){
+ .site-header{padding-left:10px;padding-right:10px}
+ .site-header .header-top{min-height:54px}
+ .site-header .brand-mark{width:34px;height:34px}
+ .site-header .brand-copy strong{font-size:.9rem}
+ .site-header .brand-copy small{display:none}
+ .site-header .header-status{max-width:34px;overflow:hidden;white-space:nowrap;padding:7px}
+ .quick-dock{width:calc(100% - 12px);max-height:46vh;bottom:max(6px,env(safe-area-inset-bottom));padding:6px 6px 7px;gap:4px}
+ .dock-hero{align-items:flex-start;flex-direction:column;gap:4px;padding:1px 3px 5px}
+ .dock-kicker{font-size:.43rem}
+ .dock-hero-copy strong{font-size:.72rem}
+ .dock-hero-copy small{font-size:.53rem;max-width:100%;white-space:normal}
+ .dock-feature-chips span{font-size:.49rem;padding:3px 6px}
+ .dock-heading{font-size:.53rem;padding-bottom:2px}
+ .quick-dock .app-nav{gap:2px}
+ .quick-dock .app-nav button{min-width:60px;min-height:36px;padding:3px 4px}
+ .quick-dock .app-nav button>span{font-size:.86rem}
+ .quick-dock .app-nav button small{font-size:.5rem}
+ .quick-dock .dock-actions{gap:2px}
+ .quick-dock .dock-actions button{min-height:34px;padding:2px 0}
+ .quick-dock .dock-actions button span{font-size:.83rem}
+ .quick-dock .dock-actions button small{font-size:.47rem}
+ body{padding-bottom:170px}
+}
+@media(max-width:370px){
+ .dock-feature-chips span{font-size:.45rem;padding:3px 4px}
+ .quick-dock .app-nav button{min-width:55px}
+ .quick-dock .app-nav button small{font-size:.46rem}
+ .quick-dock .dock-actions button small{font-size:.43rem}
+}
+@media(prefers-reduced-motion:reduce){.site-header .hero-content{transition:none}}
+
 </style>
 </head>
 <body>
@@ -152,15 +206,7 @@ body{padding-bottom:142px}
       </a>
       <div class="header-status"><span class="status-pulse"></span><span>ম্যাপিং ওয়ার্কস্পেস প্রস্তুত</span></div>
     </div>
-    <div class="hero-content">
-      <div class="hero-copy">
-        <span class="hero-kicker">YOUR MAP. YOUR DATA. YOUR DISCOVERY.</span>
-        <h1>বাংলাদেশকে দেখুন <span>নতুন দৃষ্টিতে</span></h1>
-        <p>নিজের অবস্থান জানুন, দূরত্ব ও জমির আয়তন মাপুন—সবকিছু এক জায়গায়, সহজ বাংলায়।</p>
-        <div class="hero-pills"><span>⌖ লাইভ GPS</span><span>↔ দূরত্ব ও জমি পরিমাপ</span><span>◇ GeoJSON এক্সপোর্ট</span></div>
-      </div>
-      <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="hero-pin">⌖</div><span class="map-coordinate-tag">23.8103° N · 90.4125° E</span><span class="map-label-tag">BANGLADESH</span></div>
-    </div>
+
 
   </div>
 </header>
@@ -198,6 +244,14 @@ body{padding-bottom:142px}
 <footer class="site-footer"><span><strong>GeoMap Bangladesh</strong> · সহজ বাংলায় স্মার্ট ম্যাপিং</span><span>ম্যাপ ডেটা ও পরিমাপ আনুমানিক। আইনি জমি জরিপের জন্য অনুমোদিত সার্ভেয়ার ব্যবহার করুন।</span></footer>
 
 <nav class="quick-dock" aria-label="প্রধান নেভিগেশন ও দ্রুত ম্যাপিং অপশন">
+  <section class="dock-hero" aria-label="GeoMap পরিচিতি">
+    <div class="dock-hero-copy">
+      <span class="dock-kicker">YOUR MAP. YOUR DATA. YOUR DISCOVERY.</span>
+      <strong>বাংলাদেশকে দেখুন <em>নতুন দৃষ্টিতে</em></strong>
+      <small>নিজের অবস্থান জানুন, দূরত্ব ও জমির আয়তন মাপুন—সহজ বাংলায়।</small>
+    </div>
+    <div class="dock-feature-chips"><span>⌖ GPS</span><span>↔ পরিমাপ</span><span>◇ GeoJSON</span></div>
+  </section>
   <div class="dock-nav-wrap">
     <div class="dock-heading"><span class="dock-indicator"></span> ওয়ার্কস্পেস</div>
     <div class="dock-nav-scroll">
