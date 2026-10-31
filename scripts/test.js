@@ -4,6 +4,15 @@ const assert = require('node:assert/strict');
 const html = fs.readFileSync('index.html', 'utf8');
 const checks = [
   [/<!doctype html>/i, 'HTML5 document declaration'],
+  [/id="placeSearch"/, 'map place search form'],
+  [/id="placeQuery"/, 'place and address search input'],
+  [/nominatim.openstreetmap.org/search/, 'OpenStreetMap geocoding service'],
+  [/L\.control\.scale/, 'map scale ruler'],
+  [/id="coordinateReadout"/, 'map coordinate readout'],
+  [/id="copyCoordinates"/, 'copy map coordinates control'],
+  [/basemaps\.cartocdn\.com/light_all/, 'light map layer'],
+  [/basemaps\.cartocdn\.com/dark_all/, 'dark map layer'],
+  [/gpsAccuracy/, 'GPS accuracy radius'],
   [/position:sticky/, 'sticky navigation header'],
   [/class="app-nav"/, 'separate workspace navigation'],
   [/data-view="gps"/, 'GPS workspace navigation'],
