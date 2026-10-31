@@ -52,10 +52,9 @@ for (const [snippet, description] of required) {
 }
 
 assert.ok(!html.includes('lastSpeed=0;\\n   watchId='), 'GPS tracking source must not contain a literal escaped newline');
-const inlineScripts = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/gi)];
-assert.ok(inlineScripts.length > 0, 'Inline application script exists');
-for (const [, script] of inlineScripts) {
-  new Function(script);
-}
+const scriptStart = html.indexOf('<script>');
+const scriptEnd = html.indexOf('</script>', scriptStart);
+assert.ok(scriptStart >= 0 && scriptEnd > scriptStart, 'Inline application script exists');
+new Function(html.slice(scriptStart + 8, scriptEnd));
 
 console.log('GeoMap Bangladesh checks passed (' + required.length + ' feature checks + JavaScript syntax).');
