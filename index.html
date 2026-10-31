@@ -329,8 +329,8 @@ button:focus-visible,.file-label:focus-visible,input:focus-visible,select:focus-
     </div>
     <div class="header-track-stats" id="headerTrackStats" aria-label="লাইভ ট্র্যাকিং পরিসংখ্যান" aria-live="polite">
       <div class="header-track-stat"><span>সময়</span><strong id="headerTrackTime">00:00:00</strong></div>
-      <div class="header-track-stat"><span>পয়েন্ট</span><strong id="headerTrackPoints">0</strong></div>
-      <div class="header-track-stat header-track-distance"><span>দূরত্ব</span><strong id="headerTrackDistance">0.0 মি · 0.00 কিমি · 0.0 ফুট</strong></div>
+      <div class="header-track-stat"><span id="headerTrackPointsLabel">GPS পয়েন্ট</span><strong id="headerTrackPoints">0</strong></div>
+      <div class="header-track-stat header-track-distance"><span id="headerTrackDistanceLabel">GPS দূরত্ব</span><strong id="headerTrackDistance">0.0 মি · 0.00 কিমি · 0.0 ফুট</strong></div>
     </div>
 
   </div>
@@ -489,6 +489,7 @@ function init(){
   if(points.length>1)line=L.polyline(points,{color:'#087f5b',weight:3}).addTo(map);
   if(mode==='area'&&points.length>=3)polygon=L.polygon(points,{color:'#087f5b',fillOpacity:.18}).addTo(map);
   updateMetric();
+  updateHeaderTrackStats();
  }
  function setMode(next){
   mode=mode===next?'none':next;points=[];redraw();
@@ -515,9 +516,13 @@ function init(){
   return h+':'+m+':'+sec;
  }
  function updateHeaderTrackStats(){
-  const m=trackDistance;
+  const measuring=mode!=='none';
+  const m=mode==='distance'?totalDistance():trackDistance;
+  const pointCount=measuring?points.length:trackPoints.length;
   document.getElementById('headerTrackTime').textContent=formatTrackDuration();
-  document.getElementById('headerTrackPoints').textContent=trackPoints.length.toLocaleString('bn-BD');
+  document.getElementById('headerTrackPointsLabel').textContent=measuring?(mode==='area'?'সীমানার পয়েন্ট':'মাপার পয়েন্ট'):'GPS পয়েন্ট';
+  document.getElementById('headerTrackDistanceLabel').textContent=mode==='distance'?'মাপার দূরত্ব':'GPS দূরত্ব';
+  document.getElementById('headerTrackPoints').textContent=pointCount.toLocaleString('bn-BD');
   document.getElementById('headerTrackDistance').textContent=m.toFixed(1)+' মি · '+(m/1000).toFixed(3)+' কিমি · '+(m*3.280839895).toFixed(1)+' ফুট';
   document.getElementById('headerTrackStats').classList.toggle('is-active',watchId!==null);
  }
