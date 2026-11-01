@@ -34,7 +34,7 @@ const required = [
   ['id="measureDock"', 'visible map measurement dock'],
   ['measureDock.appendChild(measurePanel)', 'move measurement tools out of hidden side panel'],
   ['position:sticky!important;top:0!important;inset-block-start:0!important', 'sticky header remains fixed at viewport top'],
-  ["window.scrollY>24", 'compact sticky header activates while scrolling'],
+  ["window.scrollY>36", 'compact sticky header activates while scrolling'],
   ['id="distance"', 'visible distance measurement action'],
   ['id="area"', 'visible land area measurement action'],
   ['<!doctype html>', 'HTML5 document'],
