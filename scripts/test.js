@@ -233,3 +233,8 @@ assert.ok(appScript.includes('lastAcceptedPosition=p'), 'GPS stores raw validate
 assert.ok(appScript.includes('trackDistance+=step'), 'GPS route distance is uncertainty-adjusted');
 assert.ok(!appScript.includes('fuseGpsPosition(raw,c.accuracy,timestamp)'), 'GPS tracking never smooths by averaging past positions');
 console.log('GeoMap Bangladesh advanced geospatial checks passed (GPS fix quality, jitter, jump rejection and uncertainty-adjusted distance).');
+
+// Ensure the sticky brand header is rendered once, inside the main header.
+const brandStickyCount = (html.match(/class="brand-sticky-wrap"/g) || []).length;
+assert(brandStickyCount === 1, "brand sticky wrapper appears exactly once");
+assert(html.indexOf('<header class="site-header">') < html.indexOf('<div class="brand-sticky-wrap">'), "sticky brand wrapper is inside site header");
