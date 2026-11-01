@@ -604,41 +604,32 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 
 
 
-/* Fixed brand header: independent of the scrolling site-header container */
-.brand-sticky-wrap{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;z-index:10000!important;padding:0 clamp(16px,5vw,76px)!important;background:radial-gradient(ellipse at 78% 35%,#16866c55 0,transparent 34%),linear-gradient(118deg,#062b2b 0%,#06483e 52%,#08765b 100%)!important;box-shadow:0 5px 16px #052f2940!important;isolation:isolate!important}
-.brand-sticky-wrap .header-top{max-width:1720px;margin:auto;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px;border:0!important}
-.site-header{margin-top:76px!important;position:relative!important;top:auto!important;z-index:1!important}
-@media(max-width:700px){.brand-sticky-wrap{padding-inline:8px!important}.brand-sticky-wrap .header-top{min-height:58px!important}.brand-sticky-wrap .brand-mark{width:32px!important;height:32px!important}.brand-sticky-wrap .brand-copy strong{font-size:.88rem!important}.site-header{margin-top:58px!important}}
-@media(max-width:380px){.brand-sticky-wrap .brand-copy strong{font-size:.79rem!important}.brand-sticky-wrap .header-status{display:none!important}}
 
-/* Compact, correctly styled fixed brand row on phones */
-.brand-sticky-wrap{height:76px!important;min-height:76px!important;display:flex!important;align-items:center!important;overflow:visible!important}
-.brand-sticky-wrap .header-top{width:100%!important;min-width:0!important;min-height:76px!important;height:76px!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
-.brand-sticky-wrap .brand{display:flex!important;flex:1 1 auto!important;min-width:0!important;max-width:calc(100% - 150px)!important;flex-flow:row nowrap!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:#fff!important;white-space:nowrap!important}
-.brand-sticky-wrap .brand-mark{flex:0 0 46px!important;width:46px!important;height:46px!important}
-.brand-sticky-wrap .brand-copy{display:flex!important;flex:1 1 auto!important;min-width:0!important;flex-flow:column nowrap!important;gap:2px!important;white-space:nowrap!important}
-.brand-sticky-wrap .brand-copy strong{display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:#fff!important;font-size:clamp(.82rem,3.8vw,1.12rem)!important;line-height:1.2!important}
-.brand-sticky-wrap .brand-copy em{color:#a7f3d0!important}
+
+/* Stable header layout: fixed brand row + normal-flow metrics/navigation */
+.brand-sticky-wrap{position:fixed!important;inset:0 0 auto 0!important;width:100%!important;height:60px!important;min-height:60px!important;z-index:10000!important;display:block!important;box-sizing:border-box!important;padding:0 10px!important;overflow:hidden!important;background:linear-gradient(118deg,#062b2b,#06483e 52%,#08765b)!important;box-shadow:0 4px 14px #052f2940!important}
+.brand-sticky-wrap .header-top{height:60px!important;min-height:60px!important;width:100%!important;max-width:1720px!important;margin:auto!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;border:0!important}
+.brand-sticky-wrap .brand{display:flex!important;flex:1 1 auto!important;min-width:0!important;max-width:none!important;flex-flow:row nowrap!important;align-items:center!important;gap:8px!important;white-space:nowrap!important;text-decoration:none!important;color:#fff!important}
+.brand-sticky-wrap .brand-mark{display:grid!important;place-items:center!important;flex:0 0 38px!important;width:38px!important;height:38px!important;border-radius:12px!important}
+.brand-sticky-wrap .brand-mark svg{width:25px!important;height:25px!important}
+.brand-sticky-wrap .brand-copy{display:block!important;flex:1 1 auto!important;min-width:0!important;white-space:nowrap!important}
+.brand-sticky-wrap .brand-copy strong{display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:clamp(.82rem,3.8vw,1rem)!important;line-height:1.2!important;color:#fff!important}
 .brand-sticky-wrap .brand-copy small{display:none!important}
-.brand-sticky-wrap .header-status{display:flex!important;flex:0 0 auto!important;max-width:138px!important;min-width:0!important;padding:7px 9px!important;gap:6px!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;font-size:.62rem!important}
-.brand-sticky-wrap .header-status .status-pulse{flex:0 0 8px!important}
-.site-header{margin-top:76px!important}
-@media(max-width:700px){
- .brand-sticky-wrap{height:60px!important;min-height:60px!important;padding:0 10px!important}
- .brand-sticky-wrap .header-top{height:60px!important;min-height:60px!important;gap:7px!important}
- .brand-sticky-wrap .brand{max-width:calc(100% - 112px)!important;gap:8px!important}
- .brand-sticky-wrap .brand-mark{flex-basis:38px!important;width:38px!important;height:38px!important;border-radius:12px!important}
- .brand-sticky-wrap .brand-mark svg{width:25px!important;height:25px!important}
- .brand-sticky-wrap .brand-copy strong{font-size:clamp(.78rem,3.7vw,.98rem)!important;letter-spacing:-.3px!important}
- .brand-sticky-wrap .header-status{max-width:104px!important;padding:6px 7px!important;font-size:.55rem!important}
- .site-header{margin-top:60px!important}
-}
+.brand-sticky-wrap .header-status{display:flex!important;flex:0 1 auto!important;min-width:0!important;max-width:124px!important;align-items:center!important;gap:6px!important;padding:6px 8px!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;font-size:.58rem!important}
+.brand-sticky-wrap .header-status>span:last-child{overflow:hidden!important;text-overflow:ellipsis!important}
+.site-header{margin:60px 0 0!important;position:relative!important;top:auto!important;z-index:1!important;overflow:visible!important}
+.site-header .header-inner{width:100%!important;min-width:0!important}
+.site-header .header-track-stats{display:grid!important;grid-template-columns:minmax(76px,.75fr) minmax(76px,.75fr) minmax(0,2fr)!important;gap:5px!important;padding:7px 8px!important}
+.site-header .header-track-stat{min-width:0!important;overflow:hidden!important;padding:6px 3px!important;gap:3px!important}
+.site-header .header-track-stat small,.site-header .header-track-stat strong{max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.site-header .header-track-distance strong{white-space:normal!important;overflow-wrap:anywhere!important;font-size:clamp(.52rem,2.4vw,.68rem)!important;line-height:1.25!important}
+.site-header .app-nav{display:flex!important;flex-flow:row nowrap!important;max-width:100%!important;overflow-x:auto!important;overscroll-behavior-x:contain!important;scrollbar-width:none!important;padding:5px 8px 8px!important;gap:5px!important}
+.site-header .app-nav::-webkit-scrollbar{display:none}
+.site-header .app-nav button{flex:0 0 auto!important;white-space:nowrap!important}
 @media(max-width:380px){
- .brand-sticky-wrap .brand{max-width:calc(100% - 86px)!important}
- .brand-sticky-wrap .header-status{max-width:78px!important}
- .brand-sticky-wrap .header-status .status-pulse{width:7px!important;height:7px!important}
- .brand-sticky-wrap .header-status{font-size:0!important}
- .brand-sticky-wrap .brand-copy strong{font-size:.8rem!important}
+ .brand-sticky-wrap .header-status{max-width:86px!important;font-size:0!important}
+ .brand-sticky-wrap .header-status .status-pulse{flex:0 0 8px!important}
+ .site-header .header-track-stats{grid-template-columns:70px 76px minmax(0,1fr)!important}
 }
 
 </style>
@@ -646,23 +637,20 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 <body>
 <div class="brand-sticky-wrap">
   <div class="header-top">
-      <a class="brand" href="#" aria-label="GeoMap Bangladesh হোম">
-        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M24 5.5c-8.2 0-14.8 6.4-14.8 14.4 0 10.4 14.8 23 14.8 23s14.8-12.6 14.8-23C38.8 11.9 32.2 5.5 24 5.5Z" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="24" cy="20" r="5.4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M24 2v5M24 33v5M5 20h5M38 20h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-        <span class="brand-copy"><strong>GeoMap <em>Bangladesh</em></strong><small>SMART MAPPING PLATFORM · BANGLADESH</small></span>
-      </a>
-      <div class="header-status"><span class="status-pulse"></span><span>ম্যাপিং ওয়ার্কস্পেস প্রস্তুত</span></div>
-
+    <a class="brand" href="#" aria-label="GeoMap Bangladesh হোম">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M24 5.5c-8.2 0-14.8 6.4-14.8 14.4 0 10.4 14.8 23 14.8 23s14.8-12.6 14.8-23C38.8 11.9 32.2 5.5 24 5.5Z" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="24" cy="20" r="5.4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M24 2v5M24 33v5M5 20h5M38 20h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span class="brand-copy"><strong>GeoMap <em>Bangladesh</em></strong><small>SMART MAPPING PLATFORM · BANGLADESH</small></span>
+    </a>
+    <div class="header-status"><span class="status-pulse"></span><span>ম্যাপিং ওয়ার্কস্পেস প্রস্তুত</span></div>
+  </div>
+</div>
 <header class="site-header">
   <div class="header-inner">
-        </div>
-    </div>
     <div class="header-track-stats" id="headerTrackStats" aria-label="ট্র্যাকিং পরিসংখ্যান" aria-live="polite">
       <div class="header-track-stat"><span aria-hidden="true">◷</span><small>সময়</small><strong id="headerTrackTime">00:00:00</strong></div>
       <div class="header-track-stat"><span aria-hidden="true">⌖</span><small id="headerTrackPointsLabel">GPS পয়েন্ট</small><strong id="headerTrackPoints">0</strong></div>
       <div class="header-track-stat header-track-distance"><span aria-hidden="true">↗</span><small id="headerTrackDistanceLabel">GPS দূরত্ব</small><strong id="headerTrackDistance">0.0 মি · 0.00 কিমি · 0.0 ফুট</strong></div>
     </div>
-
-  </div>
     <nav class="app-nav" aria-label="ম্যাপিং টুলসমূহ">
       <span class="nav-label">টুলসমূহ</span>
       <button type="button" data-view="all"><span>⌂</span> ওভারভিউ</button>
@@ -673,6 +661,7 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
       <button type="button" data-view="geojson"><span>⇧</span> GeoJSON</button>
       <button type="button" data-view="gps"><span>⌖</span> ম্যাপ সেটিং</button>
     </nav>
+  </div>
 </header>
 <main>
 <div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="measureDock" aria-label="দূরত্ব ও জমি পরিমাপ"></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
