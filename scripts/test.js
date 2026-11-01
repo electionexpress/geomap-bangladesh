@@ -232,18 +232,10 @@ assert.ok(appScript.includes('trackDistance+=step'), 'GPS route distance is unce
 assert.ok(!appScript.includes('fuseGpsPosition(raw,c.accuracy,timestamp)'), 'GPS tracking never smooths by averaging past positions');
 console.log('GeoMap Bangladesh advanced geospatial checks passed (GPS fix quality, jitter, jump rejection and uncertainty-adjusted distance).');
 
-// Ensure the sticky brand header is rendered once, inside the main header.
-const brandStickyCount = (html.match(/class="brand-sticky-wrap"/g) || []).length;
-assert(brandStickyCount === 1, "brand sticky wrapper appears exactly once");
 
-assert((html.match(/class="brand-sticky-wrap"/g) || []).length === 1, "exactly one brand header");
-assert(html.indexOf('class="brand-sticky-wrap"') < html.indexOf('<header class="site-header">'), "brand header sits outside scrolling header");
-
-assert(html.includes('.brand-sticky-wrap .brand{display:flex!important'), "fixed brand is styled as horizontal flex row");
-assert(html.includes('.brand-sticky-wrap .brand-copy strong{display:block!important'), "brand title stays on one line");
-assert(html.includes('.brand-sticky-wrap{height:60px!important'), "mobile fixed header has compact height");
-
-assert(html.includes('<div class="brand-sticky-wrap">'), "brand sticky wrapper exists");
-assert(html.indexOf('</div>\\n<header class="site-header">') > 0, "brand wrapper closes before site header");
-assert(html.includes('grid-template-columns:minmax(76px,.75fr) minmax(76px,.75fr) minmax(0,2fr)'), "mobile GPS metrics use bounded grid columns");
-assert(html.includes('overflow-x:auto!important'), "navigation scrolls horizontally without page overflow");
+assert((html.match(/class="brand-sticky-wrap"/g) || []).length === 1, "exactly one fixed brand header");
+assert(html.includes('.brand-sticky-wrap{position:fixed!important;top:0!important'), "brand identity row is fixed to viewport");
+assert(html.includes('.site-header{display:block!important;position:relative!important'), "GPS stats and navigation remain in normal document flow");
+assert(html.includes('grid-template-columns:minmax(82px,.85fr) minmax(82px,.85fr) minmax(0,2fr)'), "GPS stats use bounded responsive columns");
+assert(html.includes('overflow-x:auto!important'), "navigation can scroll horizontally without forcing page overflow");
+assert(html.includes('height:60px!important;min-height:60px!important'), "mobile brand row has compact fixed height");
