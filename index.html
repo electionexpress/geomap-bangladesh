@@ -917,10 +917,19 @@ function init(){
     say('GPS-এ অস্বাভাবিক লাফ শনাক্ত হয়েছে; এই পয়েন্ট ও দূরত্ব বাদ দেওয়া হয়েছে।');return;
    }
    const meanAccuracy=(lastAcceptedAccuracy+c.accuracy)/2;
-   const movementThreshold=Math.max(2.5,Math.min(5.5,meanAccuracy*0.14));
+   const reportedSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:null;
+   // A stationary phone can drift several metres between GPS fixes. Keep the last
+   // accepted anchor fixed until movement clearly exceeds the reported accuracy.
+   const stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65));
+   const movementThreshold=Math.max(6,Math.min(12,meanAccuracy*0.35));
+   if(step<=stationaryThreshold&&(reportedSpeed===null||reportedSpeed<1.2)){
+    lastFixReceivedAt=now;lastTrackFix=now;lastSpeed=0;updateTrackPanel();
+    say('আপনি স্থির আছেন—GPS সিগন্যালের সামান্য ওঠানামা ট্র্যাকে যোগ করা হয়নি।');
+    return;
+   }
    if(step<=movementThreshold){
     lastFixReceivedAt=now;lastTrackFix=now;lastSpeed=0;updateTrackPanel();
-    say('GPS সংযুক্ত। ক্ষুদ্র সিগন্যাল বিচ্যুতি দূরত্বে যোগ করা হয়নি।');
+    say('GPS-এর ক্ষুদ্র বিচ্যুতি বাদ দেওয়া হয়েছে; প্রকৃত চলাচলের অপেক্ষা করছি।');
     return;
    }
    // Keep the measured segment; do not subtract the full accuracy radius from every step.
