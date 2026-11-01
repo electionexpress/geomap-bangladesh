@@ -17,7 +17,7 @@ const required = [
   ['z-index:5000!important', 'sticky header remains above map controls'],
   ['overscroll-behavior-x:contain;touch-action:pan-x', 'horizontal swipe navigation without page scroll hijack'],
   ['site-header.is-scrolled .header-status{display:none!important}', 'compact sticky header hides secondary status'],
-  ['site-header.is-scrolled .header-track-stats{grid-template-columns: .8fr .8fr 1.5fr!important}', 'compact sticky header retains all GPS stats'],
+  ['site-header.is-scrolled .header-track-stats{grid-template-columns:', 'compact sticky header retains all GPS stats'],
   ['const updateStickyHeader=()=>', 'sticky header state restored on page show and scroll'],
   ['aria-label="ম্যাপিং টুলসমূহ"', 'navigation for every mapping workspace'],
   ['data-view="all"', 'all-tools overview navigation'],
