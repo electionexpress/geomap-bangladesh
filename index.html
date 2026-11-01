@@ -450,6 +450,68 @@ aside,.site-footer{display:none!important}
 }
 @media(orientation:landscape) and (max-height:520px){#map{height:calc(100dvh - 210px);min-height:210px}}
 
+/* Sticky header v2: persistent compact bar, safe-area aware, scrollable tool tabs */
+html{scroll-padding-top:clamp(112px,18vh,190px);scroll-behavior:smooth}
+.site-header{
+ position:sticky!important;position:-webkit-sticky!important;
+ top:0!important;inset-block-start:0!important;
+ z-index:5000!important;isolation:isolate;
+ overflow:visible!important;
+ background:linear-gradient(125deg,#064d3e 0%,#086b50 52%,#064b3c 100%)!important;
+ box-shadow:0 8px 24px #032c2240!important;
+ padding-top:env(safe-area-inset-top,0px)!important;
+}
+.site-header .header-inner{width:100%;max-width:1760px;margin-inline:auto}
+.site-header .header-top{min-height:64px;transition:min-height .2s ease,padding .2s ease}
+.site-header .brand-mark{transition:width .2s ease,height .2s ease}
+.site-header .brand-copy small{transition:opacity .15s ease}
+.site-header .app-nav{
+ position:relative!important;z-index:5!important;
+ display:flex!important;flex-wrap:nowrap!important;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ overscroll-behavior-x:contain;touch-action:pan-x;
+ -webkit-overflow-scrolling:touch;scrollbar-width:none;
+ padding:7px 2px 9px!important;margin:0!important;
+ border-top:1px solid #ffffff20;
+}
+.site-header .app-nav::-webkit-scrollbar{display:none}
+.site-header .app-nav button{flex:0 0 auto;min-height:36px}
+.site-header.is-scrolled .header-top{min-height:42px!important}
+.site-header.is-scrolled .brand-mark{width:31px!important;height:31px!important;border-radius:10px!important}
+.site-header.is-scrolled .brand-mark svg{width:21px!important;height:21px!important}
+.site-header.is-scrolled .brand-copy strong{font-size:.9rem!important}
+.site-header.is-scrolled .brand-copy small,
+.site-header.is-scrolled .header-status{display:none!important}
+.site-header.is-scrolled .header-track-stats{grid-template-columns: .8fr .8fr 1.5fr!important;gap:4px!important;padding:4px 0 5px!important}
+.site-header.is-scrolled .header-track-stat{flex-direction:row!important;gap:5px!important;padding:4px 5px!important;min-height:29px!important;border-radius:8px!important}
+.site-header.is-scrolled .header-track-stat span,
+.site-header.is-scrolled .header-track-stat small{font-size:.59rem!important}
+.site-header.is-scrolled .header-track-stat strong{font-size:.68rem!important;line-height:1.2!important}
+.site-header.is-scrolled .app-nav{padding:5px 2px 6px!important}
+.site-header.is-scrolled .app-nav button{min-height:31px!important;padding:5px 9px!important;font-size:.67rem!important}
+.site-header .app-nav button:focus-visible{outline:2px solid #d5ffe9;outline-offset:2px}
+@media(max-width:640px){
+ .site-header{padding-inline:9px!important}
+ .site-header .header-top{min-height:53px!important}
+ .site-header .brand-mark{width:35px!important;height:35px!important}
+ .site-header .brand-copy strong{font-size:.9rem!important}
+ .site-header .header-track-stats{gap:4px!important;padding:5px 0 6px!important}
+ .site-header .header-track-stat{padding:5px 3px!important;gap:3px!important}
+ .site-header .header-track-stat strong{font-size:.68rem!important}
+ .site-header .header-track-distance strong{font-size:.59rem!important}
+ .site-header .app-nav{margin-inline:-2px!important}
+ .site-header .app-nav button{min-height:33px!important;padding:6px 9px!important;font-size:.68rem!important}
+ .site-header.is-scrolled .header-top{min-height:38px!important}
+ .site-header.is-scrolled .header-track-stats{grid-template-columns:.72fr .72fr 1.56fr!important;padding:3px 0 4px!important}
+ .site-header.is-scrolled .header-track-stat{padding:3px 2px!important;gap:3px!important}
+ .site-header.is-scrolled .header-track-stat span,
+ .site-header.is-scrolled .header-track-stat small{font-size:.55rem!important}
+ .site-header.is-scrolled .header-track-stat strong{font-size:.62rem!important}
+ .site-header.is-scrolled .header-track-distance strong{font-size:.56rem!important}
+ .site-header.is-scrolled .app-nav{padding-block:4px 5px!important}
+}
+@media(prefers-reduced-motion:reduce){.site-header,.site-header *{transition:none!important}}
+
 /* GeoMap Bangladesh complete workspace refresh — accessible tool navigation */
 .site-header{position:sticky!important;top:0!important;inset-block-start:0!important;z-index:2500!important;overflow:visible!important;padding-inline:clamp(10px,2.4vw,30px)!important}
 .site-header .header-inner{max-width:1760px;margin:auto}
@@ -581,7 +643,11 @@ const say=(message)=>{status.textContent=message};
  const measureDock=document.getElementById('measureDock');
  const measurePanel=document.getElementById('measurePanel');
  if(measureDock&&measurePanel)measureDock.appendChild(measurePanel);
- window.addEventListener('scroll',()=>document.querySelector('.site-header')?.classList.toggle('is-scrolled',window.scrollY>24),{passive:true});
+ const stickyHeader=document.querySelector('.site-header');
+ const updateStickyHeader=()=>{if(stickyHeader)stickyHeader.classList.toggle('is-scrolled',window.scrollY>36)};
+ window.addEventListener('scroll',updateStickyHeader,{passive:true});
+ window.addEventListener('pageshow',updateStickyHeader);
+ updateStickyHeader();
  const viewPanels={gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),plots:document.getElementById('savedPlotsPanel')};
  function activateWorkspace(view,announce=true){
   viewButtons.forEach(item=>{if(item.dataset.view===view)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
