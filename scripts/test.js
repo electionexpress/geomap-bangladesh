@@ -66,14 +66,17 @@ const required = [
   ['getCurrentPosition', 'one-time GPS request'],
   ['navigator.geolocation.watchPosition', 'continuous GPS tracking'],
   ['navigator.geolocation.clearWatch', 'tracking cleanup'],
-  ['function fuseGpsPosition(', 'accuracy-weighted GPS filtering'],
   ['function handleTrackPosition(', 'GPS fix validation'],
+  ['c.accuracy>25', 'low quality GPS fixes above 25m are rejected'],
+  ['lastAcceptedPosition=p', 'GPS uses the latest raw validated fix rather than averaging stale positions'],
+  ['const reliableMovement=Math.max(0,step-uncertainty)', 'GPS jump detection accounts for reported horizontal accuracy'],
+  ['const maxPlausibleSpeed=45', 'GPS impossible jumps are rejected at a conservative speed ceiling'],
+  ['const movementThreshold=Math.max(3,Math.min(12,(lastAcceptedAccuracy+c.accuracy)*0.5))', 'GPS jitter threshold scales with both fix accuracy values'],
+  ['acceptedSegment=Math.max(0,step-uncertainty)', 'GPS distance discounts horizontal uncertainty'],
+  ['lastAcceptedPosition=null', 'GPS anchor is reset at the start of a new tracking session'],
+
   ['noiseFloor', 'GPS jitter filtering'],
-  ['c.accuracy>50', 'poor-quality GPS fixes are rejected above 50m accuracy'],
   ['timestamp<=lastAcceptedTimestamp', 'duplicate or out-of-order GPS timestamps are rejected'],
-  ['positionWindow.length>3', 'GPS smoothing uses a bounded three-fix window'],
-  ['timestamp-fix.timestamp)<=3000', 'GPS smoothing excludes fixes older than three seconds'],
-  ['Math.min(55,Math.max(18,reportedSpeed*2+8))', 'GPS route jump filter uses a bounded plausible-speed threshold'],
   ['id="trackStart"', 'tracking start control'],
   ['id="trackStop"', 'tracking stop control'],
   ['id="headerTrackStats"', 'live tracking metrics in sticky header'],
@@ -85,7 +88,6 @@ const required = [
   ["function haversine(", 'GPS route segment distance calculation'],
   ["function totalDistance()", 'manual measurement distance aggregation'],
   ["function areaSquareMeters()", 'land area calculation'],
-  ["function fuseGpsPosition(", 'GPS position smoothing'],
   ["function persistPlots()", 'saved plot persistence with storage error handling'],
   ["function renderSavedPlots()", 'saved plot list rendering'],
   ["navigator.geolocation.getCurrentPosition", 'one-time GPS location retrieval'],
@@ -219,24 +221,8 @@ mathContext.points = datelinePoints;
 const datelineArea = mathContext.areaSquareMeters();
 assert.ok(datelineArea > 200_000_000 && datelineArea < 300_000_000, 'Area calculation handles polygons crossing the antimeridian');
 
-const gpsContext = {positionWindow:[]};
-vm.createContext(gpsContext);
-vm.runInContext(extractFunction(appScript, 'fuseGpsPosition'), gpsContext);
-gpsContext.positionWindow = [
-  {lat:0,lng:179.9,accuracy:5,timestamp:1000},
-  {lat:0,lng:-179.9,accuracy:5,timestamp:1000}
-];
-const datelineFix = gpsContext.fuseGpsPosition({lat:0,lng:-179.9},5,1000);
-assert.ok(Math.abs(datelineFix.lng) > 179.8, 'GPS smoothing averages longitude across the antimeridian without jumping to Greenwich');
-gpsContext.positionWindow = [
-  {lat:23,lng:90,accuracy:5,timestamp:1000},
-  {lat:23.1,lng:90.1,accuracy:5,timestamp:1000},
-  {lat:23.2,lng:90.2,accuracy:5,timestamp:1000}
-];
-gpsContext.fuseGpsPosition({lat:23.4,lng:90.4},5,1000);
-assert.equal(gpsContext.positionWindow.length,3, 'GPS smoothing window never exceeds three recent fixes');
-gpsContext.positionWindow = [{lat:23,lng:90,accuracy:5,timestamp:1000}];
-const recentOnlyFix = gpsContext.fuseGpsPosition({lat:23.01,lng:90.01},5,6000);
-assert.ok(Math.abs(recentOnlyFix.lat-23.01)<1e-9, 'GPS smoothing drops stale fixes older than three seconds');
-
-console.log('GeoMap Bangladesh advanced geospatial checks passed (GeoJSON geometry, WGS84 bounds, antimeridian area and GPS smoothing).');
+assert.ok(appScript.includes('c.accuracy>25'), 'GPS rejects low-confidence fixes');
+assert.ok(appScript.includes('lastAcceptedPosition=p'), 'GPS stores raw validated position as the next anchor');
+assert.ok(appScript.includes('acceptedSegment=Math.max(0,step-uncertainty)'), 'GPS route distance is uncertainty-adjusted');
+assert.ok(!appScript.includes('fuseGpsPosition(raw,c.accuracy,timestamp)'), 'GPS tracking never smooths by averaging past positions');
+console.log('GeoMap Bangladesh advanced geospatial checks passed (GPS fix quality, jitter, jump rejection and uncertainty-adjusted distance).');
