@@ -710,6 +710,25 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 .tools-dashboard-note{margin:13px 0 0;padding:11px 12px;border-radius:11px;background:#f2f8f4;color:#66796e;font-size:.68rem;line-height:1.65}
 @media(max-width:760px){.dashboard-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-bottom-grid{grid-template-columns:1fr}.dashboard-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:390px){.dashboard-stat{padding:11px}.dashboard-stat strong{font-size:.9rem}.dashboard-action{padding:10px}.tools-dashboard-head h2{font-size:1rem}}
+
+.dashboard-help{margin:7px 0;color:#77867d;font-size:.7rem;line-height:1.6}
+.project-create-row{display:flex;gap:7px;margin:11px 0}
+.project-create-row input{min-width:0;flex:1;padding:10px;border:1px solid #dce9e1;border-radius:10px;font:inherit;font-size:.78rem}
+.project-create-row button,.dashboard-backup-actions button,.dashboard-restore-label{padding:9px 11px;border:1px solid #cfe7d8;border-radius:10px;background:#eaf7ee;color:#126344;font-size:.72rem;font-weight:750;cursor:pointer}
+.dashboard-project-list,.dashboard-activity-list{display:grid;gap:7px;max-height:240px;overflow:auto}
+.dashboard-project-row{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #edf2ee;border-radius:10px;background:#fbfdfb}
+.dashboard-project-row.active{border-color:#91cbaa;background:#f0faf3}
+.dashboard-project-main{min-width:0;flex:1;display:grid;gap:3px}
+.dashboard-project-main strong{font-size:.76rem;color:#214d39;overflow-wrap:anywhere}
+.dashboard-project-main small,.dashboard-activity-row small{font-size:.64rem;color:#839087}
+.dashboard-project-select{padding:6px 8px;border:1px solid #d8e9de;border-radius:8px;background:#fff;color:#176344;font-size:.66rem}
+.dashboard-project-delete{border:0;background:transparent;color:#a44a43;font-size:.68rem;padding:5px}
+.dashboard-activity-row{display:grid;gap:3px;padding:8px 2px;border-bottom:1px solid #edf2ee}
+.dashboard-activity-row strong{font-size:.72rem;color:#244e3a}
+.dashboard-backup-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.dashboard-restore-label{display:inline-flex;align-items:center}
+.dashboard-bottom-grid-secondary{margin-top:12px}
+@media(max-width:760px){.project-create-row{flex-wrap:wrap}.project-create-row input{flex-basis:100%}.project-create-row button{width:100%}}
 </style>
 
 </head>
@@ -764,6 +783,21 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
   <button type="button" id="dashExport" class="dashboard-action"><span>⇩</span><b>ডেটা ব্যাকআপ</b><small>GeoJSON ডাউনলোড</small></button>
  </div>
  <div class="dashboard-bottom-grid">
+  <div class="dashboard-info-card project-manager-card">
+   <div class="dashboard-card-heading"><b>প্রকল্প ব্যবস্থাপনা</b><span id="dashProjectCount">০টি প্রকল্প</span></div>
+   <p class="dashboard-help">প্রতিটি জরিপ বা ম্যাপিং কাজ আলাদা প্রকল্পে সাজিয়ে রাখুন। নতুন সংরক্ষিত প্লট সক্রিয় প্রকল্পের সঙ্গে যুক্ত হবে।</p>
+   <div class="project-create-row"><input id="dashProjectName" type="text" maxlength="70" placeholder="নতুন প্রকল্পের নাম" aria-label="নতুন প্রকল্পের নাম"><button type="button" id="dashCreateProject">প্রকল্প তৈরি</button></div>
+   <div id="dashProjectList" class="dashboard-project-list"><p>এখনো কোনো প্রকল্প নেই।</p></div>
+   <p class="dashboard-help">প্রকল্প ও কাজের ইতিহাস এই ব্রাউজারেই সংরক্ষিত থাকবে।</p>
+  </div>
+  <div class="dashboard-info-card">
+   <div class="dashboard-card-heading"><b>কাজের ইতিহাস</b><span id="dashActivityCount">০টি ঘটনা</span></div>
+   <div id="dashActivityList" class="dashboard-activity-list"><p>এখনো কোনো কাজের ইতিহাস নেই।</p></div>
+   <div class="dashboard-backup-actions"><button type="button" class="secondary" id="dashBackup">ড্যাশবোর্ড ব্যাকআপ</button><label class="secondary dashboard-restore-label" for="dashRestoreFile">ব্যাকআপ ফিরিয়ে আনুন</label><input id="dashRestoreFile" type="file" accept="application/json,.json" hidden></div>
+   <p class="dashboard-help">ব্যাকআপে প্রকল্প, ইতিহাস ও সংরক্ষিত প্লট থাকবে। এটি স্থানীয় ডেটার বিকল্প ক্লাউড নয়।</p>
+  </div>
+ </div>
+ <div class="dashboard-bottom-grid dashboard-bottom-grid-secondary">
   <div class="dashboard-info-card"><div class="dashboard-card-heading"><b>ম্যাপিং টুলসমূহ</b><span>৬টি বিভাগ</span></div>
    <div class="dashboard-tool-list">
     <button type="button" data-tool-target="gps"><span>⌖</span><b>লোকেশন ও ম্যাপ</b><small>GPS ও স্থান অনুসন্ধান</small><i>→</i></button>
@@ -1171,6 +1205,29 @@ function init(){
  });
  document.getElementById('clearBoundaries').addEventListener('click',()=>{if(boundaryLayer){map.removeLayer(boundaryLayer);boundaryLayer=null}boundaryStatus.textContent='সীমানা ম্যাপ থেকে সরানো হয়েছে।';say('প্রশাসনিক সীমানা সরানো হয়েছে।')});
 
+ // Local project workspace: projects, activity log and plot metadata stay on this browser.
+ const projectStorageKey='geomap-bangladesh:projects:v1',activityStorageKey='geomap-bangladesh:activity:v1';
+ let projects=[],activityLog=[],activeProjectId=null;
+ try{const data=JSON.parse(localStorage.getItem(projectStorageKey)||'[]');if(Array.isArray(data))projects=data.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string')}catch(error){projects=[]}
+ try{const data=JSON.parse(localStorage.getItem(activityStorageKey)||'[]');if(Array.isArray(data))activityLog=data.slice(0,100)}catch(error){activityLog=[]}
+ try{activeProjectId=localStorage.getItem('geomap-bangladesh:active-project:v1')||null}catch(error){}
+ function saveWorkspaceData(){try{localStorage.setItem(projectStorageKey,JSON.stringify(projects));localStorage.setItem(activityStorageKey,JSON.stringify(activityLog));if(activeProjectId)localStorage.setItem('geomap-bangladesh:active-project:v1',activeProjectId);else localStorage.removeItem('geomap-bangladesh:active-project:v1');return true}catch(error){say('স্থানীয় স্টোরেজে জায়গা নেই বা অনুমতি নেই। ড্যাশবোর্ড ব্যাকআপ ডাউনলোড করুন।');return false}}
+ function recordActivity(title,detail=''){activityLog.unshift({title,detail,at:new Date().toISOString()});activityLog=activityLog.slice(0,100);saveWorkspaceData();renderDashboardWorkspace()}
+ function renderDashboardWorkspace(){
+  const bn=n=>Number(n||0).toLocaleString('bn-BD');
+  const projectCount=document.getElementById('dashProjectCount');if(projectCount)projectCount.textContent=bn(projects.length)+'টি প্রকল্প';
+  const projectList=document.getElementById('dashProjectList');
+  if(projectList){projectList.replaceChildren();if(!projects.length){const empty=document.createElement('p');empty.textContent='এখনো কোনো প্রকল্প নেই। নাম লিখে প্রথম প্রকল্প তৈরি করুন।';empty.className='dashboard-help';projectList.append(empty)}
+   projects.forEach(project=>{const row=document.createElement('div');row.className='dashboard-project-row'+(project.id===activeProjectId?' active':'');const main=document.createElement('div');main.className='dashboard-project-main';const name=document.createElement('strong');name.textContent=project.name;const count=document.createElement('small');count.textContent=bn(savedPlots.filter(p=>p.projectId===project.id).length)+'টি সংরক্ষিত প্লট';main.append(name,count);const choose=document.createElement('button');choose.type='button';choose.className='dashboard-project-select';choose.textContent=project.id===activeProjectId?'সক্রিয়':'নির্বাচন';choose.addEventListener('click',()=>{activeProjectId=project.id;saveWorkspaceData();renderDashboardWorkspace();say('“'+project.name+'” প্রকল্প সক্রিয় হয়েছে।')});const remove=document.createElement('button');remove.type='button';remove.className='dashboard-project-delete';remove.textContent='মুছুন';remove.title='প্রকল্প মুছুন';remove.addEventListener('click',()=>{if(!confirm('এই প্রকল্পটি মুছবেন? এর প্লট মুছবে না, শুধু প্রকল্পের সংযোগ সরবে।'))return;savedPlots.forEach(p=>{if(p.projectId===project.id)delete p.projectId});projects=projects.filter(p=>p.id!==project.id);if(activeProjectId===project.id)activeProjectId=projects[0]?.id||null;persistPlots();saveWorkspaceData();recordActivity('প্রকল্প মুছে ফেলা',project.name)});row.append(main,choose,remove);projectList.append(row)})
+  }
+  const activityCount=document.getElementById('dashActivityCount');if(activityCount)activityCount.textContent=bn(activityLog.length)+'টি ঘটনা';
+  const activityList=document.getElementById('dashActivityList');if(activityList){activityList.replaceChildren();if(!activityLog.length){const empty=document.createElement('p');empty.className='dashboard-help';empty.textContent='প্রকল্প তৈরি, প্লট সংরক্ষণ ও ব্যাকআপের কাজ এখানে দেখা যাবে।';activityList.append(empty)}activityLog.slice(0,12).forEach(item=>{const row=document.createElement('div');row.className='dashboard-activity-row';const title=document.createElement('strong');title.textContent=item.title;const detail=document.createElement('small');detail.textContent=(item.detail?item.detail+' · ':'')+new Date(item.at).toLocaleString('bn-BD');row.append(title,detail);activityList.append(row)})}
+ }
+ document.getElementById('dashCreateProject').addEventListener('click',()=>{const input=document.getElementById('dashProjectName'),name=input.value.trim();if(!name){say('প্রকল্পের একটি নাম লিখুন।');input.focus();return}const project={id:'p-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),name,createdAt:new Date().toISOString()};projects.unshift(project);activeProjectId=project.id;input.value='';saveWorkspaceData();recordActivity('নতুন প্রকল্প তৈরি',name);say('“'+name+'” প্রকল্প তৈরি ও সক্রিয় হয়েছে।')});
+ document.getElementById('dashBackup').addEventListener('click',()=>{const backup={format:'GeoMap Bangladesh Workspace Backup',version:1,createdAt:new Date().toISOString(),projects,activityLog,activeProjectId,savedPlots};const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='geomap-bangladesh-workspace-backup.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);recordActivity('ড্যাশবোর্ড ব্যাকআপ ডাউনলোড');say('প্রকল্প, ইতিহাস ও সংরক্ষিত প্লটের ব্যাকআপ ডাউনলোড হয়েছে।')});
+ document.getElementById('dashRestoreFile').addEventListener('change',async event=>{const file=event.target.files&&event.target.files[0];if(!file)return;try{if(file.size>10*1024*1024)throw new Error('ব্যাকআপ ফাইল ১০ MB-এর বেশি।');const data=JSON.parse(await file.text());if(data.format!=='GeoMap Bangladesh Workspace Backup'||data.version!==1||!Array.isArray(data.projects)||!Array.isArray(data.savedPlots)||!Array.isArray(data.activityLog))throw new Error('এটি GeoMap Bangladesh-এর সঠিক ব্যাকআপ নয়।');if(!confirm('বর্তমান প্রকল্প, ইতিহাস ও প্লটের সঙ্গে ব্যাকআপের ডেটা যুক্ত হবে। চালিয়ে যাবেন?'))return;const ids=new Set(projects.map(p=>p.id));data.projects.forEach(p=>{if(p&&typeof p.id==='string'&&typeof p.name==='string'&&!ids.has(p.id)){projects.push(p);ids.add(p.id)}});const plotKeys=new Set(savedPlots.map(p=>p.savedAt+'|'+p.name));data.savedPlots.forEach(p=>{if(p&&p.feature&&!plotKeys.has(p.savedAt+'|'+p.name))savedPlots.push(p)});activityLog=[...data.activityLog,...activityLog].slice(0,100);if(!activeProjectId&&data.activeProjectId)activeProjectId=data.activeProjectId;if(!persistPlots()||!saveWorkspaceData())throw new Error('স্টোরেজে ব্যাকআপ ফিরিয়ে আনা যায়নি।');renderSavedPlots();renderDashboardWorkspace();recordActivity('ব্যাকআপ পুনরুদ্ধার',file.name);say('ব্যাকআপের প্রকল্প ও প্লট ফিরিয়ে আনা হয়েছে।')}catch(error){say('ব্যাকআপ ফিরিয়ে আনা যায়নি: '+error.message)}finally{event.target.value=''}});
+ renderDashboardWorkspace();
+
  // Saved land plots are stored locally on this browser only.
  const plotStorageKey='geomap-bangladesh:saved-plots:v1';
  let savedPlots=[];
@@ -1194,8 +1251,8 @@ function init(){
   if(mode!=='area'||points.length<3){say('প্লট সংরক্ষণের আগে জমি মাপার টুলে অন্তত ৩টি সীমানা পয়েন্ট দিন।');return}
   const feature=currentFeature();if(!feature||feature.geometry.type!=='Polygon'){say('বৈধ জমির সীমানা পাওয়া যায়নি।');return}
   const name=document.getElementById('plotName').value.trim()||('আমার প্লট '+(savedPlots.length+1));
-  savedPlots.push({name,savedAt:new Date().toISOString(),feature});
-  if(persistPlots()){renderSavedPlots();document.getElementById('plotName').value='';say('“'+name+'” প্লট এই ব্রাউজারে সংরক্ষণ করা হয়েছে।')}
+  savedPlots.push({name,savedAt:new Date().toISOString(),feature,projectId:activeProjectId||null});
+  if(persistPlots()){renderSavedPlots();document.getElementById('plotName').value='';recordActivity('জমির প্লট সংরক্ষণ',name+(activeProjectId?' · '+(projects.find(p=>p.id===activeProjectId)?.name||'প্রকল্প'):' · সাধারণ'));say('“'+name+'” প্লট এই ব্রাউজারে সংরক্ষণ করা হয়েছে।')}
  });
  document.getElementById('exportPlots').addEventListener('click',()=>{
   if(!savedPlots.length){say('ডাউনলোড করার মতো কোনো সংরক্ষিত প্লট নেই।');return}
@@ -1211,6 +1268,8 @@ function init(){
   set('dashTrackDistance',bn(trackDistance)+' মিটার');
   set('dashTrackDetail',watchId!==null?'লাইভ ট্র্যাকিং চলছে · '+bn(trackPoints.length)+' পয়েন্ট':'ট্র্যাক বন্ধ'+(trackElapsedMs?' · '+formatTrackDuration():''));
   set('dashPlotCount',bn(savedPlots.length)+'টি');
+  set('dashProjectCount',bn(projects.length)+'টি প্রকল্প');
+  set('dashActivityCount',bn(activityLog.length)+'টি ঘটনা');
   if(mode==='distance'){set('dashMeasureValue',bn(totalDistance())+' মিটার');set('dashMeasureDetail','দূরত্ব · '+bn(points.length)+'টি পয়েন্ট')}
   else if(mode==='area'&&points.length>=3){set('dashMeasureValue',bn(areaSquareMeters()/40.468564224)+' শতাংশ');set('dashMeasureDetail','জমির ক্ষেত্রফল · '+bn(points.length)+'টি পয়েন্ট')}
   else{set('dashMeasureValue','শুরু হয়নি');set('dashMeasureDetail','দূরত্ব বা জমি বেছে নিন')}
