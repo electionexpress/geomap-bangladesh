@@ -784,31 +784,33 @@ function init(){
  }
  function handleTrackPosition(pos){
   const c=pos.coords,now=Date.now(),timestamp=Number(pos.timestamp)||now;
-  if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||Math.abs(c.latitude)>90||Math.abs(c.longitude)>180){say('GPS থেকে অবৈধ স্থানাঙ্ক এসেছে; এই তথ্য ট্র্যাকে যোগ করা হয়নি।');return}
-  if(timestamp>now+3000||now-timestamp>10000){say('GPS তথ্য পুরোনো বা সময় অসংগত; নতুন অবস্থানের অপেক্ষা করছি।');return}
-  if(!Number.isFinite(c.accuracy)||c.accuracy<=0||c.accuracy>25){say('GPS সিগন্যাল যথেষ্ট নির্ভুল নয় (±'+(Number.isFinite(c.accuracy)?Math.round(c.accuracy):'অজানা')+' মি)। ±২৫ মিটারের ভালো ফিক্স না পাওয়া পর্যন্ত অবস্থান ও দূরত্ব ট্র্যাকে যোগ হবে না।');return}
+  if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||Math.abs(c.latitude)>90||Math.abs(c.longitude)>180){say('GPS থেকে অবৈধ স্থানাঙ্ক এসেছে; এই তথ্য ট্র্যাকে যোগ হয়নি।');return}
+  if(timestamp>now+3000||now-timestamp>10000){say('GPS তথ্য পুরোনো; নতুন অবস্থানের অপেক্ষা করছি।');return}
+  if(!Number.isFinite(c.accuracy)||c.accuracy<=0||c.accuracy>35){say('GPS সিগন্যাল দুর্বল (±'+(Number.isFinite(c.accuracy)?Math.round(c.accuracy):'অজানা')+' মি)। ভালো সিগন্যাল না পাওয়া পর্যন্ত এই পয়েন্ট ট্র্যাকে যোগ হচ্ছে না।');return}
   if(lastAcceptedTimestamp&&timestamp<=lastAcceptedTimestamp){say('GPS-এর পুরোনো বা একই সময়ের ফিক্স বাদ দেওয়া হয়েছে।');return}
   const p={lat:c.latitude,lng:c.longitude};
-  let acceptedSegment=0,elapsed=0,step=0,uncertainty=0;
+  let elapsed=0,step=0;
   if(lastAcceptedPosition){
    elapsed=(timestamp-lastAcceptedTimestamp)/1000;
-   if(!Number.isFinite(elapsed)||elapsed<=0){say('GPS সময়ের ব্যবধান সঠিক নয়; পয়েন্ট বাদ দেওয়া হয়েছে।');return}
+   if(!Number.isFinite(elapsed)||elapsed<=0){say('GPS সময়ের ব্যবধান সঠিক নয়; পয়েন্ট বাদ।');return}
    step=haversine(lastAcceptedPosition,p);
-   uncertainty=Math.min(30,(lastAcceptedAccuracy+c.accuracy)*0.5);
-   const reliableMovement=Math.max(0,step-uncertainty);
-   const maxPlausibleSpeed=45;
-   if(reliableMovement/elapsed>maxPlausibleSpeed){say('GPS-এ অস্বাভাবিক স্থান পরিবর্তন শনাক্ত হয়েছে। যাচাই না হওয়া পর্যন্ত এই পয়েন্ট ও দূরত্ব বাদ দেওয়া হয়েছে।');return}
-   const movementThreshold=Math.max(3,Math.min(12,(lastAcceptedAccuracy+c.accuracy)*0.5));
+   const reportedSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:null;
+   const maxPlausibleSpeed=20;
+   const measuredSpeed=step/elapsed;
+   if(measuredSpeed>maxPlausibleSpeed&&(reportedSpeed===null||reportedSpeed<maxPlausibleSpeed*0.7)){
+    say('GPS-এ অস্বাভাবিক লাফ শনাক্ত হয়েছে; এই পয়েন্ট ও দূরত্ব বাদ দেওয়া হয়েছে।');return;
+   }
+   const meanAccuracy=(lastAcceptedAccuracy+c.accuracy)/2;
+   const movementThreshold=Math.max(2.5,Math.min(5.5,meanAccuracy*0.14));
    if(step<=movementThreshold){
     lastFixReceivedAt=now;lastTrackFix=now;lastSpeed=0;updateTrackPanel();
-    say('GPS সংযুক্ত। ±'+Math.round(c.accuracy)+' মিটার অনিশ্চয়তার মধ্যে ক্ষুদ্র বিচ্যুতি দূরত্বে যোগ করা হয়নি।');
+    say('GPS সংযুক্ত। ক্ষুদ্র সিগন্যাল বিচ্যুতি দূরত্বে যোগ করা হয়নি।');
     return;
    }
-   acceptedSegment=Math.max(0,step-uncertainty);
-   if(acceptedSegment<=0){lastFixReceivedAt=now;lastTrackFix=now;updateTrackPanel();say('GPS অবস্থান পাওয়া গেছে, তবে নির্ভরযোগ্য চলাচল নিশ্চিত হয়নি; দূরত্ব যোগ হয়নি।');return}
-   trackDistance+=acceptedSegment;
-   const reportedSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:null;
-   lastSpeed=reportedSpeed!==null&&reportedSpeed<=45?reportedSpeed:acceptedSegment/elapsed;
+   // Keep the measured segment; do not subtract the full accuracy radius from every step.
+   // Repeated subtraction would systematically under-report real walking distance.
+   trackDistance+=step;
+   lastSpeed=reportedSpeed!==null&&reportedSpeed<=maxPlausibleSpeed?reportedSpeed:measuredSpeed;
    const gpsBearing=bearingBetween(lastAcceptedPosition,p);
    if(now-lastCompassAt>5000)updateHeadingMarker(p,gpsBearing);
   }else{
@@ -826,7 +828,7 @@ function init(){
   if(now-lastCompassAt>5000&&lastHeading!==null)updateHeadingMarker(p,lastHeading);
   map.panTo(p,{animate:true,duration:.35});
   updateTrackPanel();
-  say('যাচাইকৃত GPS পয়েন্ট যোগ হয়েছে। ডিভাইসের আনুমানিক নির্ভুলতা ±'+Math.round(c.accuracy)+' মিটার। দূরত্বে GPS অনিশ্চয়তার জন্য সমন্বয় করা হয়েছে; দুর্বল বা অস্বাভাবিক ফিক্স বাদ দেওয়া হয়।');
+  say('GPS পয়েন্ট গ্রহণ করা হয়েছে। আনুমানিক নির্ভুলতা ±'+Math.round(c.accuracy)+' মিটার। ফোন হাতে বা পকেটে—দুই অবস্থাতেই GPS সিগন্যালের মান অনুযায়ী ফিল্টার কাজ করে।');
  }
  function startTracking(){
   if(!window.isSecureContext){say('লাইভ GPS ট্র্যাকের জন্য HTTPS প্রয়োজন।');return}
