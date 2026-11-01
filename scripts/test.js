@@ -76,7 +76,7 @@ const required = [
   ['lastAcceptedPosition=p', 'GPS uses the latest raw validated fix rather than averaging stale positions'],
   ['const measuredSpeed=step/elapsed', 'GPS jump detection uses measured speed'],
   ['const maxPlausibleSpeed=20', 'GPS impossible jumps are rejected at a conservative speed ceiling'],
-  ['const movementThreshold=Math.max(2.5,Math.min(5.5,meanAccuracy*0.14))', 'GPS jitter threshold adapts to fix accuracy'],
+  ['const stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65))', 'GPS stationary drift threshold adapts to fix accuracy'],
   ['trackDistance+=step', 'GPS distance does not repeatedly subtract accuracy radius'],
   ['lastAcceptedPosition=null', 'GPS anchor is reset at the start of a new tracking session'],
 
