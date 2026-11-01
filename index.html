@@ -877,7 +877,7 @@ function init(){
  }
  function updateHeaderTrackStats(){
   const measuring=mode!=='none';
-  const m=mode==='distance'?totalDistance():(matchedTrackDistance>0?matchedTrackDistance:trackDistance);
+  const m=mode==='distance'?totalDistance():trackDistance;
   const pointCount=measuring?points.length:trackPoints.length;
   document.getElementById('headerTrackTime').textContent=formatTrackDuration();
   document.getElementById('headerTrackPointsLabel').textContent=measuring?(mode==='area'?'সীমানার পয়েন্ট':'মাপার পয়েন্ট'):'GPS পয়েন্ট';
@@ -888,9 +888,9 @@ function init(){
  }
  function updateTrackPanel(){
   const age=lastFixReceivedAt?Math.max(0,Math.round((Date.now()-lastFixReceivedAt)/1000)):null;
-  const m=matchedTrackDistance>0?matchedTrackDistance:trackDistance;
+  const m=trackDistance;
   updateHeaderTrackStats();
-  trackingMetric.innerHTML='<b>'+(watchId!==null?'● GPS ট্র্যাক চালু':'ট্র্যাক বন্ধ')+'</b><br>সময়: '+formatTrackDuration()+' · দূরত্ব: '+m.toFixed(1)+' মিটার · '+(m*3.280839895).toFixed(1)+' ফুট · '+(m/1000).toFixed(3)+' কিমি<br>গতি: '+(lastSpeed>0?(lastSpeed*3.6).toFixed(1)+' কিমি/ঘণ্টা':'—')+' · দিক: '+(lastHeading===null?'অজানা':Math.round(lastHeading)+'°')+'<br>GPS নির্ভুলতা: '+(lastAcceptedAccuracy===null?'অপেক্ষমাণ':Math.round(lastAcceptedAccuracy)+' মিটার')+' · GPS দূরত্ব: '+trackDistance.toFixed(1)+' মি · রাস্তা-অনুযায়ী: '+(matchedTrackDistance>0?matchedTrackDistance.toFixed(1)+' মি':'মিলানো হচ্ছে')+' · পয়েন্ট: '+trackPoints.length+(age===null?'':' · আপডেট '+age+' সেকেন্ড আগে');
+  trackingMetric.innerHTML='<b>'+(watchId!==null?'● GPS ট্র্যাক চালু':'ট্র্যাক বন্ধ')+'</b><br>সময়: '+formatTrackDuration()+' · দূরত্ব: '+m.toFixed(1)+' মিটার · '+(m*3.280839895).toFixed(1)+' ফুট · '+(m/1000).toFixed(3)+' কিমি<br>গতি: '+(lastSpeed>0?(lastSpeed*3.6).toFixed(1)+' কিমি/ঘণ্টা':'—')+' · দিক: '+(lastHeading===null?'অজানা':Math.round(lastHeading)+'°')+'<br>GPS নির্ভুলতা: '+(lastAcceptedAccuracy===null?'অপেক্ষমাণ':Math.round(lastAcceptedAccuracy)+' মিটার')+' · GPS দূরত্ব: '+trackDistance.toFixed(1)+' মি · সর্বশেষ ম্যাচ করা অংশ: '+(matchedTrackDistance>0?matchedTrackDistance.toFixed(1)+' মি':'মিলানো হচ্ছে')+' · পয়েন্ট: '+trackPoints.length+(age===null?'':' · আপডেট '+age+' সেকেন্ড আগে');
  }
  function onOrientation(event){
   let heading=null;
@@ -921,7 +921,7 @@ function init(){
    // accepted anchor fixed until movement clearly exceeds the reported accuracy.
    const stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65));
    const movementThreshold=Math.max(6,Math.min(12,meanAccuracy*0.35));
-   if(step<=stationaryThreshold&&(reportedSpeed===null||reportedSpeed<1.2)){
+   if(step<=stationaryThreshold){
     lastFixReceivedAt=now;lastTrackFix=now;lastSpeed=0;updateTrackPanel();
     say('আপনি স্থির আছেন—GPS সিগন্যালের সামান্য ওঠানামা ট্র্যাকে যোগ করা হয়নি।');
     return;
@@ -983,7 +983,7 @@ function init(){
    if(matchedTrackLine)matchedTrackLine.setLatLngs(latlngs);else matchedTrackLine=L.polyline(latlngs,{color:'#087f5b',weight:6,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(map);
    matchedTrackDistance=distanceOfLatLngs(latlngs);
    lastMatchedTimestamp=usable[usable.length-1].ts;
-   if(rawTrackLine){map.removeLayer(rawTrackLine);rawTrackLine=null}
+   if(rawTrackLine)rawTrackLine.setStyle({opacity:.28});
    updateTrackPanel();
    say('GPS ট্র্যাক OpenStreetMap-এর রাস্তার সঙ্গে মিলিয়ে দেখানো হয়েছে। রাস্তার ডেটা অসম্পূর্ণ হলে কিছু অংশে বিচ্যুতি থাকতে পারে।');
   }catch(error){
