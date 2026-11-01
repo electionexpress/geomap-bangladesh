@@ -239,3 +239,7 @@ assert(brandStickyCount === 1, "brand sticky wrapper appears exactly once");
 assert((html.match(/class="brand-sticky-wrap"/g) || []).length === 1, "exactly one brand header");
 assert(html.indexOf('class="brand-sticky-wrap"') < html.indexOf('<header class="site-header">'), "brand header sits outside scrolling header");
 assert(html.includes('.brand-sticky-wrap{position:fixed!important;top:0!important'), "brand header is fixed to viewport");
+
+assert(html.includes('.brand-sticky-wrap .brand{display:flex!important'), "fixed brand is styled as horizontal flex row");
+assert(html.includes('.brand-sticky-wrap .brand-copy strong{display:block!important'), "brand title stays on one line");
+assert(html.includes('.brand-sticky-wrap{height:60px!important'), "mobile fixed header has compact height");
