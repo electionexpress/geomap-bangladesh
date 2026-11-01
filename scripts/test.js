@@ -221,7 +221,16 @@ assert.equal(geometryContext.validGeoJSONGeometry({type:'Polygon',coordinates:[[
 assert.equal(geometryContext.validGeoJSONGeometry({type:'GeometryCollection',geometries:[]}), false, 'Empty GeometryCollection is rejected');
 assert.equal(geometryContext.validGeoJSONFeature({type:'Feature',properties:[],geometry:validPolygon}), false, 'Non-object GeoJSON properties are rejected');
 
-const datelinePoints = [{lat:10,lng:179.9},{lat:10,lng:-179.9},{lat:10.1,lng:-179.9},{lat:10.1,lng:179.9}];
+const datelinePoints = [{lat:10,lng:179.9},{lat:10,lng:-179.9},{lat:10.1,lng:-179.9},{lat:10.1,lng:179.9}
+  ['async function requestRoadMatch(', 'GPS road map matching request'],
+  ['https://router.project-osrm.org/match/v1/driving/', 'OpenStreetMap road matching endpoint'],
+  ["best.confidence||0)<0.45", 'low-confidence road matches are rejected'],
+  ["matchedTrackDistance=distanceOfLatLngs(latlngs)", 'matched road distance is calculated separately'],
+  ["trackPoints.push({...p,timestamp,accuracy:c.accuracy})", 'validated GPS points retain timestamp and accuracy for map matching'],
+  ["GPS দূরত্ব:", 'raw GPS distance remains separately visible'],
+  ["requestRoadMatch(true)", 'final route matching is requested when tracking stops'],
+
+];
 mathContext.points = datelinePoints;
 const datelineArea = mathContext.areaSquareMeters();
 assert.ok(datelineArea > 200_000_000 && datelineArea < 300_000_000, 'Area calculation handles polygons crossing the antimeridian');
