@@ -917,7 +917,6 @@ function init(){
     say('GPS-এ অস্বাভাবিক লাফ শনাক্ত হয়েছে; এই পয়েন্ট ও দূরত্ব বাদ দেওয়া হয়েছে।');return;
    }
    const meanAccuracy=(lastAcceptedAccuracy+c.accuracy)/2;
-   const reportedSpeed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:null;
    // A stationary phone can drift several metres between GPS fixes. Keep the last
    // accepted anchor fixed until movement clearly exceeds the reported accuracy.
    const stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65));
