@@ -80,7 +80,7 @@ const required = [
   ['trackDistance+=step', 'GPS distance does not repeatedly subtract accuracy radius'],
   ['lastAcceptedPosition=null', 'GPS anchor is reset at the start of a new tracking session'],
 
-  ['const movementThreshold=Math.max(2.5,Math.min(5.5,meanAccuracy*0.14))', 'GPS jitter filtering'],
+  ['const stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65))', 'stationary GPS drift filtering'],
   ['timestamp<=lastAcceptedTimestamp', 'duplicate or out-of-order GPS timestamps are rejected'],
   ['id="trackStart"', 'tracking start control'],
   ['id="trackStop"', 'tracking stop control'],
