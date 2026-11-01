@@ -602,25 +602,28 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
  .header-track-distance strong{font-size:.53rem!important}
 }
 
-/* Only the brand row stays pinned; stats and tool navigation scroll normally */
-.brand-sticky-wrap{position:sticky;top:0;z-index:5000;padding:0 clamp(16px,5vw,76px);background:radial-gradient(ellipse at 78% 35%,#16866c55 0,transparent 34%),linear-gradient(118deg,#062b2b 0%,#06483e 52%,#08765b 100%);box-shadow:0 5px 16px #052f2940;isolation:isolate}
-.brand-sticky-wrap .header-top{max-width:1720px;margin:auto;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:0}
-.site-header{position:relative!important;top:auto!important;z-index:1!important}
-@media(max-width:700px){.brand-sticky-wrap{padding-inline:8px}.brand-sticky-wrap .header-top{min-height:48px!important}.brand-sticky-wrap .brand-mark{width:32px!important;height:32px!important}.brand-sticky-wrap .brand-copy strong{font-size:.88rem!important}}
+
+
+/* Fixed brand header: independent of the scrolling site-header container */
+.brand-sticky-wrap{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;z-index:10000!important;padding:0 clamp(16px,5vw,76px)!important;background:radial-gradient(ellipse at 78% 35%,#16866c55 0,transparent 34%),linear-gradient(118deg,#062b2b 0%,#06483e 52%,#08765b 100%)!important;box-shadow:0 5px 16px #052f2940!important;isolation:isolate!important}
+.brand-sticky-wrap .header-top{max-width:1720px;margin:auto;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px;border:0!important}
+.site-header{margin-top:76px!important;position:relative!important;top:auto!important;z-index:1!important}
+@media(max-width:700px){.brand-sticky-wrap{padding-inline:8px!important}.brand-sticky-wrap .header-top{min-height:58px!important}.brand-sticky-wrap .brand-mark{width:32px!important;height:32px!important}.brand-sticky-wrap .brand-copy strong{font-size:.88rem!important}.site-header{margin-top:58px!important}}
 @media(max-width:380px){.brand-sticky-wrap .brand-copy strong{font-size:.79rem!important}.brand-sticky-wrap .header-status{display:none!important}}
 </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="header-inner">
-    <div class="brand-sticky-wrap">
+<div class="brand-sticky-wrap">
   <div class="header-top">
       <a class="brand" href="#" aria-label="GeoMap Bangladesh হোম">
         <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M24 5.5c-8.2 0-14.8 6.4-14.8 14.4 0 10.4 14.8 23 14.8 23s14.8-12.6 14.8-23C38.8 11.9 32.2 5.5 24 5.5Z" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="24" cy="20" r="5.4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M24 2v5M24 33v5M5 20h5M38 20h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
         <span class="brand-copy"><strong>GeoMap <em>Bangladesh</em></strong><small>SMART MAPPING PLATFORM · BANGLADESH</small></span>
       </a>
       <div class="header-status"><span class="status-pulse"></span><span>ম্যাপিং ওয়ার্কস্পেস প্রস্তুত</span></div>
-    </div>
+
+<header class="site-header">
+  <div class="header-inner">
+        </div>
     </div>
     <div class="header-track-stats" id="headerTrackStats" aria-label="ট্র্যাকিং পরিসংখ্যান" aria-live="polite">
       <div class="header-track-stat"><span aria-hidden="true">◷</span><small>সময়</small><strong id="headerTrackTime">00:00:00</strong></div>
