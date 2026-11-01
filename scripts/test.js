@@ -238,3 +238,7 @@ console.log('GeoMap Bangladesh advanced geospatial checks passed (GPS fix qualit
 const brandStickyCount = (html.match(/class="brand-sticky-wrap"/g) || []).length;
 assert(brandStickyCount === 1, "brand sticky wrapper appears exactly once");
 assert(html.indexOf('<header class="site-header">') < html.indexOf('<div class="brand-sticky-wrap">'), "sticky brand wrapper is inside site header");
+
+assert((html.match(/class="brand-sticky-wrap"/g) || []).length === 1, "exactly one brand header");
+assert(html.indexOf('class="brand-sticky-wrap"') < html.indexOf('<header class="site-header">'), "brand header sits outside scrolling header");
+assert(html.includes('.brand-sticky-wrap{position:fixed!important;top:0!important'), "brand header is fixed to viewport");
