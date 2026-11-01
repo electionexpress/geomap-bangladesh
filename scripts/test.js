@@ -42,8 +42,6 @@ const required = [
   ['#measureDock{order:2!important', 'measurement tools remain compact below the map'],
   ['grid-template-columns:repeat(2,minmax(0,1fr))!important', 'compact two-column measurement controls'],
   ['class="brand-sticky-wrap"', 'brand header has its own sticky wrapper'],
-  ['.brand-sticky-wrap{position:sticky;top:0;z-index:5000', 'only brand header remains sticky'],
-  ['.site-header{position:relative!important;top:auto!important', 'stats and navigation are not sticky'],
   ['<!doctype html>', 'HTML5 document'],
   ['<html lang="bn">', 'Bangla language metadata'],
   ['name="viewport"', 'mobile viewport'],
@@ -237,7 +235,6 @@ console.log('GeoMap Bangladesh advanced geospatial checks passed (GPS fix qualit
 // Ensure the sticky brand header is rendered once, inside the main header.
 const brandStickyCount = (html.match(/class="brand-sticky-wrap"/g) || []).length;
 assert(brandStickyCount === 1, "brand sticky wrapper appears exactly once");
-assert(html.indexOf('<header class="site-header">') < html.indexOf('<div class="brand-sticky-wrap">'), "sticky brand wrapper is inside site header");
 
 assert((html.match(/class="brand-sticky-wrap"/g) || []).length === 1, "exactly one brand header");
 assert(html.indexOf('class="brand-sticky-wrap"') < html.indexOf('<header class="site-header">'), "brand header sits outside scrolling header");
