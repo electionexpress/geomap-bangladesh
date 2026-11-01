@@ -230,7 +230,7 @@ assert.ok(appScript.includes('c.accuracy>35'), 'GPS rejects low-confidence fixes
 assert.ok(appScript.includes('lastAcceptedPosition=p'), 'GPS stores raw validated position as the next anchor');
  
 assert.ok(appScript.includes('stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65))'), 'stationary GPS drift is suppressed using reported accuracy');
-assert.ok(appScript.includes("reportedSpeed<1.2"), 'near-zero GPS speed activates stationary drift suppression');
+assert.ok(appScript.includes('if(step<=stationaryThreshold){'), 'stationary drift is ignored even when reported GPS speed jitters');
 assert.ok(appScript.includes('আপনি স্থির আছেন'), 'user is informed when stationary GPS jitter is ignored');
 
 assert.ok(appScript.includes('trackDistance+=step'), 'GPS route distance is uncertainty-adjusted');
@@ -241,6 +241,9 @@ assert.ok(appScript.includes("best.confidence||0)<0.45"), 'low-confidence road m
 assert.ok(appScript.includes('matchedTrackDistance=distanceOfLatLngs(latlngs)'), 'matched road distance is calculated separately');
 assert.ok(appScript.includes('trackPoints.push({...p,timestamp,accuracy:c.accuracy})'), 'validated GPS points retain timestamp and accuracy for map matching');
 assert.ok(appScript.includes('GPS দূরত্ব:'), 'raw GPS distance remains separately visible');
+assert.ok(appScript.includes('const m=trackDistance;'), 'total displayed tracking distance always remains cumulative raw GPS distance');
+assert.ok(appScript.includes('সর্বশেষ ম্যাচ করা অংশ:'), 'matched road distance is clearly labelled as the latest matched segment');
+assert.ok(appScript.includes('if(rawTrackLine)rawTrackLine.setStyle({opacity:.28})'), 'raw GPS route remains visible beneath road-matched segment');
 assert.ok(appScript.includes('requestRoadMatch(true)'), 'final route matching is requested when tracking stops');
 
 assert.ok(!appScript.includes('fuseGpsPosition(raw,c.accuracy,timestamp)'), 'GPS tracking never smooths by averaging past positions');
