@@ -808,7 +808,7 @@ function init(){
  document.addEventListener('fullscreenchange',()=>setTimeout(()=>map.invalidateSize(),180));
 
  let mode='none',points=[],line=null,polygon=null,markers=[],gpsMarker=null,gpsAccuracy=null,lastMapCoordinate=null;
- let watchId=null,trackPoints=[],trackLine=null,headingMarker=null,lastHeading=null,lastTrackFix=0,trackDistance=0,orientationHandler=null,lastAcceptedTimestamp=0,lastAcceptedAccuracy=null,lastAcceptedPosition=null,lastFixReceivedAt=0,lastCompassAt=0,lastSpeed=0,positionWindow=[],filteredPosition=null;
+ let watchId=null,trackPoints=[],trackLine=null,rawTrackLine=null,matchedTrackLine=null,matchedTrackDistance=0,lastMatchedTimestamp=0,matchRequestInFlight=false,lastMatchRequestAt=0,headingMarker=null,lastHeading=null,lastTrackFix=0,trackDistance=0,orientationHandler=null,lastAcceptedTimestamp=0,lastAcceptedAccuracy=null,lastAcceptedPosition=null,lastFixReceivedAt=0,lastCompassAt=0,lastSpeed=0,positionWindow=[],filteredPosition=null;
  let trackElapsedMs=0,trackStartedAt=null,trackClock=null;
  const importedFeatures=[],importedLayers=[];
  const buttons={distance:document.getElementById('distance'),area:document.getElementById('area')};
@@ -877,7 +877,7 @@ function init(){
  }
  function updateHeaderTrackStats(){
   const measuring=mode!=='none';
-  const m=mode==='distance'?totalDistance():trackDistance;
+  const m=mode==='distance'?totalDistance():(matchedTrackDistance>0?matchedTrackDistance:trackDistance);
   const pointCount=measuring?points.length:trackPoints.length;
   document.getElementById('headerTrackTime').textContent=formatTrackDuration();
   document.getElementById('headerTrackPointsLabel').textContent=measuring?(mode==='area'?'সীমানার পয়েন্ট':'মাপার পয়েন্ট'):'GPS পয়েন্ট';
@@ -888,9 +888,9 @@ function init(){
  }
  function updateTrackPanel(){
   const age=lastFixReceivedAt?Math.max(0,Math.round((Date.now()-lastFixReceivedAt)/1000)):null;
-  const m=trackDistance;
+  const m=matchedTrackDistance>0?matchedTrackDistance:trackDistance;
   updateHeaderTrackStats();
-  trackingMetric.innerHTML='<b>'+(watchId!==null?'● GPS ট্র্যাক চালু':'ট্র্যাক বন্ধ')+'</b><br>সময়: '+formatTrackDuration()+' · দূরত্ব: '+m.toFixed(1)+' মিটার · '+(m*3.280839895).toFixed(1)+' ফুট · '+(m/1000).toFixed(3)+' কিমি<br>গতি: '+(lastSpeed>0?(lastSpeed*3.6).toFixed(1)+' কিমি/ঘণ্টা':'—')+' · দিক: '+(lastHeading===null?'অজানা':Math.round(lastHeading)+'°')+'<br>GPS নির্ভুলতা: '+(lastAcceptedAccuracy===null?'অপেক্ষমাণ':Math.round(lastAcceptedAccuracy)+' মিটার')+' · পয়েন্ট: '+trackPoints.length+(age===null?'':' · আপডেট '+age+' সেকেন্ড আগে');
+  trackingMetric.innerHTML='<b>'+(watchId!==null?'● GPS ট্র্যাক চালু':'ট্র্যাক বন্ধ')+'</b><br>সময়: '+formatTrackDuration()+' · দূরত্ব: '+m.toFixed(1)+' মিটার · '+(m*3.280839895).toFixed(1)+' ফুট · '+(m/1000).toFixed(3)+' কিমি<br>গতি: '+(lastSpeed>0?(lastSpeed*3.6).toFixed(1)+' কিমি/ঘণ্টা':'—')+' · দিক: '+(lastHeading===null?'অজানা':Math.round(lastHeading)+'°')+'<br>GPS নির্ভুলতা: '+(lastAcceptedAccuracy===null?'অপেক্ষমাণ':Math.round(lastAcceptedAccuracy)+' মিটার')+' · GPS দূরত্ব: '+trackDistance.toFixed(1)+' মি · রাস্তা-অনুযায়ী: '+(matchedTrackDistance>0?matchedTrackDistance.toFixed(1)+' মি':'মিলানো হচ্ছে')+' · পয়েন্ট: '+trackPoints.length+(age===null?'':' · আপডেট '+age+' সেকেন্ড আগে');
  }
  function onOrientation(event){
   let heading=null;
@@ -936,8 +936,9 @@ function init(){
   lastAcceptedTimestamp=timestamp;
   lastAcceptedAccuracy=c.accuracy;
   lastFixReceivedAt=now;lastTrackFix=now;
-  trackPoints.push(p);
-  if(trackLine)trackLine.setLatLngs(trackPoints);else trackLine=L.polyline(trackPoints,{color:'#f59e0b',weight:5,opacity:.9,smoothFactor:1}).addTo(map);
+  trackPoints.push({...p,timestamp,accuracy:c.accuracy});
+  if(!matchedTrackLine){const raw=trackPoints.map(x=>[x.lat,x.lng]);if(rawTrackLine)rawTrackLine.setLatLngs(raw);else rawTrackLine=L.polyline(raw,{color:'#f59e0b',weight:4,opacity:.85,dashArray:'7 7',smoothFactor:1}).addTo(map)}
+  if(trackPoints.length>=3)requestRoadMatch(false);
   filteredPosition=p;
   if(gpsMarker)gpsMarker.setLatLng(p);else gpsMarker=L.circleMarker(p,{radius:8,color:'#fff',weight:3,fillColor:'#0ea5e9',fillOpacity:1}).addTo(map).bindPopup('সর্বশেষ যাচাইকৃত GPS অবস্থান');
   if(gpsAccuracy)gpsAccuracy.setLatLng(p).setRadius(c.accuracy);else gpsAccuracy=L.circle(p,{radius:c.accuracy,color:'#0284c7',weight:1,fillColor:'#38bdf8',fillOpacity:.12}).addTo(map);
@@ -945,6 +946,41 @@ function init(){
   map.panTo(p,{animate:true,duration:.35});
   updateTrackPanel();
   say('GPS পয়েন্ট গ্রহণ করা হয়েছে। আনুমানিক নির্ভুলতা ±'+Math.round(c.accuracy)+' মিটার। ফোন হাতে বা পকেটে—দুই অবস্থাতেই GPS সিগন্যালের মান অনুযায়ী ফিল্টার কাজ করে।');
+ }
+ 
+ // Match GPS fixes to nearby OpenStreetMap roads using the public OSRM map-matching API.
+ // Coordinates are sent to the public OSRM demo server; never use this for sensitive journeys.
+ function distanceOfLatLngs(latlngs){let total=0;for(let i=1;i<latlngs.length;i++)total+=haversine({lat:latlngs[i-1][0],lng:latlngs[i-1][1]},{lat:latlngs[i][0],lng:latlngs[i][1]});return total}
+ async function requestRoadMatch(force=false){
+  if(matchRequestInFlight||trackPoints.length<3)return;
+  const now=Date.now();
+  if(!force&&now-lastMatchRequestAt<10000)return;
+  const fixes=trackPoints.slice(-50);
+  const usable=[];
+  for(const p of fixes){const ts=Math.floor(p.timestamp/1000);if(!usable.length||ts>usable[usable.length-1].ts)usable.push({p,ts})}
+  if(usable.length<3||usable[usable.length-1].ts<=lastMatchedTimestamp)return;
+  matchRequestInFlight=true;lastMatchRequestAt=now;
+  try{
+   const coords=usable.map(x=>x.p.lng.toFixed(6)+','+x.p.lat.toFixed(6)).join(';');
+   const timestamps=usable.map(x=>x.ts).join(';');
+   const radiuses=usable.map(x=>Math.max(5,Math.min(50,x.p.accuracy||25)).toFixed(0)).join(';');
+   const url='https://router.project-osrm.org/match/v1/driving/'+coords+'?geometries=geojson&overview=full&steps=false&timestamps='+timestamps+'&radiuses='+radiuses;
+   const response=await fetch(url,{method:'GET',headers:{'Accept':'application/json'}});
+   if(!response.ok)throw new Error('রোড-ম্যাপিং সার্ভার উত্তর দেয়নি');
+   const data=await response.json();
+   if(data.code!=='Ok'||!Array.isArray(data.matchings)||!data.matchings.length)throw new Error('এই অংশের জন্য নির্ভরযোগ্য রাস্তার মিল পাওয়া যায়নি');
+   const best=data.matchings.slice().sort((a,b)=>(b.confidence||0)-(a.confidence||0))[0];
+   if(!best.geometry||!Array.isArray(best.geometry.coordinates)||best.geometry.coordinates.length<2||(best.confidence||0)<0.45)throw new Error('রাস্তার মিলের নির্ভরযোগ্যতা কম');
+   const latlngs=best.geometry.coordinates.map(c=>[c[1],c[0]]);
+   if(matchedTrackLine)matchedTrackLine.setLatLngs(latlngs);else matchedTrackLine=L.polyline(latlngs,{color:'#087f5b',weight:6,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(map);
+   matchedTrackDistance=distanceOfLatLngs(latlngs);
+   lastMatchedTimestamp=usable[usable.length-1].ts;
+   if(rawTrackLine){map.removeLayer(rawTrackLine);rawTrackLine=null}
+   updateTrackPanel();
+   say('GPS ট্র্যাক OpenStreetMap-এর রাস্তার সঙ্গে মিলিয়ে দেখানো হয়েছে। রাস্তার ডেটা অসম্পূর্ণ হলে কিছু অংশে বিচ্যুতি থাকতে পারে।');
+  }catch(error){
+   say('রাস্তার সঙ্গে মিল পাওয়া যায়নি; GPS-এর মূল ট্র্যাক রাখা হয়েছে। '+error.message);
+  }finally{matchRequestInFlight=false}
  }
  function startTracking(){
   if(!window.isSecureContext){say('লাইভ GPS ট্র্যাকের জন্য HTTPS প্রয়োজন।');return}
@@ -958,7 +994,7 @@ function init(){
    DeviceOrientationEvent.requestPermission().then(permission=>{if(permission==='granted'){orientationHandler=onOrientation;window.addEventListener('deviceorientation',orientationHandler,true)}}).catch(()=>say('কম্পাস অনুমতি পাওয়া যায়নি; চলাচলের GPS দিক ব্যবহার হবে।'));
   }else if('DeviceOrientationEvent' in window){orientationHandler=onOrientation;window.addEventListener('deviceorientation',orientationHandler,true)}
   try{
-   positionWindow=[];filteredPosition=null;lastAcceptedTimestamp=0;lastAcceptedAccuracy=null;lastAcceptedPosition=null;lastFixReceivedAt=0;lastSpeed=0;
+   positionWindow=[];filteredPosition=null;trackPoints=[];trackDistance=0;matchedTrackDistance=0;lastMatchedTimestamp=0;lastMatchRequestAt=0;matchRequestInFlight=false;if(trackLine){map.removeLayer(trackLine);trackLine=null}if(rawTrackLine){map.removeLayer(rawTrackLine);rawTrackLine=null}if(matchedTrackLine){map.removeLayer(matchedTrackLine);matchedTrackLine=null}lastAcceptedTimestamp=0;lastAcceptedAccuracy=null;lastAcceptedPosition=null;lastFixReceivedAt=0;lastSpeed=0;
    watchId=navigator.geolocation.watchPosition(handleTrackPosition,error=>{
     const messages={1:'লোকেশন অনুমতি দেওয়া হয়নি। ব্রাউজারের Site settings থেকে Location: Allow করুন।',2:'GPS অবস্থান পাওয়া যাচ্ছে না। ডিভাইসের Location চালু করুন।',3:'GPS সময়সীমা শেষ হয়েছে; আবার চেষ্টা করুন।'};
     say(messages[error.code]||('GPS সমস্যা: '+error.message));stopTracking();
@@ -971,7 +1007,7 @@ function init(){
   if(trackStartedAt!==null){trackElapsedMs+=Date.now()-trackStartedAt;trackStartedAt=null}
   if(trackClock!==null){clearInterval(trackClock);trackClock=null}
   if(orientationHandler){window.removeEventListener('deviceorientation',orientationHandler,true);orientationHandler=null}
-  trackStart.disabled=false;trackStop.disabled=true;lastSpeed=0;updateTrackPanel();say('GPS ট্র্যাক বন্ধ হয়েছে। এই সেশনের সময়, পয়েন্ট ও দূরত্ব সংরক্ষিত আছে।');
+  trackStart.disabled=false;trackStop.disabled=true;lastSpeed=0;requestRoadMatch(true);updateTrackPanel();say('GPS ট্র্যাক বন্ধ হয়েছে। রাস্তার সঙ্গে ট্র্যাক মেলানো হচ্ছে; মূল GPS তথ্যও রাখা হয়েছে।');
  }
  trackStart.addEventListener('click',startTracking);trackStop.addEventListener('click',stopTracking);
  document.getElementById('locate').addEventListener('click',()=>{
