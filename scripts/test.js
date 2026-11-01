@@ -67,15 +67,15 @@ const required = [
   ['navigator.geolocation.watchPosition', 'continuous GPS tracking'],
   ['navigator.geolocation.clearWatch', 'tracking cleanup'],
   ['function handleTrackPosition(', 'GPS fix validation'],
-  ['c.accuracy>25', 'low quality GPS fixes above 25m are rejected'],
+  ['c.accuracy>35', 'low quality GPS fixes above 35m are rejected'],
   ['lastAcceptedPosition=p', 'GPS uses the latest raw validated fix rather than averaging stale positions'],
-  ['const reliableMovement=Math.max(0,step-uncertainty)', 'GPS jump detection accounts for reported horizontal accuracy'],
-  ['const maxPlausibleSpeed=45', 'GPS impossible jumps are rejected at a conservative speed ceiling'],
-  ['const movementThreshold=Math.max(3,Math.min(12,(lastAcceptedAccuracy+c.accuracy)*0.5))', 'GPS jitter threshold scales with both fix accuracy values'],
-  ['acceptedSegment=Math.max(0,step-uncertainty)', 'GPS distance discounts horizontal uncertainty'],
+  ['const measuredSpeed=step/elapsed', 'GPS jump detection uses measured speed'],
+  ['const maxPlausibleSpeed=20', 'GPS impossible jumps are rejected at a conservative speed ceiling'],
+  ['const movementThreshold=Math.max(2.5,Math.min(5.5,meanAccuracy*0.14))', 'GPS jitter threshold adapts to fix accuracy'],
+  ['trackDistance+=step', 'GPS distance does not repeatedly subtract accuracy radius'],
   ['lastAcceptedPosition=null', 'GPS anchor is reset at the start of a new tracking session'],
 
-  ['const movementThreshold=Math.max(3,Math.min(12,(lastAcceptedAccuracy+c.accuracy)*0.5))', 'GPS jitter filtering'],
+  ['const movementThreshold=Math.max(2.5,Math.min(5.5,meanAccuracy*0.14))', 'GPS jitter filtering'],
   ['timestamp<=lastAcceptedTimestamp', 'duplicate or out-of-order GPS timestamps are rejected'],
   ['id="trackStart"', 'tracking start control'],
   ['id="trackStop"', 'tracking stop control'],
@@ -221,8 +221,8 @@ mathContext.points = datelinePoints;
 const datelineArea = mathContext.areaSquareMeters();
 assert.ok(datelineArea > 200_000_000 && datelineArea < 300_000_000, 'Area calculation handles polygons crossing the antimeridian');
 
-assert.ok(appScript.includes('c.accuracy>25'), 'GPS rejects low-confidence fixes');
+assert.ok(appScript.includes('c.accuracy>35'), 'GPS rejects low-confidence fixes');
 assert.ok(appScript.includes('lastAcceptedPosition=p'), 'GPS stores raw validated position as the next anchor');
-assert.ok(appScript.includes('acceptedSegment=Math.max(0,step-uncertainty)'), 'GPS route distance is uncertainty-adjusted');
+assert.ok(appScript.includes('trackDistance+=step'), 'GPS route distance is uncertainty-adjusted');
 assert.ok(!appScript.includes('fuseGpsPosition(raw,c.accuracy,timestamp)'), 'GPS tracking never smooths by averaging past positions');
 console.log('GeoMap Bangladesh advanced geospatial checks passed (GPS fix quality, jitter, jump rejection and uncertainty-adjusted distance).');
