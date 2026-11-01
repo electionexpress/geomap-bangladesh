@@ -632,6 +632,53 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
  .site-header .header-track-stats{grid-template-columns:70px 76px minmax(0,1fr)!important}
 }
 
+
+/* GeoMap responsive header v2: one fixed identity row, then clean flow layout */
+.brand-sticky-wrap{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;height:64px!important;min-height:64px!important;z-index:10000!important;display:block!important;box-sizing:border-box!important;padding:0 12px!important;margin:0!important;overflow:hidden!important;background:linear-gradient(115deg,#073b35 0%,#075a47 58%,#08745a 100%)!important;box-shadow:0 4px 15px #002a2240!important}
+.brand-sticky-wrap .header-top{height:64px!important;min-height:64px!important;width:100%!important;max-width:1500px!important;margin:0 auto!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;border:0!important}
+.brand-sticky-wrap .brand{display:flex!important;flex:1 1 auto!important;min-width:0!important;max-width:none!important;flex-flow:row nowrap!important;align-items:center!important;gap:9px!important;white-space:nowrap!important;text-decoration:none!important;color:#fff!important}
+.brand-sticky-wrap .brand-mark{display:grid!important;place-items:center!important;flex:0 0 42px!important;width:42px!important;height:42px!important;border:1px solid #a5f3d04d!important;border-radius:13px!important;background:#ffffff12!important;color:#c7f7df!important}
+.brand-sticky-wrap .brand-mark svg{display:block!important;width:27px!important;height:27px!important}
+.brand-sticky-wrap .brand-copy{display:block!important;flex:1 1 auto!important;min-width:0!important;white-space:nowrap!important}
+.brand-sticky-wrap .brand-copy strong{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:clamp(.84rem,3.6vw,1.08rem)!important;line-height:1.2!important;letter-spacing:-.25px!important;color:#fff!important}
+.brand-sticky-wrap .brand-copy em{color:#b7f4d4!important;font-style:normal!important}
+.brand-sticky-wrap .brand-copy small{display:none!important}
+.brand-sticky-wrap .header-status{display:flex!important;flex:0 1 auto!important;min-width:0!important;max-width:145px!important;align-items:center!important;gap:7px!important;padding:7px 10px!important;overflow:hidden!important;white-space:nowrap!important;border:1px solid #b7f7d533!important;border-radius:99px!important;background:#ffffff0d!important;color:#d9f8e8!important;font-size:.65rem!important}
+.brand-sticky-wrap .header-status>span:last-child{overflow:hidden!important;text-overflow:ellipsis!important}
+.site-header{display:block!important;position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;height:auto!important;min-height:0!important;margin:64px 0 0!important;padding:0 10px 8px!important;box-sizing:border-box!important;overflow:visible!important;z-index:2!important}
+.site-header:before,.site-header:after{display:none!important}
+.site-header .header-inner{display:block!important;width:100%!important;max-width:1500px!important;min-width:0!important;margin:0 auto!important;padding:0!important}
+.site-header .header-track-stats{position:relative!important;inset:auto!important;float:none!important;display:grid!important;grid-template-columns:minmax(82px,.85fr) minmax(82px,.85fr) minmax(0,2fr)!important;align-items:stretch!important;gap:6px!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;margin:0!important;padding:8px 0 6px!important;box-sizing:border-box!important}
+.site-header .header-track-stat{position:relative!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;min-width:0!important;max-width:none!important;min-height:58px!important;margin:0!important;padding:6px 4px!important;overflow:hidden!important;box-sizing:border-box!important;border:1px solid #b7f7d533!important;border-radius:12px!important;background:#ffffff0d!important}
+.site-header .header-track-stat span,.site-header .header-track-stat small{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:.64rem!important;line-height:1.2!important}
+.site-header .header-track-stat strong{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:clamp(.68rem,2.8vw,.82rem)!important;line-height:1.25!important;font-variant-numeric:tabular-nums!important}
+.site-header .header-track-distance strong{white-space:normal!important;overflow-wrap:anywhere!important;text-align:center!important;font-size:clamp(.58rem,2.45vw,.75rem)!important;line-height:1.3!important}
+.site-header .app-nav{position:relative!important;inset:auto!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:6px!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;margin:2px 0 0!important;padding:2px 0 5px!important;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain!important;scrollbar-width:none!important;box-sizing:border-box!important}
+.site-header .app-nav::-webkit-scrollbar{display:none!important}
+.site-header .app-nav button{position:relative!important;display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;min-height:42px!important;margin:0!important;padding:8px 12px!important;white-space:nowrap!important;font-size:.78rem!important}
+.site-header .app-nav .nav-label{display:none!important}
+@media(max-width:430px){
+ .brand-sticky-wrap{height:60px!important;min-height:60px!important;padding:0 9px!important}
+ .brand-sticky-wrap .header-top{height:60px!important;min-height:60px!important;gap:7px!important}
+ .brand-sticky-wrap .brand-mark{flex-basis:38px!important;width:38px!important;height:38px!important;border-radius:12px!important}
+ .brand-sticky-wrap .brand-mark svg{width:24px!important;height:24px!important}
+ .brand-sticky-wrap .brand{gap:7px!important}
+ .brand-sticky-wrap .brand-copy strong{font-size:clamp(.79rem,3.7vw,.96rem)!important}
+ .brand-sticky-wrap .header-status{max-width:112px!important;padding:6px 8px!important;font-size:.58rem!important}
+ .site-header{margin-top:60px!important;padding-inline:8px!important}
+ .site-header .header-track-stats{grid-template-columns:minmax(72px,.82fr) minmax(72px,.82fr) minmax(0,1.65fr)!important;gap:5px!important;padding-top:7px!important}
+ .site-header .header-track-stat{min-height:56px!important;padding:5px 3px!important}
+ .site-header .header-track-stat small{font-size:.59rem!important}
+ .site-header .header-track-stat strong{font-size:.68rem!important}
+ .site-header .header-track-distance strong{font-size:.58rem!important}
+ .site-header .app-nav button{min-height:40px!important;padding:7px 10px!important}
+}
+@media(max-width:360px){
+ .brand-sticky-wrap .header-status{max-width:34px!important;padding:7px!important}
+ .brand-sticky-wrap .header-status>span:last-child{display:none!important}
+ .site-header .header-track-stats{grid-template-columns:68px 70px minmax(0,1fr)!important}
+}
+
 </style>
 </head>
 <body>
