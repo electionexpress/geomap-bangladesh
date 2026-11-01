@@ -243,3 +243,8 @@ assert(html.includes('.brand-sticky-wrap{position:fixed!important;top:0!importan
 assert(html.includes('.brand-sticky-wrap .brand{display:flex!important'), "fixed brand is styled as horizontal flex row");
 assert(html.includes('.brand-sticky-wrap .brand-copy strong{display:block!important'), "brand title stays on one line");
 assert(html.includes('.brand-sticky-wrap{height:60px!important'), "mobile fixed header has compact height");
+
+assert(html.includes('<div class="brand-sticky-wrap">'), "brand sticky wrapper exists");
+assert(html.indexOf('</div>\\n<header class="site-header">') > 0, "brand wrapper closes before site header");
+assert(html.includes('grid-template-columns:minmax(76px,.75fr) minmax(76px,.75fr) minmax(0,2fr)'), "mobile GPS metrics use bounded grid columns");
+assert(html.includes('overflow-x:auto!important'), "navigation scrolls horizontally without page overflow");
