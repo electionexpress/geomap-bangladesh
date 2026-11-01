@@ -823,14 +823,14 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 
 <section class="group" id="boundaryPanel">
  <h2><span class="section-icon">▧</span> প্রশাসনিক সীমানা</h2>
- <p class="map-hint">বাংলাদেশের বিভাগ, জেলা ও নিম্ন প্রশাসনিক সীমানা ম্যাপে দেখুন। ডেটা geoBoundaries থেকে লোড হবে।</p>
+ <p class="map-hint">বিভাগ, জেলা, উপজেলা ও ইউনিয়নের সীমানা রেখা আলাদা স্তরে দেখুন। স্তর নির্বাচন করে লোড করুন; রেখায় চাপ দিলে এলাকার নাম দেখা যাবে।</p>
  <label for="boundaryLevel" class="map-hint">সীমানার স্তর</label>
  <select id="boundaryLevel" style="width:100%;padding:11px;border:1px solid #dce9e1;border-radius:11px;background:#f8fbf9;color:#183c30;font:inherit;margin:6px 0 9px">
-  <option value="ADM1">ADM1 · বিভাগ</option><option value="ADM2">ADM2 · জেলা</option><option value="ADM3">ADM3 · উপজেলা/স্থানীয় স্তর</option><option value="ADM4">ADM4 · আরও স্থানীয় স্তর (উপলভ্য হলে)</option>
+  <option value="ADM1">বিভাগের সীমানা</option><option value="ADM2">জেলার সীমানা</option><option value="ADM3">উপজেলার সীমানা</option><option value="ADM4">ইউনিয়নের সীমানা (ডেটা থাকলে)</option>
  </select>
  <div class="actions"><button id="loadBoundaries" type="button">সীমানা লোড করুন</button><button class="secondary" id="clearBoundaries" type="button">সীমানা সরান</button></div>
  <p id="boundaryStatus" class="map-hint" role="status" aria-live="polite">সীমানা এখনো লোড করা হয়নি।</p>
- <p class="note">সীমানার স্তর ও নাম উৎস ডেটার ওপর নির্ভরশীল; প্রশাসনিক বা আইনি কাজে সরকারি যাচাইকৃত ডেটা মিলিয়ে নিন। © geoBoundaries (CC BY 4.0)।</p>
+ <p class="note">ADM2 = জেলা, ADM3 = উপজেলা, ADM4 = ইউনিয়ন। গ্রাম/মৌজা পর্যায়ের নির্ভুল সীমানা এই ডেটায় নিশ্চিত নয়; আলাদা সরকারি বা যাচাইকৃত ডেটা প্রয়োজন। সীমানা রেখা তথ্যভিত্তিক নির্দেশক, আইনি সীমানা-প্রাচীর বা ভূমি জরিপের বিকল্প নয়। © geoBoundaries (CC BY 4.0)।</p>
 </section>
 <section class="group" id="savedPlotsPanel">
  <h2><span class="section-icon">▱</span> জমির প্লট সংরক্ষণ</h2>
@@ -1194,7 +1194,7 @@ function init(){
    if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
    const boundaryFeatures=geo.type==='FeatureCollection'?geo.features:[geo];
    if(!Array.isArray(boundaryFeatures)||!boundaryFeatures.length||boundaryFeatures.length>50000||!boundaryFeatures.every(validGeoJSONFeature))throw new Error('সীমানার GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে।');
-   const nextLayer=L.geoJSON(geo,{style:()=>({color:'#087653',weight:2,opacity:.9,fillColor:'#39a979',fillOpacity:.08}),onEachFeature:(feature,layer)=>{const props=feature.properties||{},name=props.shapeName||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.name||props.NAME_1||props.NAME_2||'সীমানা';layer.bindTooltip(String(name),{sticky:true})}});
+   const boundaryStyle={ADM1:{color:'#1459a8',weight:3},ADM2:{color:'#07845e',weight:2.7},ADM3:{color:'#d97706',weight:2.3},ADM4:{color:'#9333a8',weight:1.9}}[level]||{color:'#087653',weight:2};const nextLayer=L.geoJSON(geo,{style:()=>({...boundaryStyle,opacity:.95,fillColor:boundaryStyle.color,fillOpacity:.035}),onEachFeature:(feature,layer)=>{const props=feature.properties||{},name=props.shapeName||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.ADM4_EN||props.name||props.NAME_1||props.NAME_2||props.NAME_3||'সীমানা';const bnName=props.shapeName||props.shapeName_1||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.ADM4_EN||props.name||props.NAME_1||props.NAME_2||props.NAME_3||name;layer.bindTooltip(String(bnName),{sticky:true});layer.bindPopup('<strong>'+String(name).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))+'</strong><br>প্রশাসনিক স্তর: '+level)}});
    if(!nextLayer.getLayers().length)throw new Error('এই সীমানা ফাইলে কোনো মানচিত্র ফিচার নেই।');
    if(boundaryLayer)map.removeLayer(boundaryLayer);boundaryLayer=nextLayer.addTo(map);
    const bounds=boundaryLayer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[18,18]});
