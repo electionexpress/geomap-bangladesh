@@ -610,6 +610,37 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 .site-header{margin-top:76px!important;position:relative!important;top:auto!important;z-index:1!important}
 @media(max-width:700px){.brand-sticky-wrap{padding-inline:8px!important}.brand-sticky-wrap .header-top{min-height:58px!important}.brand-sticky-wrap .brand-mark{width:32px!important;height:32px!important}.brand-sticky-wrap .brand-copy strong{font-size:.88rem!important}.site-header{margin-top:58px!important}}
 @media(max-width:380px){.brand-sticky-wrap .brand-copy strong{font-size:.79rem!important}.brand-sticky-wrap .header-status{display:none!important}}
+
+/* Compact, correctly styled fixed brand row on phones */
+.brand-sticky-wrap{height:76px!important;min-height:76px!important;display:flex!important;align-items:center!important;overflow:visible!important}
+.brand-sticky-wrap .header-top{width:100%!important;min-width:0!important;min-height:76px!important;height:76px!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+.brand-sticky-wrap .brand{display:flex!important;flex:1 1 auto!important;min-width:0!important;max-width:calc(100% - 150px)!important;flex-flow:row nowrap!important;align-items:center!important;gap:10px!important;text-decoration:none!important;color:#fff!important;white-space:nowrap!important}
+.brand-sticky-wrap .brand-mark{flex:0 0 46px!important;width:46px!important;height:46px!important}
+.brand-sticky-wrap .brand-copy{display:flex!important;flex:1 1 auto!important;min-width:0!important;flex-flow:column nowrap!important;gap:2px!important;white-space:nowrap!important}
+.brand-sticky-wrap .brand-copy strong{display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:#fff!important;font-size:clamp(.82rem,3.8vw,1.12rem)!important;line-height:1.2!important}
+.brand-sticky-wrap .brand-copy em{color:#a7f3d0!important}
+.brand-sticky-wrap .brand-copy small{display:none!important}
+.brand-sticky-wrap .header-status{display:flex!important;flex:0 0 auto!important;max-width:138px!important;min-width:0!important;padding:7px 9px!important;gap:6px!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;font-size:.62rem!important}
+.brand-sticky-wrap .header-status .status-pulse{flex:0 0 8px!important}
+.site-header{margin-top:76px!important}
+@media(max-width:700px){
+ .brand-sticky-wrap{height:60px!important;min-height:60px!important;padding:0 10px!important}
+ .brand-sticky-wrap .header-top{height:60px!important;min-height:60px!important;gap:7px!important}
+ .brand-sticky-wrap .brand{max-width:calc(100% - 112px)!important;gap:8px!important}
+ .brand-sticky-wrap .brand-mark{flex-basis:38px!important;width:38px!important;height:38px!important;border-radius:12px!important}
+ .brand-sticky-wrap .brand-mark svg{width:25px!important;height:25px!important}
+ .brand-sticky-wrap .brand-copy strong{font-size:clamp(.78rem,3.7vw,.98rem)!important;letter-spacing:-.3px!important}
+ .brand-sticky-wrap .header-status{max-width:104px!important;padding:6px 7px!important;font-size:.55rem!important}
+ .site-header{margin-top:60px!important}
+}
+@media(max-width:380px){
+ .brand-sticky-wrap .brand{max-width:calc(100% - 86px)!important}
+ .brand-sticky-wrap .header-status{max-width:78px!important}
+ .brand-sticky-wrap .header-status .status-pulse{width:7px!important;height:7px!important}
+ .brand-sticky-wrap .header-status{font-size:0!important}
+ .brand-sticky-wrap .brand-copy strong{font-size:.8rem!important}
+}
+
 </style>
 </head>
 <body>
