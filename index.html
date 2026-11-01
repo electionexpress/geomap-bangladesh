@@ -1182,15 +1182,41 @@ function init(){
   const level=document.getElementById('boundaryLevel').value,button=document.getElementById('loadBoundaries');
   button.disabled=true;boundaryStatus.textContent='বাংলাদেশের '+level+' সীমানার তথ্য খোঁজা হচ্ছে…';
   try{
-   const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
-   if(!metaResponse.ok)throw new Error('সীমানার তথ্য পাওয়া যায়নি (HTTP '+metaResponse.status+')');
-   const metadata=await metaResponse.json();
-   if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('এই স্তরের সীমানা ডেটা উৎসে পাওয়া যায়নি। অন্য স্তর নির্বাচন করুন।');
-   const boundaryUrl=new URL(metadata.simplifiedGeometryGeoJSON);
-   if(boundaryUrl.protocol!=='https:')throw new Error('সীমানার ডেটা নিরাপদ HTTPS উৎস থেকে আসেনি।');
-   const geoResponse=await fetch(boundaryUrl.href,{headers:{Accept:'application/geo+json,application/json'}});
-   if(!geoResponse.ok)throw new Error('সীমানার GeoJSON ডাউনলোড করা যায়নি।');
-   const geo=await geoResponse.json();
+   let metadata=null,geo=null,dataSourceLabel='geoBoundaries';
+   try{
+    const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
+    if(!metaResponse.ok)throw new Error('geoBoundaries API HTTP '+metaResponse.status);
+    metadata=await metaResponse.json();
+    if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('geoBoundaries-এ এই স্তরের ডেটা নেই');
+    const boundaryUrl=new URL(metadata.simplifiedGeometryGeoJSON);
+    if(boundaryUrl.protocol!=='https:')throw new Error('ডেটার ঠিকানা HTTPS নয়');
+    const geoResponse=await fetch(boundaryUrl.href,{headers:{Accept:'application/geo+json,application/json'}});
+    if(!geoResponse.ok)throw new Error('GeoJSON HTTP '+geoResponse.status);
+    geo=await geoResponse.json();
+   }catch(primaryError){
+    // Fallback: Bangladesh GIS Base Data ArcGIS FeatureServer.
+    const layerId={ADM1:1,ADM2:2,ADM3:3,ADM4:4}[level];
+    if(layerId===undefined)throw primaryError;
+    const base='https://services.arcgis.com/5T5nSi527N4F7luB/ArcGIS/rest/services/Bangladesh_GIS_Base_Data/FeatureServer/'+layerId+'/query';
+    const features=[];let offset=0,pageSize=1500,hasMore=true;
+    while(hasMore){
+     const params=new URLSearchParams({where:'1=1',outFields:'*',returnGeometry:'true',outSR:'4326',f:'geojson',resultOffset:String(offset),resultRecordCount:String(pageSize)});
+     const response=await fetch(base+'?'+params.toString(),{headers:{Accept:'application/geo+json,application/json'}});
+     if(!response.ok)throw new Error('প্রধান ও বিকল্প সীমানা সার্ভার সাড়া দেয়নি (ArcGIS HTTP '+response.status+'). মূল ত্রুটি: '+primaryError.message);
+     const page=await response.json();
+     if(page.error)throw new Error('ArcGIS: '+(page.error.message||'ডেটা পাওয়া যায়নি'));
+     if(!Array.isArray(page.features))throw new Error('ArcGIS থেকে সঠিক GeoJSON পাওয়া যায়নি');
+     features.push(...page.features);
+     hasMore=page.features.length===pageSize;
+     offset+=page.features.length;
+     if(offset>12000)throw new Error('সীমানা ডেটা প্রত্যাশার চেয়ে বড়; লোড বন্ধ করা হয়েছে');
+     if(!page.features.length)hasMore=false;
+    }
+    if(!features.length)throw new Error('দুই উৎসেই '+level+' সীমানার ডেটা পাওয়া যায়নি');
+    geo={type:'FeatureCollection',features};
+    metadata={boundaryName:'বাংলাদেশ',boundaryYearRepresented:'ArcGIS ডেটা',sourceDataUpdateDate:'',};
+    dataSourceLabel='Bangladesh GIS Base Data (ArcGIS)';
+   }
    if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
    const boundaryFeatures=geo.type==='FeatureCollection'?geo.features:[geo];
    if(!Array.isArray(boundaryFeatures)||!boundaryFeatures.length||boundaryFeatures.length>50000||!boundaryFeatures.every(validGeoJSONFeature))throw new Error('সীমানার GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে।');
@@ -1198,7 +1224,7 @@ function init(){
    if(!nextLayer.getLayers().length)throw new Error('এই সীমানা ফাইলে কোনো মানচিত্র ফিচার নেই।');
    if(boundaryLayer)map.removeLayer(boundaryLayer);boundaryLayer=nextLayer.addTo(map);
    const bounds=boundaryLayer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[18,18]});
-   boundaryStatus.textContent=(metadata.boundaryName||'বাংলাদেশ')+' · '+level+' · '+nextLayer.getLayers().length+'টি সীমানা ইউনিট · '+(metadata.boundaryYearRepresented||'বছর উল্লেখ নেই')+' · উৎস: geoBoundaries';
+   boundaryStatus.textContent=(metadata.boundaryName||'বাংলাদেশ')+' · '+level+' · '+nextLayer.getLayers().length+'টি সীমানা ইউনিট · '+(metadata.boundaryYearRepresented||'বছর উল্লেখ নেই')+' · উৎস: '+dataSourceLabel;
    say('প্রশাসনিক সীমানা ম্যাপে দেখানো হয়েছে।');
   }catch(error){boundaryStatus.textContent='সীমানা লোড হয়নি: '+error.message;say(error.message)}
   finally{button.disabled=false}
