@@ -423,6 +423,32 @@ aside,.site-footer{display:none!important}
  .gps-bottom-bar button{min-height:38px}
 }
 
+
+/* Sticky header correction and visible map measurement dock */
+.site-header{position:sticky!important;top:0!important;inset-block-start:0!important;z-index:3000!important;overflow:visible!important}
+.site-header.is-scrolled .header-top{min-height:48px}
+.site-header.is-scrolled .header-track-stats{padding-block:4px}
+#measureDock{display:block;width:100%;padding:8px 9px;margin:0 0 8px;border:1px solid #dcebe2;border-radius:13px;background:linear-gradient(135deg,#f7fcf8,#edf7f1)}
+#measureDock #measurePanel{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+#measureDock #measurePanel h2{margin:0;font-size:.82rem}
+#measureDock #measurePanel .actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+#measureDock #measurePanel .actions button{min-width:0;min-height:39px;padding:5px 3px;font-size:.72rem;white-space:normal}
+#measureDock #metric{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
+#measureDock #metric .metric-card,#measureDock #metric .metric-empty{min-width:0;padding:8px;font-size:.7rem}
+#measureDock #metric .metric-card strong{font-size:.88rem;overflow-wrap:anywhere}
+#measureDock #metric .metric-grid{display:contents}
+#measureDock #metric .metric-empty{grid-column:1/-1}
+#measureDock #measurePanel .map-hint{display:none}
+#map{height:calc(100dvh - 270px);min-height:320px}
+@media(max-width:600px){
+ #measureDock{padding:7px;margin-bottom:7px}
+ #measureDock #measurePanel .actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #measureDock #measurePanel .actions button{font-size:.7rem;min-height:37px}
+ #measureDock #metric{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #measureDock #metric .metric-card strong{font-size:.8rem}
+ #map{height:calc(100dvh - 290px);min-height:300px}
+}
+@media(orientation:landscape) and (max-height:520px){#map{height:calc(100dvh - 210px);min-height:210px}}
 </style>
 </head>
 <body>
@@ -444,7 +470,7 @@ aside,.site-footer{display:none!important}
   </div>
 </header>
 <main>
-<div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
+<div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="measureDock" aria-label="দূরত্ব ও জমি পরিমাপ"></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
 <aside>
 <section class="group" id="gpsPanel"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
 <section class="group" id="trackingPanel"><h2><span class="section-icon">⌁</span> লাইভ চলাচল ও দিক</h2><div class="actions"></div><div id="trackingMetric" class="metric-empty" style="margin-top:10px">ট্র্যাক বন্ধ। শুরু করলে GPS পথরেখা, দিক ও চলার দূরত্ব দেখাবে।</div><p class="map-hint">কম্পাস সেন্সর থাকলে ডিভাইসের দিক; না থাকলে GPS চলাচল থেকে দিক নির্ণয় হবে।</p></section>
@@ -489,6 +515,10 @@ aside,.site-footer{display:none!important}
 const status=document.getElementById('status'),metric=document.getElementById('metric');
 const say=(message)=>{status.textContent=message};
  const viewButtons=[...document.querySelectorAll('.app-nav [data-view]')];
+ const measureDock=document.getElementById('measureDock');
+ const measurePanel=document.getElementById('measurePanel');
+ if(measureDock&&measurePanel)measureDock.appendChild(measurePanel);
+ window.addEventListener('scroll',()=>document.querySelector('.site-header')?.classList.toggle('is-scrolled',window.scrollY>24),{passive:true});
  const viewPanels={gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),plots:document.getElementById('savedPlotsPanel')};
  viewButtons.forEach(button=>button.addEventListener('click',()=>{
   const view=button.dataset.view;
