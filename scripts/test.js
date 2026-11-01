@@ -228,6 +228,11 @@ assert.ok(datelineArea > 200_000_000 && datelineArea < 300_000_000, 'Area calcul
 
 assert.ok(appScript.includes('c.accuracy>35'), 'GPS rejects low-confidence fixes');
 assert.ok(appScript.includes('lastAcceptedPosition=p'), 'GPS stores raw validated position as the next anchor');
+ 
+assert.ok(appScript.includes('stationaryThreshold=Math.max(8,Math.min(20,meanAccuracy*0.65))'), 'stationary GPS drift is suppressed using reported accuracy');
+assert.ok(appScript.includes("reportedSpeed<1.2"), 'near-zero GPS speed activates stationary drift suppression');
+assert.ok(appScript.includes('আপনি স্থির আছেন'), 'user is informed when stationary GPS jitter is ignored');
+
 assert.ok(appScript.includes('trackDistance+=step'), 'GPS route distance is uncertainty-adjusted');
 
 assert.ok(appScript.includes('async function requestRoadMatch('), 'GPS road map matching request');
