@@ -680,6 +680,21 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 }
 
 </style>
+
+/* Tools Dashboard: a compact launchpad for existing mapping tools */
+.tools-dashboard{grid-column:1/-1!important;padding:clamp(15px,2.4vw,26px)!important;background:linear-gradient(145deg,#ffffff,#f7fcf8)!important}
+.tools-dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:17px}
+.tools-dashboard-head h2{font-size:1.15rem;margin:7px 0 5px}.tools-kicker{font-size:.64rem;letter-spacing:1.8px;font-weight:850;color:#0a8b62}.tools-count{padding:7px 11px;border:1px solid #dceee2;border-radius:99px;background:#eff9f2;color:#176344;font-size:.72rem;font-weight:750;white-space:nowrap}
+.tools-dashboard-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tool-launch{min-height:154px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;padding:16px;text-align:left;border:1px solid #e1eee6;border-radius:15px;background:#fff;color:#183c30;box-shadow:0 5px 18px #123b2509;transition:border-color .18s,transform .18s,box-shadow .18s}
+.tool-launch:hover{background:#fbfefc;color:#183c30;border-color:#a9d9bc;transform:translateY(-2px);box-shadow:0 10px 24px #08765313}
+.tool-launch-icon{width:37px;height:37px;display:grid;place-items:center;border-radius:12px;background:#e7f7ed;color:#087653;font-size:1.35rem}
+.tool-launch strong{font-size:.91rem;color:#174c37}.tool-launch small{font-size:.75rem;line-height:1.55;color:#718078;font-weight:500}.tool-launch-link{margin-top:auto;padding-top:3px;font-size:.75rem;color:#087653;font-weight:800}
+.tools-dashboard-note{margin:16px 2px 0;padding:11px 13px;border-radius:11px;background:#f2f8f4;color:#66796e;font-size:.74rem;line-height:1.65}
+aside.workspace-overview .tools-dashboard[hidden]{display:none!important}
+@media(max-width:900px){.tools-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.tools-dashboard-grid{grid-template-columns:1fr;gap:9px}.tool-launch{min-height:130px;padding:14px}.tools-dashboard-head h2{font-size:1rem}}
+
 </head>
 <body>
 <div class="brand-sticky-wrap">
@@ -701,6 +716,7 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
     <nav class="app-nav" aria-label="ম্যাপিং টুলসমূহ">
       <span class="nav-label">টুলসমূহ</span>
       <button type="button" data-view="all"><span>⌂</span> ওভারভিউ</button>
+      <button type="button" data-view="tools"><span>▦</span> Tools Dashboard</button>
       <button type="button" data-view="measure" aria-current="page"><span>↔</span> পরিমাপ</button>
       <button type="button" data-view="tracking"><span>⌁</span> GPS ট্র্যাক</button>
       <button type="button" data-view="boundaries"><span>▧</span> সীমানা</button>
@@ -713,6 +729,18 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 <main>
 <div class="map-shell" id="mapShell"><div class="map-topbar"><div><strong>বাংলাদেশ ইন্টার‌্যাক্টিভ ম্যাপ</strong><small><span class="live-dot"></span>ম্যাপ প্রস্তুত · আপনার কাজ শুরু করুন</small></div><form class="map-search" id="placeSearch" role="search"><input id="placeQuery" type="search" placeholder="স্থান, ঠিকানা বা এলাকার নাম খুঁজুন…" aria-label="ম্যাপে স্থান খুঁজুন"><button type="submit">⌕ খুঁজুন</button></form><div class="map-tools"><button class="secondary" id="zoomIn" type="button" aria-label="জুম ইন" title="জুম ইন">＋</button><button class="secondary" id="zoomOut" type="button" aria-label="জুম আউট" title="জুম আউট">−</button><button class="secondary" id="mapFullscreen" type="button" aria-label="পূর্ণ পর্দা" title="পূর্ণ পর্দা">⛶</button></div></div><div id="measureDock" aria-label="দূরত্ব ও জমি পরিমাপ"></div><div id="map" aria-label="ইন্টার‌্যাক্টিভ মানচিত্র"></div><div id="mapSearchStatus" class="map-search-status" role="status" aria-live="polite"></div><div class="map-footnote"><span>© OpenStreetMap · Esri · OpenTopoMap · Carto</span><span class="map-coordinate"><span id="coordinateReadout">ম্যাপে ক্লিক করলে স্থানাঙ্ক দেখাবে</span><button class="secondary" id="copyCoordinates" type="button">কপি</button></span></div></div>
 <aside>
+<section class="group tools-dashboard" id="toolsDashboard" hidden>
+ <div class="tools-dashboard-head"><div><span class="tools-kicker">GEOMAP WORKSPACE</span><h2><span class="section-icon">▦</span> Tools Dashboard</h2><p class="map-hint">আপনার প্রয়োজনীয় ম্যাপিং টুল এক জায়গা থেকে খুলুন।</p></div><span class="tools-count">৬টি বিভাগ</span></div>
+ <div class="tools-dashboard-grid">
+  <button type="button" class="tool-launch" data-tool-target="gps"><span class="tool-launch-icon">⌖</span><strong>লোকেশন ও ম্যাপ</strong><small>GPS অবস্থান, ম্যাপ ভিউ ও স্থান খোঁজা</small><span class="tool-launch-link">টুল খুলুন →</span></button>
+  <button type="button" class="tool-launch" data-tool-target="tracking"><span class="tool-launch-icon">⌁</span><strong>GPS ও লাইভ ট্র্যাকিং</strong><small>চলাচলের পথ, সময়, পয়েন্ট ও দূরত্ব</small><span class="tool-launch-link">টুল খুলুন →</span></button>
+  <button type="button" class="tool-launch" data-tool-target="measure"><span class="tool-launch-icon">↔</span><strong>দূরত্ব ও জমি পরিমাপ</strong><small>পথের দৈর্ঘ্য, জমির ক্ষেত্রফল ও পরিসীমা</small><span class="tool-launch-link">টুল খুলুন →</span></button>
+  <button type="button" class="tool-launch" data-tool-target="boundaries"><span class="tool-launch-icon">▧</span><strong>প্রশাসনিক সীমানা</strong><small>বিভাগ, জেলা ও উপলভ্য স্থানীয় সীমানা</small><span class="tool-launch-link">টুল খুলুন →</span></button>
+  <button type="button" class="tool-launch" data-tool-target="plots"><span class="tool-launch-icon">▱</span><strong>সংরক্ষিত জমির প্লট</strong><small>প্লট সংরক্ষণ, দেখা ও GeoJSON ব্যাকআপ</small><span class="tool-launch-link">টুল খুলুন →</span></button>
+  <button type="button" class="tool-launch" data-tool-target="geojson"><span class="tool-launch-icon">⇧</span><strong>GeoJSON ডেটা</strong><small>ফাইল আমদানি, ম্যাপে দেখা ও ডাউনলোড</small><span class="tool-launch-link">টুল খুলুন →</span></button>
+ </div>
+ <p class="tools-dashboard-note">নোট: সংরক্ষিত প্লট এই ব্রাউজারেই থাকে। সীমানা ও জমির পরিমাপের নির্ভুলতা উৎস ডেটা এবং GPS-এর ওপর নির্ভরশীল।</p>
+</section>
 <section class="group" id="gpsPanel"><h2><span class="section-icon">⌖</span> লোকেশন ও ম্যাপ</h2><div class="actions"><button class="secondary" id="reset" type="button">↺ ম্যাপ রিসেট</button></div></section>
 <section class="group" id="trackingPanel"><h2><span class="section-icon">⌁</span> লাইভ চলাচল ও দিক</h2><div class="actions"></div><div id="trackingMetric" class="metric-empty" style="margin-top:10px">ট্র্যাক বন্ধ। শুরু করলে GPS পথরেখা, দিক ও চলার দূরত্ব দেখাবে।</div><p class="map-hint">কম্পাস সেন্সর থাকলে ডিভাইসের দিক; না থাকলে GPS চলাচল থেকে দিক নির্ণয় হবে।</p></section>
 <section class="group" id="measurePanel"><h2><span class="section-icon">↔</span> পরিমাপের টুল</h2><div class="actions"><button id="distance" type="button" aria-pressed="false">↔ দূরত্ব মাপুন</button><button id="area" type="button" aria-pressed="false">▱ জমি মাপুন</button><button class="secondary" id="undo" type="button">↶ শেষ পয়েন্ট বাদ</button><button class="secondary" id="clear" type="button">✕ পরিমাপ মুছুন</button></div><div id="metric" aria-live="polite"><div class="metric-empty">একটি পরিমাপের টুল বেছে নিয়ে ম্যাপে পয়েন্ট চিহ্নিত করুন।</div></div><p class="map-hint">দূরত্ব: কমপক্ষে ২টি পয়েন্ট। জমি: সীমানার কমপক্ষে ৩টি পয়েন্ট।</p></section>
@@ -764,16 +792,17 @@ const say=(message)=>{status.textContent=message};
  window.addEventListener('scroll',updateStickyHeader,{passive:true});
  window.addEventListener('pageshow',updateStickyHeader);
  updateStickyHeader();
- const viewPanels={gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),plots:document.getElementById('savedPlotsPanel')};
+ const viewPanels={tools:document.getElementById('toolsDashboard'),gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),plots:document.getElementById('savedPlotsPanel')};
  function activateWorkspace(view,announce=true){
   viewButtons.forEach(item=>{if(item.dataset.view===view)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
   Object.entries(viewPanels).forEach(([key,panel])=>{if(panel)panel.hidden=view!=='all'&&view!==key});
   const aside=document.querySelector('main>aside');
-  if(aside)aside.classList.toggle('workspace-overview',view==='all');
+  if(aside)aside.classList.toggle('workspace-overview',view==='all'||view==='tools');
   if(announce)say(view==='all'?'ওভারভিউ: সব ম্যাপিং টুল দেখানো হচ্ছে।':(viewButtons.find(item=>item.dataset.view===view)?.textContent.trim()||'ম্যাপ')+' টুল চালু হয়েছে।');
   setTimeout(()=>{if(window.L&&window.geoMapInstance)window.geoMapInstance.invalidateSize()},120);
  }
  viewButtons.forEach(button=>button.addEventListener('click',()=>activateWorkspace(button.dataset.view)));
+ document.querySelectorAll('[data-tool-target]').forEach(button=>button.addEventListener('click',()=>{const target=button.dataset.toolTarget;activateWorkspace(target);document.querySelector('.map-shell')?.scrollIntoView({behavior:'smooth',block:'start'})}));
  activateWorkspace('measure',false);
 
 function loadLeaflet(){
