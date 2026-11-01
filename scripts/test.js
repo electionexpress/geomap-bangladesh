@@ -75,7 +75,7 @@ const required = [
   ['acceptedSegment=Math.max(0,step-uncertainty)', 'GPS distance discounts horizontal uncertainty'],
   ['lastAcceptedPosition=null', 'GPS anchor is reset at the start of a new tracking session'],
 
-  ['noiseFloor', 'GPS jitter filtering'],
+  ['const movementThreshold=Math.max(3,Math.min(12,(lastAcceptedAccuracy+c.accuracy)*0.5))', 'GPS jitter filtering'],
   ['timestamp<=lastAcceptedTimestamp', 'duplicate or out-of-order GPS timestamps are rejected'],
   ['id="trackStart"', 'tracking start control'],
   ['id="trackStop"', 'tracking stop control'],
