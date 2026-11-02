@@ -256,3 +256,23 @@ assert(html.includes('.site-header{display:block!important;position:relative!imp
 assert(html.includes('grid-template-columns:minmax(82px,.85fr) minmax(82px,.85fr) minmax(0,2fr)'), "GPS stats use bounded responsive columns");
 assert(html.includes('overflow-x:auto!important'), "navigation can scroll horizontally without forcing page overflow");
 assert(html.includes('height:60px!important;min-height:60px!important'), "mobile brand row has compact fixed height");
+
+
+// Village/mouza boundary manager and searchable user-provided GeoJSON.
+for (const [snippet,description] of [
+ ['id="villageMouzaManager"','separate village and mouza manager'],
+ ['id="localBoundaryType"','village and mouza are distinct data types'],
+ ['id="localBoundaryFile"','local GeoJSON boundary upload'],
+ ['id="localBoundarySearch"','search across boundary feature properties'],
+ ['id="localBoundaryResults"','searchable boundary result list'],
+ ['id="localBoundarySource"','boundary source metadata'],
+ ['id="localBoundaryYear"','boundary year metadata'],
+ ['id="exportLocalBoundary"','download custom village or mouza GeoJSON'],
+ ['const LOCAL_BOUNDARY_KEY=','browser persistence for small custom boundary files'],
+ ['file.size>5*1024*1024','custom boundary upload size limit'],
+ ['features.length>5000','custom boundary feature count limit'],
+ ["['Polygon','MultiPolygon'].includes(feature.geometry.type)",'village/mouza polygon geometry validation'],
+ ['boundarySearchText(item.feature).includes(q)','search all feature properties including local area/JL identifiers'],
+ ['প্রথম ১০০টি ফল দেখানো হয়েছে','bounded search results for usability']
+]) assert.ok(html.includes(snippet)||s.includes(snippet), 'Missing feature: '+description);
+assert.ok(s.includes("localBoundarySearch.addEventListener('input',renderLocalBoundaryResults)"),'boundary search updates as the user types');
