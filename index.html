@@ -830,7 +830,27 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
  </select>
  <div class="actions"><button id="loadBoundaries" type="button">সীমানা লোড করুন</button><button class="secondary" id="clearBoundaries" type="button">সীমানা সরান</button></div>
  <p id="boundaryStatus" class="map-hint" role="status" aria-live="polite">সীমানা এখনো লোড করা হয়নি।</p>
- <p class="note">ADM2 = জেলা, ADM3 = উপজেলা, ADM4 = ইউনিয়ন। গ্রাম/মৌজা পর্যায়ের নির্ভুল সীমানা এই ডেটায় নিশ্চিত নয়; আলাদা সরকারি বা যাচাইকৃত ডেটা প্রয়োজন। সীমানা রেখা তথ্যভিত্তিক নির্দেশক, আইনি সীমানা-প্রাচীর বা ভূমি জরিপের বিকল্প নয়। © geoBoundaries (CC BY 4.0)।</p>
+ <div class="boundary-custom" id="villageMouzaManager">
+  <h3 style="font-size:.9rem;color:#185c43;margin:15px 0 7px">গ্রাম ও মৌজা সীমানা</h3>
+  <p class="map-hint">নিজের এলাকার যাচাইকৃত GeoJSON ফাইল যোগ করুন। গ্রাম ও মৌজা আলাদা করে দেখানো হবে; ফাইলের বৈশিষ্ট্য/প্রপার্টি থেকে নাম ও এলাকা খোঁজা যাবে।</p>
+  <label for="localBoundaryType" class="map-hint">ডেটার ধরন</label>
+  <select id="localBoundaryType" style="width:100%;padding:10px;border:1px solid #dce9e1;border-radius:10px;background:#f8fbf9;margin:5px 0 8px;font:inherit">
+   <option value="village">গ্রাম সীমানা</option><option value="mouza">মৌজা সীমানা</option>
+  </select>
+  <label for="localBoundaryFile" class="file-label" style="width:100%">↑ গ্রাম/মৌজার GeoJSON আপলোড</label>
+  <input id="localBoundaryFile" type="file" accept=".json,.geojson,application/geo+json,application/json">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px">
+   <input id="localBoundarySource" type="text" maxlength="100" placeholder="ডেটার উৎস" aria-label="ডেটার উৎস" style="min-width:0;width:100%;padding:9px;border:1px solid #dce9e1;border-radius:9px;font:inherit">
+   <input id="localBoundaryYear" type="text" maxlength="20" placeholder="সাল (যদি জানা থাকে)" aria-label="ডেটার সাল" style="min-width:0;width:100%;padding:9px;border:1px solid #dce9e1;border-radius:9px;font:inherit">
+  </div>
+  <p id="localBoundaryStatus" class="map-hint" role="status" aria-live="polite">এখনো কোনো গ্রাম/মৌজা ফাইল যোগ করা হয়নি। সর্বোচ্চ ৫ MB ও ৫,০০০ ফিচার।</p>
+  <label for="localBoundarySearch" class="map-hint">নাম, জেলা, উপজেলা, ইউনিয়ন বা JL নম্বর দিয়ে খুঁজুন</label>
+  <input id="localBoundarySearch" type="search" placeholder="যেমন: গ্রামের নাম / JL নম্বর" style="width:100%;padding:10px;border:1px solid #dce9e1;border-radius:10px;font:inherit;margin:5px 0">
+  <div class="actions"><button class="secondary" id="clearLocalBoundary" type="button">আপলোড সরান</button><button class="secondary" id="exportLocalBoundary" type="button">ডেটা ডাউনলোড</button></div>
+  <div id="localBoundaryResults" class="metric-empty" style="margin-top:9px" aria-live="polite">ফাইল যোগ করলে খোঁজার ফল এখানে দেখাবে।</div>
+  <p class="note">আপলোড করা ডেটা এই ব্রাউজারে সীমিত আকারে সংরক্ষণের চেষ্টা করা হবে। সরকারি উৎস যাচাই না করা থাকলে এটি ব্যবহারকারীর দেওয়া ডেটা হিসেবে চিহ্নিত থাকবে। গ্রাম ও মৌজা এক নয়; আইনি সীমানা নির্ধারণে সরকারি রেকর্ড/অনুমোদিত জরিপ অনুসরণ করুন।</p>
+ </div>
+ <p class="note">ADM1 = বিভাগ, ADM2 = জেলা, ADM3 = উপজেলা, ADM4 = ইউনিয়ন। এগুলো প্রশাসনিক সীমানা; গ্রাম/মৌজার নির্ভুল সীমানা আলাদা ডেটা ছাড়া নিশ্চিত নয়। © geoBoundaries (CC BY 4.0)।</p>
 </section>
 <section class="group" id="savedPlotsPanel">
  <h2><span class="section-icon">▱</span> জমির প্লট সংরক্ষণ</h2>
@@ -1231,6 +1251,96 @@ function init(){
  });
  document.getElementById('clearBoundaries').addEventListener('click',()=>{if(boundaryLayer){map.removeLayer(boundaryLayer);boundaryLayer=null}boundaryStatus.textContent='সীমানা ম্যাপ থেকে সরানো হয়েছে।';say('প্রশাসনিক সীমানা সরানো হয়েছে।')});
 
+ // User-provided village/mouza GeoJSON: kept separate from official administrative levels.
+ let localBoundaryLayer=null,localBoundaryData=null,localBoundaryType='village',localBoundaryMeta={source:'ব্যবহারকারীর দেওয়া ডেটা',year:''};
+ const localBoundaryFile=document.getElementById('localBoundaryFile');
+ const localBoundaryStatus=document.getElementById('localBoundaryStatus');
+ const localBoundaryResults=document.getElementById('localBoundaryResults');
+ const localBoundarySearch=document.getElementById('localBoundarySearch');
+ const LOCAL_BOUNDARY_KEY='geomap-village-mouza-v1';
+ const escapeBoundaryText=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ function boundaryProps(feature){return feature&&feature.properties&&typeof feature.properties==='object'?feature.properties:{}}
+ function boundaryFeatureName(feature,index){
+  const p=boundaryProps(feature),keys=['village','Village','VILLAGE','village_name','গ্রামের_নাম','গ্রাম','mouza','Mouza','MOUZA','mouza_name','মৌজার_নাম','মৌজা','name','NAME','Name','shapeName','JL_NO','jl_no'];
+  for(const key of keys)if(p[key]!==undefined&&String(p[key]).trim())return String(p[key]).trim();
+  for(const [key,value] of Object.entries(p))if(/name|নাম/i.test(key)&&value!==null&&String(value).trim())return String(value).trim();
+  return 'সীমানা '+(index+1);
+ }
+ function boundarySearchText(feature){
+  return Object.entries(boundaryProps(feature)).map(([key,value])=>key+' '+String(value??'')).join(' ').toLocaleLowerCase('bn');
+ }
+ function renderLocalBoundaryResults(){
+  if(!localBoundaryData){localBoundaryResults.textContent='ফাইল যোগ করলে খোঁজার ফল এখানে দেখাবে।';return}
+  const q=localBoundarySearch.value.trim().toLocaleLowerCase('bn');
+  const features=localBoundaryData.features||[];
+  const matches=features.map((feature,index)=>({feature,index})).filter(item=>!q||boundarySearchText(item.feature).includes(q));
+  localBoundaryResults.replaceChildren();
+  const summary=document.createElement('p');summary.className='map-hint';summary.textContent='মোট '+features.length+'টি · পাওয়া গেছে '+matches.length+'টি';localBoundaryResults.appendChild(summary);
+  if(!matches.length){const empty=document.createElement('p');empty.textContent='এই শব্দে কোনো ফল পাওয়া যায়নি। বানান বা JL নম্বর পরীক্ষা করুন।';localBoundaryResults.appendChild(empty);return}
+  matches.slice(0,100).forEach(({feature,index})=>{
+   const button=document.createElement('button');button.type='button';button.className='secondary';button.style.cssText='width:100%;justify-content:flex-start;margin:5px 0;text-align:left;white-space:normal';
+   const p=boundaryProps(feature),extra=Object.entries(p).filter(([key])=>/district|upazila|union|jl|জেলা|উপজেলা|ইউনিয়ন/i.test(key)).map(([key,value])=>key+': '+value).slice(0,3).join(' · ');
+   button.textContent=boundaryFeatureName(feature,index)+(extra?' — '+extra:'');
+   button.addEventListener('click',()=>{
+    if(!localBoundaryLayer)return;
+    const layers=localBoundaryLayer.getLayers(),target=layers[index];if(!target)return;
+    if(target.getBounds&&target.getBounds().isValid())map.fitBounds(target.getBounds(),{padding:[25,25],maxZoom:17});
+    else if(target.getLatLng)map.setView(target.getLatLng(),16);
+    target.openPopup&&target.openPopup();
+   });
+   localBoundaryResults.appendChild(button);
+  });
+  if(matches.length>100){const note=document.createElement('p');note.className='map-hint';note.textContent='প্রথম ১০০টি ফল দেখানো হয়েছে; আরও নির্দিষ্ট শব্দ দিয়ে খুঁজুন।';localBoundaryResults.appendChild(note)}
+ }
+ function showLocalBoundaryData(data,type,meta,announce=true){
+  const features=data.type==='FeatureCollection'?data.features:[data];
+  if(!Array.isArray(features)||!features.length||features.length>5000||!features.every(validGeoJSONFeature))throw new Error('ফাইলে অবৈধ জ্যামিতি আছে অথবা ফিচারের সংখ্যা ৫,০০০-এর বেশি।');
+  if(!features.every(feature=>['Polygon','MultiPolygon'].includes(feature.geometry.type)))throw new Error('গ্রাম/মৌজা সীমানার জন্য Polygon বা MultiPolygon ফাইল দিন।');
+  const next=L.geoJSON(data,{style:()=>({color:type==='mouza'?'#9333a8':'#0b8b63',weight:2.2,opacity:.95,fillOpacity:.06}),onEachFeature:(feature,layer)=>{
+   const p=boundaryProps(feature),name=boundaryFeatureName(feature,0);
+   const details=Object.entries(p).filter(([key,value])=>value!==null&&value!==''&&/district|upazila|union|jl|জেলা|উপজেলা|ইউনিয়ন|মৌজা|গ্রাম/i.test(key)).slice(0,8).map(([key,value])=>'<br>'+escapeBoundaryText(key)+': '+escapeBoundaryText(value)).join('');
+   layer.bindTooltip(escapeBoundaryText(name),{sticky:true});
+   layer.bindPopup('<strong>'+escapeBoundaryText(name)+'</strong><br>ধরন: '+(type==='mouza'?'মৌজা':'গ্রাম')+details+'<br>উৎস: '+escapeBoundaryText(meta.source||'ব্যবহারকারীর দেওয়া ডেটা')+'<br>সাল: '+escapeBoundaryText(meta.year||'উল্লেখ নেই'));
+  }});
+  if(!next.getLayers().length)throw new Error('ফাইলে প্রদর্শনযোগ্য সীমানা নেই।');
+  if(localBoundaryLayer)map.removeLayer(localBoundaryLayer);
+  localBoundaryLayer=next.addTo(map);localBoundaryData=data;localBoundaryType=type;localBoundaryMeta=meta;
+  const bounds=next.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[20,20]});
+  localBoundaryStatus.textContent=(type==='mouza'?'মৌজা':'গ্রাম')+' · '+features.length+'টি সীমানা · উৎস: '+(meta.source||'ব্যবহারকারীর দেওয়া ডেটা')+' · সাল: '+(meta.year||'উল্লেখ নেই');
+  renderLocalBoundaryResults();if(announce)say('গ্রাম/মৌজা সীমানা ম্যাপে যোগ হয়েছে।');
+ }
+ localBoundaryFile.addEventListener('change',async()=>{
+  const file=localBoundaryFile.files&&localBoundaryFile.files[0];if(!file)return;
+  if(file.size>5*1024*1024){localBoundaryStatus.textContent='ফাইল ৫ MB-এর বেশি। ছোট GeoJSON ফাইল দিন।';localBoundaryFile.value='';return}
+  try{
+   const data=JSON.parse(await file.text());
+   if(!data||!['FeatureCollection','Feature'].includes(data.type))throw new Error('GeoJSON FeatureCollection বা Feature হতে হবে।');
+   const type=document.getElementById('localBoundaryType').value;
+   const meta={source:document.getElementById('localBoundarySource').value.trim()||'ব্যবহারকারীর দেওয়া ডেটা',year:document.getElementById('localBoundaryYear').value.trim()};
+   showLocalBoundaryData(data,type,meta);
+   const serialized=JSON.stringify({data,type,meta});
+   if(serialized.length<2*1024*1024){try{localStorage.setItem(LOCAL_BOUNDARY_KEY,serialized);localBoundaryStatus.textContent+=' · এই ব্রাউজারে সংরক্ষিত'}catch(storageError){localBoundaryStatus.textContent+=' · ব্রাউজার স্টোরেজে জায়গা নেই; ফাইলটি আলাদা ব্যাকআপ রাখুন'}}
+   else localBoundaryStatus.textContent+=' · ফাইল বড় হওয়ায় স্থায়ীভাবে সংরক্ষণ করা হয়নি; মূল ফাইলটি রাখুন';
+  }catch(error){localBoundaryStatus.textContent='ফাইল যোগ করা যায়নি: '+error.message}
+  finally{localBoundaryFile.value=''}
+ });
+ localBoundarySearch.addEventListener('input',renderLocalBoundaryResults);
+ document.getElementById('localBoundaryType').addEventListener('change',()=>{if(localBoundaryData)showLocalBoundaryData(localBoundaryData,document.getElementById('localBoundaryType').value,localBoundaryMeta,false)});
+ document.getElementById('clearLocalBoundary').addEventListener('click',()=>{
+  if(localBoundaryLayer)map.removeLayer(localBoundaryLayer);localBoundaryLayer=null;localBoundaryData=null;
+  try{localStorage.removeItem(LOCAL_BOUNDARY_KEY)}catch(error){}
+  localBoundaryStatus.textContent='আপলোড করা গ্রাম/মৌজা সীমানা সরানো হয়েছে।';renderLocalBoundaryResults();say('গ্রাম/মৌজা ডেটা সরানো হয়েছে।');
+ });
+ document.getElementById('exportLocalBoundary').addEventListener('click',()=>{
+  if(!localBoundaryData){localBoundaryStatus.textContent='ডাউনলোড করার মতো ডেটা নেই।';return}
+  const blob=new Blob([JSON.stringify(localBoundaryData,null,2)],{type:'application/geo+json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='geomap-'+localBoundaryType+'-boundaries.geojson';a.click();URL.revokeObjectURL(url);
+ });
+ try{
+  const saved=localStorage.getItem(LOCAL_BOUNDARY_KEY);
+  if(saved){const parsed=JSON.parse(saved);if(parsed&&parsed.data&&['village','mouza'].includes(parsed.type))showLocalBoundaryData(parsed.data,parsed.type,parsed.meta||{},false)}
+ }catch(error){localBoundaryStatus.textContent='আগের সংরক্ষিত ডেটা খোলা যায়নি; নতুন GeoJSON আপলোড করুন।'}
+ 
  // Local project workspace: projects, activity log and plot metadata stay on this browser.
  const projectStorageKey='geomap-bangladesh:projects:v1',activityStorageKey='geomap-bangladesh:activity:v1';
  let projects=[],activityLog=[],activeProjectId=null;
