@@ -1252,20 +1252,45 @@ function init(){
    drawNext();
   });
  }
+ async function fetchArcGISBoundary(level){
+  const layerByLevel={ADM1:1,ADM2:2,ADM3:3,ADM4:4},layerId=layerByLevel[level];
+  if(layerId===undefined)throw new Error('এই প্রশাসনিক স্তরের জন্য বিকল্প ডেটা নেই');
+  const features=[],pageSize=1500,base='https://services.arcgis.com/5T5nSi527N4F7luB/ArcGIS/rest/services/Bangladesh_GIS_Base_Data/FeatureServer/'+layerId+'/query';
+  for(let offset=0;offset<12000;offset+=pageSize){
+   const url=new URL(base);url.search=new URLSearchParams({where:'1=1',outFields:'*',outSR:'4326',f:'geojson',returnGeometry:'true',resultOffset:String(offset),resultRecordCount:String(pageSize)}).toString();
+   const response=await fetch(url.href,{headers:{Accept:'application/geo+json,application/json'}});
+   if(!response.ok)throw new Error('ArcGIS HTTP '+response.status);
+   const page=await response.json();
+   if(!page||page.type!=='FeatureCollection'||!Array.isArray(page.features))throw new Error('ArcGIS থেকে সঠিক GeoJSON পাওয়া যায়নি');
+   features.push(...page.features);
+   if(!page.features.length||page.features.length<pageSize)break;
+  }
+  if(!features.length||features.length>12000||!features.every(validGeoJSONFeature))throw new Error('ArcGIS বিকল্প ডেটায় অবৈধ/অতিরিক্ত ফিচার রয়েছে');
+  return {type:'FeatureCollection',features};
+ }
  async function fetchAdministrativeBoundary(level){
-  let metadata=null,geo=null,dataSourceLabel='geoBoundaries';
-  const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
-  if(!metaResponse.ok)throw new Error('geoBoundaries API HTTP '+metaResponse.status);
-  metadata=await metaResponse.json();
-  if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('geoBoundaries-এ এই স্তরের ডেটা নেই');
-  const url=new URL(metadata.simplifiedGeometryGeoJSON);if(url.protocol!=='https:')throw new Error('ডেটার ঠিকানা HTTPS নয়');
-  const response=await fetch(url.href,{headers:{Accept:'application/geo+json,application/json'}});
-  if(!response.ok)throw new Error('GeoJSON HTTP '+response.status);
-  geo=await response.json();
-  if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
-  const features=geo.type==='FeatureCollection'?geo.features:[geo];
-  if(!Array.isArray(features)||!features.length||features.length>50000||!features.every(validGeoJSONFeature))throw new Error('সীমানার GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে।');
-  return {data:geo,metadata,dataSourceLabel,savedAt:Date.now()};
+  let primaryError=null;
+  try{
+   let metadata=null;
+   const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
+   if(!metaResponse.ok)throw new Error('geoBoundaries metadata HTTP '+metaResponse.status);
+   metadata=await metaResponse.json();
+   if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('geoBoundaries-এ এই স্তরের ডেটা নেই');
+   const url=new URL(metadata.simplifiedGeometryGeoJSON);if(url.protocol!=='https:')throw new Error('ডেটার ঠিকানা HTTPS নয়');
+   const response=await fetch(url.href,{headers:{Accept:'application/geo+json,application/json'}});
+   if(!response.ok)throw new Error('geoBoundaries GeoJSON HTTP '+response.status);
+   const geo=await response.json();
+   if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('geoBoundaries-এর ডেটা সঠিক GeoJSON নয়');
+   const features=geo.type==='FeatureCollection'?geo.features:[geo];
+   if(!Array.isArray(features)||!features.length||features.length>50000||!features.every(validGeoJSONFeature))throw new Error('geoBoundaries GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে');
+   return {data:geo,metadata,dataSourceLabel:'geoBoundaries',savedAt:Date.now()};
+  }catch(error){primaryError=error}
+  try{
+   const geo=await fetchArcGISBoundary(level);
+   return {data:geo,metadata:{boundaryName:'বাংলাদেশ',boundaryYearRepresented:'ArcGIS ডেটা'},dataSourceLabel:'ArcGIS বিকল্প উৎস',savedAt:Date.now()};
+  }catch(fallbackError){
+   throw new Error('প্রধান উৎস: '+(primaryError&&primaryError.message||'ব্যর্থ')+'; বিকল্প উৎস: '+(fallbackError&&fallbackError.message||'ব্যর্থ')+'. ইন্টারনেট/CORS সংযোগ পরীক্ষা করুন।');
+  }
  }
  document.getElementById('loadBoundaries').addEventListener('click',async()=>{
   const level=document.getElementById('boundaryLevel').value,button=document.getElementById('loadBoundaries');
