@@ -729,6 +729,37 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 .dashboard-restore-label{display:inline-flex;align-items:center}
 .dashboard-bottom-grid-secondary{margin-top:12px}
 @media(max-width:760px){.project-create-row{flex-wrap:wrap}.project-create-row input{flex-basis:100%}.project-create-row button{width:100%}}
+
+/* Final cross-device scroll refinement: keep page scrolling natural and avoid nested scroll traps. */
+html,body{
+ scroll-behavior:smooth;
+ overscroll-behavior-y:auto;
+}
+html{
+ scroll-padding-top:clamp(64px,9vh,100px);
+ -webkit-overflow-scrolling:touch;
+}
+body{
+ min-height:100%;
+}
+aside,.quick-dock,.dock-nav-scroll{
+ -webkit-overflow-scrolling:touch;
+}
+aside{
+ overscroll-behavior: auto;
+}
+.quick-dock{
+ overscroll-behavior-y:auto;
+ touch-action:pan-y pinch-zoom;
+}
+.dock-nav-scroll{
+ overscroll-behavior-x:contain;
+ touch-action:pan-x pan-y pinch-zoom;
+}
+@media(prefers-reduced-motion:reduce){
+ html,body{scroll-behavior:auto!important}
+}
+
 </style>
 
 </head>
