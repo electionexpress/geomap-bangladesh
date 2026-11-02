@@ -298,3 +298,13 @@ assert.ok(html.includes('async function fetchArcGISBoundary(level)'), 'ArcGIS fa
 assert.ok(html.includes('services.arcgis.com/5T5nSi527N4F7luB/ArcGIS/rest/services/Bangladesh_GIS_Base_Data/FeatureServer/'), 'Bangladesh ArcGIS FeatureServer is configured');
 assert.ok(html.includes('resultOffset:String(offset)'), 'ArcGIS boundary records are paginated');
 assert.ok(html.includes('প্রধান উৎস:'), 'Boundary error explains both failed sources');
+
+
+// Cross-device scroll regression checks.
+for (const [snippet,description] of [
+ ['/* Final cross-device scroll refinement: keep page scrolling natural and avoid nested scroll traps. */','final scroll refinement block'],
+ ['overscroll-behavior-y:auto','natural vertical scroll chaining'],
+ ['-webkit-overflow-scrolling:touch','momentum scrolling on touch devices'],
+ ['touch-action:pan-y pinch-zoom','vertical touch scrolling and pinch zoom remain enabled'],
+ ['@media(prefers-reduced-motion:reduce){\n html,body{scroll-behavior:auto!important}\n}','reduced-motion accessibility preference'],
+]) assert.ok(html.includes(snippet), 'Missing scroll refinement: '+description);
