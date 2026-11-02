@@ -292,3 +292,9 @@ for (const [snippet,description] of [
  ['async function fetchAdministrativeBoundary(level)','separate network fetch and validation'],
  ['ক্যাশ থেকে দ্রুত লোড','cache status feedback'],
 ]) assert.ok(html.includes(snippet), 'Missing performance feature: '+description);
+
+// Administrative boundary resilience: primary API has a verified ArcGIS fallback and paginated GeoJSON retrieval.
+assert.ok(html.includes('async function fetchArcGISBoundary(level)'), 'ArcGIS fallback loader exists');
+assert.ok(html.includes('services.arcgis.com/5T5nSi527N4F7luB/ArcGIS/rest/services/Bangladesh_GIS_Base_Data/FeatureServer/'), 'Bangladesh ArcGIS FeatureServer is configured');
+assert.ok(html.includes('resultOffset:String(offset)'), 'ArcGIS boundary records are paginated');
+assert.ok(html.includes('প্রধান উৎস:'), 'Boundary error explains both failed sources');
