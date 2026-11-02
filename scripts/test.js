@@ -274,5 +274,5 @@ for (const [snippet,description] of [
  ["['Polygon','MultiPolygon'].includes(feature.geometry.type)",'village/mouza polygon geometry validation'],
  ['boundarySearchText(item.feature).includes(q)','search all feature properties including local area/JL identifiers'],
  ['প্রথম ১০০টি ফল দেখানো হয়েছে','bounded search results for usability']
-]) assert.ok(html.includes(snippet)||s.includes(snippet), 'Missing feature: '+description);
-assert.ok(s.includes("localBoundarySearch.addEventListener('input',renderLocalBoundaryResults)"),'boundary search updates as the user types');
+]) assert.ok(html.includes(snippet), 'Missing feature: '+description);
+assert.ok(html.includes("localBoundarySearch.addEventListener('input',renderLocalBoundaryResults)"),'boundary search updates as the user types');
