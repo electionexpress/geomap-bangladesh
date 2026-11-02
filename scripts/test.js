@@ -308,3 +308,15 @@ for (const [snippet,description] of [
  ['touch-action:pan-y pinch-zoom','vertical touch scrolling and pinch zoom remain enabled'],
  ['@media(prefers-reduced-motion:reduce){\n html,body{scroll-behavior:auto!important}\n}','reduced-motion accessibility preference'],
 ]) assert.ok(html.includes(snippet), 'Missing scroll refinement: '+description);
+
+// Network resilience and place-search fallback regression checks.
+for (const [snippet,description] of [
+ ['async function fetchWithTimeout(url,options={},timeoutMs=25000)','network requests have a bounded timeout'],
+ ["if(error&&error.name==='AbortError')throw new Error('অনুরোধের সময়সীমা শেষ হয়েছে ('","network timeout reports a useful Bengali error"],
+ ["fetchWithTimeout('https://www.geoboundaries.org/api/current/gbOpen/BGD/'","geoBoundaries metadata request uses timeout protection"],
+ ["fetchWithTimeout(url.href,{headers:{Accept:'application/geo+json,application/json'}},30000)","boundary GeoJSON downloads use timeout protection"],
+ ['photon.komoot.io/api/','Photon provides a second place-search provider'],
+ ['let primaryError=null;try{const response=await fetchWithTimeout(\'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=10&accept-language=bn,en&q=\'','Nominatim remains the primary place-search provider'],
+ ['provider=\'Photon বিকল্প অনুসন্ধান\'','place results identify when fallback search was used'],
+ ['বাংলাদেশে স্থান খোঁজা হচ্ছে…','place search shows progress feedback']
+]) assert.ok(html.includes(snippet), 'Missing network/search resilience: '+description);
