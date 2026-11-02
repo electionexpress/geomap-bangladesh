@@ -1195,61 +1195,99 @@ function init(){
    (feature.properties===null||feature.properties===undefined||typeof feature.properties==='object'&&!Array.isArray(feature.properties))&&
    validGeoJSONGeometry(feature.geometry);
  }
- // Administrative boundaries from geoBoundaries (gbOpen, CC-BY 4.0).
+ // Fast administrative boundaries: memory + IndexedDB cache, stale fallback, chunked drawing.
  let boundaryLayer=null;
  const boundaryStatus=document.getElementById('boundaryStatus');
+ const boundaryMemoryCache=new Map();
+ const BOUNDARY_CACHE_DB='geomap-boundary-cache-v1',BOUNDARY_CACHE_STORE='levels',BOUNDARY_CACHE_TTL=30*24*60*60*1000;
+ let boundaryDbPromise=null;
+ function openBoundaryCache(){
+  if(!('indexedDB' in window))return Promise.resolve(null);
+  if(!boundaryDbPromise)boundaryDbPromise=new Promise(resolve=>{
+   const request=indexedDB.open(BOUNDARY_CACHE_DB,1);
+   request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(BOUNDARY_CACHE_STORE))request.result.createObjectStore(BOUNDARY_CACHE_STORE)};
+   request.onsuccess=()=>resolve(request.result);request.onerror=()=>resolve(null);request.onblocked=()=>resolve(null);
+  });
+  return boundaryDbPromise;
+ }
+ async function readBoundaryCache(level){
+  if(boundaryMemoryCache.has(level))return {...boundaryMemoryCache.get(level),cached:true};
+  const db=await openBoundaryCache();if(!db)return null;
+  return new Promise(resolve=>{
+   const request=db.transaction(BOUNDARY_CACHE_STORE,'readonly').objectStore(BOUNDARY_CACHE_STORE).get(level);
+   request.onsuccess=()=>{const value=request.result;if(value&&value.data&&Date.now()-value.savedAt<BOUNDARY_CACHE_TTL){boundaryMemoryCache.set(level,value);resolve({...value,cached:true})}else resolve(null)};
+   request.onerror=()=>resolve(null);
+  });
+ }
+ async function writeBoundaryCache(level,entry){
+  boundaryMemoryCache.set(level,entry);
+  const db=await openBoundaryCache();if(!db)return;
+  await new Promise(resolve=>{
+   const tx=db.transaction(BOUNDARY_CACHE_STORE,'readwrite');tx.objectStore(BOUNDARY_CACHE_STORE).put(entry,level);
+   tx.oncomplete=resolve;tx.onerror=resolve;tx.onabort=resolve;
+  });
+ }
+ function drawBoundaryInChunks(geo,level,metadata,dataSourceLabel,button){
+  return new Promise((resolve,reject)=>{
+   const features=geo.type==='FeatureCollection'?geo.features:[geo],style={ADM1:{color:'#1459a8',weight:3},ADM2:{color:'#07845e',weight:2.7},ADM3:{color:'#d97706',weight:2.3},ADM4:{color:'#9333a8',weight:1.9}}[level]||{color:'#087653',weight:2};
+   const group=L.featureGroup();let cursor=0;const batchSize=120;
+   const drawNext=()=>{
+    try{
+     const end=Math.min(cursor+batchSize,features.length),batch={type:'FeatureCollection',features:features.slice(cursor,end)};
+     const part=L.geoJSON(batch,{style:()=>({...style,opacity:.95,fillColor:style.color,fillOpacity:.035}),onEachFeature:(feature,layer)=>{
+      const p=feature.properties||{},name=p.shapeName||p.ADM1_EN||p.ADM2_EN||p.ADM3_EN||p.ADM4_EN||p.name||p.NAME_1||p.NAME_2||p.NAME_3||'সীমানা';
+      const safeName=String(name).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]));
+      layer.bindTooltip(safeName,{sticky:true});layer.bindPopup('<strong>'+safeName+'</strong><br>প্রশাসনিক স্তর: '+level);
+     }});
+     part.eachLayer(layer=>group.addLayer(layer));cursor=end;
+     boundaryStatus.textContent='ম্যাপে সীমানা আঁকা হচ্ছে… '+cursor+'/'+features.length;
+     if(cursor<features.length){setTimeout(drawNext,0);return}
+     if(!group.getLayers().length)throw new Error('এই সীমানা ফাইলে কোনো মানচিত্র ফিচার নেই।');
+     if(boundaryLayer)map.removeLayer(boundaryLayer);
+     boundaryLayer=group.addTo(map);const bounds=group.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[18,18]});
+     boundaryStatus.textContent=(metadata.boundaryName||'বাংলাদেশ')+' · '+level+' · '+features.length+'টি সীমানা ইউনিট · '+(metadata.boundaryYearRepresented||'বছর উল্লেখ নেই')+' · উৎস: '+dataSourceLabel;
+     say('প্রশাসনিক সীমানা ম্যাপে দেখানো হয়েছে।');resolve();
+    }catch(error){reject(error)}
+   };
+   drawNext();
+  });
+ }
+ async function fetchAdministrativeBoundary(level){
+  let metadata=null,geo=null,dataSourceLabel='geoBoundaries';
+  const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
+  if(!metaResponse.ok)throw new Error('geoBoundaries API HTTP '+metaResponse.status);
+  metadata=await metaResponse.json();
+  if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('geoBoundaries-এ এই স্তরের ডেটা নেই');
+  const url=new URL(metadata.simplifiedGeometryGeoJSON);if(url.protocol!=='https:')throw new Error('ডেটার ঠিকানা HTTPS নয়');
+  const response=await fetch(url.href,{headers:{Accept:'application/geo+json,application/json'}});
+  if(!response.ok)throw new Error('GeoJSON HTTP '+response.status);
+  geo=await response.json();
+  if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
+  const features=geo.type==='FeatureCollection'?geo.features:[geo];
+  if(!Array.isArray(features)||!features.length||features.length>50000||!features.every(validGeoJSONFeature))throw new Error('সীমানার GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে।');
+  return {data:geo,metadata,dataSourceLabel,savedAt:Date.now()};
+ }
  document.getElementById('loadBoundaries').addEventListener('click',async()=>{
   const level=document.getElementById('boundaryLevel').value,button=document.getElementById('loadBoundaries');
-  button.disabled=true;boundaryStatus.textContent='বাংলাদেশের '+level+' সীমানার তথ্য খোঁজা হচ্ছে…';
+  button.disabled=true;boundaryStatus.textContent='সংরক্ষিত সীমানা খোঁজা হচ্ছে…';
   try{
-   let metadata=null,geo=null,dataSourceLabel='geoBoundaries';
-   try{
-    const metaResponse=await fetch('https://www.geoboundaries.org/api/current/gbOpen/BGD/'+level+'/',{headers:{Accept:'application/json'}});
-    if(!metaResponse.ok)throw new Error('geoBoundaries API HTTP '+metaResponse.status);
-    metadata=await metaResponse.json();
-    if(!metadata||!metadata.simplifiedGeometryGeoJSON)throw new Error('geoBoundaries-এ এই স্তরের ডেটা নেই');
-    const boundaryUrl=new URL(metadata.simplifiedGeometryGeoJSON);
-    if(boundaryUrl.protocol!=='https:')throw new Error('ডেটার ঠিকানা HTTPS নয়');
-    const geoResponse=await fetch(boundaryUrl.href,{headers:{Accept:'application/geo+json,application/json'}});
-    if(!geoResponse.ok)throw new Error('GeoJSON HTTP '+geoResponse.status);
-    geo=await geoResponse.json();
-   }catch(primaryError){
-    // Fallback: Bangladesh GIS Base Data ArcGIS FeatureServer.
-    const layerId={ADM1:1,ADM2:2,ADM3:3,ADM4:4}[level];
-    if(layerId===undefined)throw primaryError;
-    const base='https://services.arcgis.com/5T5nSi527N4F7luB/ArcGIS/rest/services/Bangladesh_GIS_Base_Data/FeatureServer/'+layerId+'/query';
-    const features=[];let offset=0,pageSize=1500,hasMore=true;
-    while(hasMore){
-     const params=new URLSearchParams({where:'1=1',outFields:'*',returnGeometry:'true',outSR:'4326',f:'geojson',resultOffset:String(offset),resultRecordCount:String(pageSize)});
-     const response=await fetch(base+'?'+params.toString(),{headers:{Accept:'application/geo+json,application/json'}});
-     if(!response.ok)throw new Error('প্রধান ও বিকল্প সীমানা সার্ভার সাড়া দেয়নি (ArcGIS HTTP '+response.status+'). মূল ত্রুটি: '+primaryError.message);
-     const page=await response.json();
-     if(page.error)throw new Error('ArcGIS: '+(page.error.message||'ডেটা পাওয়া যায়নি'));
-     if(!Array.isArray(page.features))throw new Error('ArcGIS থেকে সঠিক GeoJSON পাওয়া যায়নি');
-     features.push(...page.features);
-     hasMore=page.features.length===pageSize;
-     offset+=page.features.length;
-     if(offset>12000)throw new Error('সীমানা ডেটা প্রত্যাশার চেয়ে বড়; লোড বন্ধ করা হয়েছে');
-     if(!page.features.length)hasMore=false;
+   let entry=await readBoundaryCache(level),fromCache=!!entry;
+   if(!entry){
+    boundaryStatus.textContent='বাংলাদেশের '+level+' সীমানা ডাউনলোড হচ্ছে…';
+    try{entry=await fetchAdministrativeBoundary(level);await writeBoundaryCache(level,entry)}
+    catch(networkError){
+     const expired=boundaryMemoryCache.get(level);
+     if(expired){entry=expired;fromCache=true;boundaryStatus.textContent='নতুন ডেটা পাওয়া যায়নি; আগের সংরক্ষিত ডেটা দেখানো হচ্ছে…'}
+     else throw networkError;
     }
-    if(!features.length)throw new Error('দুই উৎসেই '+level+' সীমানার ডেটা পাওয়া যায়নি');
-    geo={type:'FeatureCollection',features};
-    metadata={boundaryName:'বাংলাদেশ',boundaryYearRepresented:'ArcGIS ডেটা',sourceDataUpdateDate:'',};
-    dataSourceLabel='Bangladesh GIS Base Data (ArcGIS)';
    }
-   if(!geo||!['FeatureCollection','Feature'].includes(geo.type))throw new Error('সীমানার ডেটা সঠিক GeoJSON নয়।');
-   const boundaryFeatures=geo.type==='FeatureCollection'?geo.features:[geo];
-   if(!Array.isArray(boundaryFeatures)||!boundaryFeatures.length||boundaryFeatures.length>50000||!boundaryFeatures.every(validGeoJSONFeature))throw new Error('সীমানার GeoJSON-এ অবৈধ বা অতিরিক্ত ফিচার/স্থানাঙ্ক রয়েছে।');
-   const boundaryStyle={ADM1:{color:'#1459a8',weight:3},ADM2:{color:'#07845e',weight:2.7},ADM3:{color:'#d97706',weight:2.3},ADM4:{color:'#9333a8',weight:1.9}}[level]||{color:'#087653',weight:2};const nextLayer=L.geoJSON(geo,{style:()=>({...boundaryStyle,opacity:.95,fillColor:boundaryStyle.color,fillOpacity:.035}),onEachFeature:(feature,layer)=>{const props=feature.properties||{},name=props.shapeName||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.ADM4_EN||props.name||props.NAME_1||props.NAME_2||props.NAME_3||'সীমানা';const bnName=props.shapeName||props.shapeName_1||props.ADM1_EN||props.ADM2_EN||props.ADM3_EN||props.ADM4_EN||props.name||props.NAME_1||props.NAME_2||props.NAME_3||name;layer.bindTooltip(String(bnName),{sticky:true});layer.bindPopup('<strong>'+String(name).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))+'</strong><br>প্রশাসনিক স্তর: '+level)}});
-   if(!nextLayer.getLayers().length)throw new Error('এই সীমানা ফাইলে কোনো মানচিত্র ফিচার নেই।');
-   if(boundaryLayer)map.removeLayer(boundaryLayer);boundaryLayer=nextLayer.addTo(map);
-   const bounds=boundaryLayer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{padding:[18,18]});
-   boundaryStatus.textContent=(metadata.boundaryName||'বাংলাদেশ')+' · '+level+' · '+nextLayer.getLayers().length+'টি সীমানা ইউনিট · '+(metadata.boundaryYearRepresented||'বছর উল্লেখ নেই')+' · উৎস: '+dataSourceLabel;
-   say('প্রশাসনিক সীমানা ম্যাপে দেখানো হয়েছে।');
+   boundaryStatus.textContent=(fromCache?'ক্যাশ থেকে দ্রুত লোড হচ্ছে…':'ডেটা পাওয়া গেছে; ম্যাপে যোগ হচ্ছে…');
+   await drawBoundaryInChunks(entry.data,level,entry.metadata,entry.dataSourceLabel,button);
+   if(fromCache)boundaryStatus.textContent+=' · ক্যাশ থেকে দ্রুত লোড';
   }catch(error){boundaryStatus.textContent='সীমানা লোড হয়নি: '+error.message;say(error.message)}
   finally{button.disabled=false}
  });
- document.getElementById('clearBoundaries').addEventListener('click',()=>{if(boundaryLayer){map.removeLayer(boundaryLayer);boundaryLayer=null}boundaryStatus.textContent='সীমানা ম্যাপ থেকে সরানো হয়েছে।';say('প্রশাসনিক সীমানা সরানো হয়েছে।')});
+ document.getElementById('clearBoundaries').addEventListener('click',()=>{if(boundaryLayer){map.removeLayer(boundaryLayer);boundaryLayer=null}boundaryStatus.textContent='সীমানা ম্যাপ থেকে সরানো হয়েছে। সংরক্ষিত ক্যাশ অক্ষত আছে।';say('প্রশাসনিক সীমানা সরানো হয়েছে।')});
 
  // User-provided village/mouza GeoJSON: kept separate from official administrative levels.
  let localBoundaryLayer=null,localBoundaryData=null,localBoundaryType='village',localBoundaryMeta={source:'ব্যবহারকারীর দেওয়া ডেটা',year:''};
