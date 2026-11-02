@@ -276,3 +276,19 @@ for (const [snippet,description] of [
  ['প্রথম ১০০টি ফল দেখানো হয়েছে','bounded search results for usability']
 ]) assert.ok(html.includes(snippet), 'Missing feature: '+description);
 assert.ok(html.includes("localBoundarySearch.addEventListener('input',renderLocalBoundaryResults)"),'boundary search updates as the user types');
+
+
+// Administrative boundary performance: persistent cache, memory reuse, chunked rendering.
+for (const [snippet,description] of [
+ ["const BOUNDARY_CACHE_DB='geomap-boundary-cache-v1'","IndexedDB cache database"],
+ ['const BOUNDARY_CACHE_TTL=30*24*60*60*1000','30-day boundary cache lifetime'],
+ ['function openBoundaryCache()','persistent cache initialization'],
+ ['async function readBoundaryCache(level)','read cached administrative boundary'],
+ ['async function writeBoundaryCache(level,entry)','write administrative boundary cache'],
+ ['const batchSize=120','chunked map rendering'],
+ ['setTimeout(drawNext,0)','yield to browser between drawing batches'],
+ ["boundaryStatus.textContent='ম্যাপে সীমানা আঁকা হচ্ছে… '+cursor+'/'+features.length",'visible drawing progress'],
+ ["'সংরক্ষিত সীমানা খোঁজা হচ্ছে…'","cache-first boundary loading"],
+ ['async function fetchAdministrativeBoundary(level)','separate network fetch and validation'],
+ ['ক্যাশ থেকে দ্রুত লোড','cache status feedback'],
+]) assert.ok(html.includes(snippet), 'Missing performance feature: '+description);
