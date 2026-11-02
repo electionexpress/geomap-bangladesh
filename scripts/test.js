@@ -281,7 +281,7 @@ assert.ok(html.includes("localBoundarySearch.addEventListener('input',renderLoca
 // Administrative boundary performance: persistent cache, memory reuse, chunked rendering.
 for (const [snippet,description] of [
  ["const BOUNDARY_CACHE_DB='geomap-boundary-cache-v1'","IndexedDB cache database"],
- ['const BOUNDARY_CACHE_TTL=30*24*60*60*1000','30-day boundary cache lifetime'],
+ ['BOUNDARY_CACHE_TTL=30*24*60*60*1000','30-day boundary cache lifetime'],
  ['function openBoundaryCache()','persistent cache initialization'],
  ['async function readBoundaryCache(level)','read cached administrative boundary'],
  ['async function writeBoundaryCache(level,entry)','write administrative boundary cache'],
