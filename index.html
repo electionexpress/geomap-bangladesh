@@ -680,6 +680,29 @@ main>aside #status,main>aside>.note{grid-column:1/-1;margin:0}
 }
 
 .place-search-results{display:grid;gap:3px;max-height:230px;overflow:auto;margin:0 5px 8px}.place-search-results:empty{display:none}.place-search-results button{font-size:.76rem;padding:9px 10px}
+
+/* Official GIS and digital public-service directory */
+.digital-services-panel{grid-column:1/-1!important;display:block;width:100%;padding:clamp(14px,2vw,24px)!important}
+.digital-services-panel[hidden]{display:none!important}
+.digital-services-heading{display:flex;justify-content:space-between;gap:18px;margin-bottom:16px}
+.digital-services-heading h2{font-size:1.12rem;margin:7px 0}
+.digital-services-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.digital-service-card{min-width:0;padding:17px;border:1px solid #e1ece5;border-radius:15px;background:linear-gradient(150deg,#fff,#f8fcf9);box-shadow:0 7px 22px #103d2809}
+.digital-service-featured{border-color:#b9ddc8;background:linear-gradient(145deg,#f1fbf5,#fff)}
+.digital-service-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.digital-service-icon{font-size:1.5rem}
+.digital-service-tag{font-size:.68rem;font-weight:800;color:#087653;background:#e4f5eb;border-radius:99px;padding:5px 9px}
+.digital-service-card h3{margin:10px 0 7px;color:#124b38;font-size:1rem}
+.digital-service-card p,.digital-services-note p{margin:0;color:#62776b;font-size:.8rem;line-height:1.75}
+.digital-service-card ul{margin:10px 0 13px;padding-left:19px;color:#345d49;font-size:.77rem;line-height:1.8}
+.digital-service-links{display:flex;gap:8px 13px;flex-wrap:wrap;padding-top:11px;border-top:1px solid #e5eee8}
+.digital-service-links a{font-size:.76rem;font-weight:800;color:#087653;text-decoration:none}
+.digital-service-links a:hover{text-decoration:underline}
+.digital-services-note{margin-top:13px;padding:13px 15px;border:1px solid #f0dfb7;border-radius:12px;background:#fffaf0}
+.digital-services-note strong{display:block;color:#80530b;font-size:.8rem;margin-bottom:5px}
+.digital-services-note p{color:#735f39}
+@media(max-width:680px){.digital-services-grid{grid-template-columns:1fr}.digital-services-panel{padding:12px!important}.digital-service-card{padding:14px}.digital-service-links{gap:8px 11px}}
+
 </style>
 
 <style>
@@ -788,6 +811,7 @@ aside{
       <button type="button" data-view="measure" aria-current="page"><span>↔</span> পরিমাপ</button>
       <button type="button" data-view="tracking"><span>⌁</span> GPS ট্র্যাক</button>
       <button type="button" data-view="boundaries"><span>▧</span> সীমানা</button>
+      <button type="button" data-view="digital"><span>🌐</span> GIS ও ডিজিটাল সেবা</button>
       <button type="button" data-view="plots"><span>▱</span> জমির প্লট</button>
       <button type="button" data-view="geojson"><span>⇧</span> GeoJSON</button>
       <button type="button" data-view="gps"><span>⌖</span> ম্যাপ সেটিং</button>
@@ -893,6 +917,43 @@ aside{
  <p class="note">প্লট এই ডিভাইসের ব্রাউজারে থাকে (localStorage); ব্রাউজারের ডেটা মুছে গেলে হারাতে পারে। নিয়মিত GeoJSON ব্যাকআপ রাখুন।</p>
 </section>
 <section class="group" id="geojsonPanel"><h2><span class="section-icon">⇧</span> GeoJSON ডেটা</h2><div class="actions"><button id="export" type="button">↓ GeoJSON ডাউনলোড</button><label class="file-label" for="import">↑ GeoJSON খুলুন</label><button class="secondary" id="clearImported" type="button">আমদানি করা ডেটা সরান</button><input id="import" type="file" accept=".json,.geojson,application/geo+json,application/json"></div><p id="importStatus" class="map-hint" role="status" aria-live="polite">আমদানি করা ডেটা এখনো নেই।</p></section>
+<section class="group digital-services-panel" id="digitalServicesPanel" hidden>
+  <div class="digital-services-heading">
+   <div><span class="tools-kicker">BANGLADESH GEOSPATIAL DATA · OFFICIAL SOURCES</span><h2><span class="section-icon">🌐</span> GIS ম্যাপিং ও ডিজিটাল সরকারি সেবা</h2>
+   <p class="map-hint">বাংলাদেশের সরকারি ও উন্মুক্ত জিওস্পেশিয়াল ডেটা, মানচিত্র, সেবা এবং ডেটা ক্যাটালগের প্রবেশদ্বার। প্রতিটি উৎসের লাইসেন্স, হালনাগাদের তারিখ ও ব্যবহারের শর্ত দেখে ডেটা ব্যবহার করুন।</p></div>
+  </div>
+  <div class="digital-services-grid">
+   <article class="digital-service-card digital-service-featured">
+    <div class="digital-service-top"><span class="digital-service-icon">🗺️</span><span class="digital-service-tag">জাতীয় প্ল্যাটফর্ম</span></div>
+    <h3>জাতীয় স্থানিক তথ্য অবকাঠামো (NSDI)</h3>
+    <p>বাংলাদেশের বিভিন্ন সংস্থার স্থানিক ডেটা খোঁজা, দেখা, ডাউনলোড ও শেয়ার করার কেন্দ্রীয় প্ল্যাটফর্ম। Agriculture, Boundary, Climate, Population, Transport, Water ও Elevationসহ বিভিন্ন ক্যাটাগরির ডেটা পাওয়া যায়।</p>
+    <ul><li>ডেটা ক্যাটালগ ও ম্যাপ ড্যাশবোর্ড</li><li>OGC GIS Services: WMS, WFS, WCS</li><li>৩-ডি Scene, elevation ও flood-monitoring সুবিধা</li></ul>
+    <div class="digital-service-links"><a href="https://new.nsdi.gov.bd/" target="_blank" rel="noopener noreferrer">NSDI খুলুন ↗</a><a href="https://new.nsdi.gov.bd/datacatalog/" target="_blank" rel="noopener noreferrer">ডেটা ক্যাটালগ ↗</a><a href="https://new.nsdi.gov.bd/faqs/" target="_blank" rel="noopener noreferrer">ব্যবহার নির্দেশিকা ↗</a></div>
+   </article>
+   <article class="digital-service-card">
+    <div class="digital-service-top"><span class="digital-service-icon">🛣️</span><span class="digital-service-tag">রাস্তা ও অবকাঠামো</span></div>
+    <h3>LGED GIS Portal</h3>
+    <p>জেলা ও উপজেলা পর্যায়ের সড়ক নেটওয়ার্ক, অবকাঠামো ও জনসেবামূলক স্থাপনার GIS মানচিত্র দেখা এবং কাস্টম ম্যাপ তৈরি করার সরকারি পোর্টাল।</p>
+    <ul><li>সড়ক নেটওয়ার্ক ও পাকা সড়কের তথ্য</li><li>স্কুল, গ্রোথ সেন্টারসহ অবকাঠামো ম্যাপ</li><li>পরিকল্পনা ও প্রকল্প পর্যবেক্ষণে সহায়ক</li></ul>
+    <div class="digital-service-links"><a href="https://gis.lged.gov.bd/" target="_blank" rel="noopener noreferrer">LGED GIS খুলুন ↗</a><a href="https://gis.lged.gov.bd/Content/UserGuide.pdf" target="_blank" rel="noopener noreferrer">ব্যবহার নির্দেশিকা ↗</a></div>
+   </article>
+   <article class="digital-service-card">
+    <div class="digital-service-top"><span class="digital-service-icon">📐</span><span class="digital-service-tag">জাতীয় মানচিত্র ও জরিপ</span></div>
+    <h3>বাংলাদেশ জরিপ অধিদপ্তর (SoB)</h3>
+    <p>টপোগ্রাফিক মানচিত্র, ডিজিটাল GIS ডেটা, উপজেলা মানচিত্র, জিওডেটিক কন্ট্রোল পয়েন্ট, GNSS CORS, DTM/DSM ও অর্থোফটোর তথ্য। কিছু ডেটা মূল্য পরিশোধ বা অনুমতির শর্তে পাওয়া যায়।</p>
+    <ul><li>১:২৫,০০০ স্কেলের টপোগ্রাফিক ডেটা</li><li>জেলা/উপজেলা ডিজিটাল মানচিত্র</li><li>জিওডেটিক ও উচ্চতা-সংক্রান্ত ডেটা</li></ul>
+    <div class="digital-service-links"><a href="https://sob.gov.bd/pages/static-pages/6922dce0933eb65569e1284b" target="_blank" rel="noopener noreferrer">Map Services ↗</a><a href="https://data.sob.gov.bd/" target="_blank" rel="noopener noreferrer">SoB Data Service ↗</a></div>
+   </article>
+   <article class="digital-service-card">
+    <div class="digital-service-top"><span class="digital-service-icon">📊</span><span class="digital-service-tag">জনসংখ্যা ও পরিসংখ্যান</span></div>
+    <h3>বাংলাদেশ GIS ও উন্মুক্ত ডেটা</h3>
+    <p>জনসংখ্যা, পরিবার-খানা, শিক্ষা প্রতিষ্ঠান, দুর্যোগ-ঝুঁকি ও অন্যান্য সরকারি ডেটাসেট খুঁজতে সরকারি ডেটা ক্যাটালগ ব্যবহার করুন। ডেটাসেটের প্রকাশক, লাইসেন্স ও আপডেটের তারিখ আলাদাভাবে যাচাই করুন।</p>
+    <ul><li>জনসংখ্যা ও পরিবার-খানার ডেটা</li><li>দুর্যোগ ও পরিবেশভিত্তিক ডেটাসেট</li><li>ডেটাসেটের মেটাডেটা ও ডাউনলোড লিংক</li></ul>
+    <div class="digital-service-links"><a href="https://data.gov.bd/" target="_blank" rel="noopener noreferrer">Bangladesh Open Data ↗</a><a href="https://www.gis.gov.bd/en/index.php" target="_blank" rel="noopener noreferrer">BBS GIS Portal ↗</a></div>
+   </article>
+  </div>
+  <div class="digital-services-note"><strong>ডেটা ব্যবহারের সতর্কতা</strong><p>এই লিংকগুলো সরকারি উৎসে যাওয়ার প্রবেশদ্বার; সব ডেটা GeoMap-এর নিজস্ব সার্ভারে সংরক্ষিত বা সরাসরি ম্যাপে সংযুক্ত নয়। NSDI-এর WMS/WFS/WCS সার্ভিস, ডেটার লাইসেন্স ও অনুমতি যাচাই করে পরবর্তী ধাপে নির্দিষ্ট লেয়ার যুক্ত করতে হবে। জরিপ অধিদপ্তরের কিছু মানচিত্র/ডেটা অর্থপ্রদত্ত বা সীমাবদ্ধ হতে পারে। GeoDASH-এর পুরোনো সেবা সচল কি না নিশ্চিত না করে তার ওপর নির্ভরশীলতা তৈরি করা হয়নি।</p></div>
+ </section>
 <p id="status" role="status" aria-live="polite">ম্যাপে ক্লিক করে পয়েন্ট যোগ করুন। শুরু করতে দূরত্ব বা জমি মাপার টুল বেছে নিন।</p>
 <p class="note">১ শতাংশ = ৪৩৫.৬ বর্গফুট = প্রায় ৪০.৪৬৮৬ বর্গমিটার। সব পরিমাপ মানচিত্রভিত্তিক আনুমানিক হিসাব; আইনি জরিপের বিকল্প নয়। GPS-এর জন্য HTTPS, ডিভাইসের Location ও ব্রাউজারের অনুমতি প্রয়োজন।</p>
 </aside>
@@ -920,7 +981,7 @@ const say=(message)=>{status.textContent=message};
  window.addEventListener('scroll',updateStickyHeader,{passive:true});
  window.addEventListener('pageshow',updateStickyHeader);
  updateStickyHeader();
- const viewPanels={tools:document.getElementById('toolsDashboard'),gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),plots:document.getElementById('savedPlotsPanel')};
+ const viewPanels={tools:document.getElementById('toolsDashboard'),gps:document.getElementById('gpsPanel'),tracking:document.getElementById('trackingPanel'),measure:document.getElementById('measurePanel'),geojson:document.getElementById('geojsonPanel'),boundaries:document.getElementById('boundaryPanel'),digital:document.getElementById('digitalServicesPanel'),plots:document.getElementById('savedPlotsPanel')};
  function activateWorkspace(view,announce=true){
   viewButtons.forEach(item=>{if(item.dataset.view===view)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
   Object.entries(viewPanels).forEach(([key,panel])=>{if(panel)panel.hidden=view!=='all'&&view!==key});
