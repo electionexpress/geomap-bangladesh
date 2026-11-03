@@ -320,3 +320,19 @@ for (const [snippet,description] of [
  ['provider=\'Photon বিকল্প অনুসন্ধান\'','place results identify when fallback search was used'],
  ['বাংলাদেশে স্থান খোঁজা হচ্ছে…','place search shows progress feedback']
 ]) assert.ok(html.includes(snippet), 'Missing network/search resilience: '+description);
+
+
+// Official Bangladesh GIS and digital public-service directory regression checks.
+for (const [snippet,description] of [
+ ['id="digitalServicesPanel"','dedicated GIS and digital services workspace'],
+ ['data-view="digital"','navigation entry for the GIS services workspace'],
+ ['new.nsdi.gov.bd/datacatalog/','NSDI geospatial data catalogue link'],
+ ['new.nsdi.gov.bd/faqs/','NSDI GIS service and OGC guidance link'],
+ ['gis.lged.gov.bd/','official LGED GIS portal link'],
+ ['sob.gov.bd/pages/static-pages/6922dce0933eb65569e1284b','Survey of Bangladesh map services link'],
+ ['data.sob.gov.bd/','Survey of Bangladesh online data service link'],
+ ['data.gov.bd/','Bangladesh open data portal link'],
+ ['WMS, WFS, WCS','OGC service formats are explained without claiming they are already connected'],
+ ['ডেটা GeoMap-এর নিজস্ব সার্ভারে সংরক্ষিত বা সরাসরি ম্যাপে সংযুক্ত নয়','external data source limitation is explicit'],
+ ["digital:document.getElementById('digitalServicesPanel')",'digital services panel is registered in workspace navigation']
+]) assert.ok(html.includes(snippet), 'Missing GIS services directory feature: '+description);
